@@ -3,10 +3,15 @@ package de.juplo.kafka.chatroom.api;
 import de.juplo.kafka.chatroom.domain.Chatroom;
 import de.juplo.kafka.chatroom.domain.Message;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Clock;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,19 +41,28 @@ public class ChatroomController
   }
 
   @PutMapping("post/{chatroomId}/{username}/{messageId}")
-  public MessageTo post(
+  public Mono<MessageTo> post(
       @PathVariable UUID chatroomId,
       @PathVariable String username,
       @PathVariable UUID messageId,
-      @RequestBody String message)
+      @RequestBody String text)
   {
-    return MessageTo.from(
+    return
         chatrooms
             .get(chatroomId)
             .addMessage(
                 messageId,
                 LocalDateTime.now(clock),
                 username,
-                message));
+                text)
+            .map(message -> MessageTo.from(message));
+  }
+
+  @GetMapping(
+      path = "listen/{chatroomId}",
+      produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  public Flux<Message> listen(@PathVariable UUID chatroomId)
+  {
+    return chatrooms.get(chatroomId).listen();
   }
 }
