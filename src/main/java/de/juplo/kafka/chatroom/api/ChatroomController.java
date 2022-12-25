@@ -40,6 +40,12 @@ public class ChatroomController
     return chatrooms.values();
   }
 
+  @GetMapping("get/{chatroomId}")
+  public Chatroom get(@PathVariable UUID chatroomId)
+  {
+    return chatrooms.get(chatroomId);
+  }
+
   @PutMapping("post/{chatroomId}/{username}/{messageId}")
   public Mono<MessageTo> post(
       @PathVariable UUID chatroomId,
