@@ -71,6 +71,7 @@ public class ChatroomController
     return chatrooms
         .get(chatroomId)
         .listen()
+        .log()
         .map(message -> MessageTo.from(message));
   }
 }
