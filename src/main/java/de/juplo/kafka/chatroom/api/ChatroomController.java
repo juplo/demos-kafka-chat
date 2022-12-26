@@ -1,7 +1,6 @@
 package de.juplo.kafka.chatroom.api;
 
 import de.juplo.kafka.chatroom.domain.Chatroom;
-import de.juplo.kafka.chatroom.domain.Message;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -67,8 +66,11 @@ public class ChatroomController
   @GetMapping(
       path = "listen/{chatroomId}",
       produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public Flux<Message> listen(@PathVariable UUID chatroomId)
+  public Flux<MessageTo> listen(@PathVariable UUID chatroomId)
   {
-    return chatrooms.get(chatroomId).listen();
+    return chatrooms
+        .get(chatroomId)
+        .listen()
+        .map(message -> MessageTo.from(message));
   }
 }
