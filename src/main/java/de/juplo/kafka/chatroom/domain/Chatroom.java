@@ -48,7 +48,7 @@ public class Chatroom
     {
       log.info("Message with key {} already exists; {}", key, existing);
       if (!message.equals(existing))
-        throw new IllegalArgumentException("Messages are imutable!");
+        throw new MessageMutationException(message, existing);
       return Mono.empty();
     }
 
