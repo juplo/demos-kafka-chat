@@ -6,14 +6,14 @@ import lombok.Getter;
 public class MessageMutationException extends RuntimeException
 {
   @Getter
-  private final Message toAdd;
+  private final Message mutated;
   @Getter
   private final Message existing;
 
-  public MessageMutationException(Message toAdd, Message existing)
+  public MessageMutationException(Message mutated, Message existing)
   {
     super("Messages are imutable!");
-    this.toAdd = toAdd;
+    this.mutated = mutated;
     this.existing = existing;
   }
 }
