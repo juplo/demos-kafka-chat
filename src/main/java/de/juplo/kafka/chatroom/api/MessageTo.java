@@ -5,14 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 
 @Data
 @AllArgsConstructor
 public class MessageTo
 {
-  private UUID id;
+  private Long id;
   private Long serialNumber;
   private LocalDateTime timestamp;
   private String user;

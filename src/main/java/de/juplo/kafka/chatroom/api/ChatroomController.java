@@ -8,9 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Clock;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,21 +43,35 @@ public class ChatroomController
     return chatrooms.get(chatroomId);
   }
 
-  @PutMapping("post/{chatroomId}/{username}/{messageId}")
-  public Mono<MessageTo> post(
+  @PutMapping("put/{chatroomId}/{username}/{messageId}")
+  public Mono<MessageTo> put(
       @PathVariable UUID chatroomId,
       @PathVariable String username,
-      @PathVariable UUID messageId,
+      @PathVariable Long messageId,
       @RequestBody String text)
   {
+    Chatroom chatroom = chatrooms.get(chatroomId);
     return
-        chatrooms
-            .get(chatroomId)
+        chatroom
             .addMessage(
                 messageId,
                 LocalDateTime.now(clock),
                 username,
                 text)
+            .switchIfEmpty(chatroom.getMessage(username, messageId))
+            .map(message -> MessageTo.from(message));
+  }
+
+  @GetMapping("get/{chatroomId}/{username}/{messageId}")
+  public Mono<MessageTo> get(
+      @PathVariable UUID chatroomId,
+      @PathVariable String username,
+      @PathVariable Long messageId)
+  {
+    return
+        chatrooms
+            .get(chatroomId)
+            .getMessage(username, messageId)
             .map(message -> MessageTo.from(message));
   }
 

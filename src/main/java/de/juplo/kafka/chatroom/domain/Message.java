@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 
 @RequiredArgsConstructor
@@ -15,7 +14,7 @@ import java.util.UUID;
 @ToString
 public class Message
 {
-  private final UUID id;
+  private final Long id;
   private final Long serialNumber;
   private final LocalDateTime timestamp;
   private final String user;
