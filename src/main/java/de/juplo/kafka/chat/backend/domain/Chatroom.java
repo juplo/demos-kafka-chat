@@ -72,12 +72,16 @@ public class Chatroom
     return sink.asFlux();
   }
 
-  public Stream<Message> getMessages(long firstMessage)
+  public Stream<Message> getMessages(long first, long last)
   {
     return messages
         .values()
         .stream()
-        .filter(message -> message.getSerialNumber() >= firstMessage);
+        .filter(message ->
+        {
+          long serial = message.getSerialNumber();
+          return serial >= first && serial <= last;
+        });
   }
 
 
