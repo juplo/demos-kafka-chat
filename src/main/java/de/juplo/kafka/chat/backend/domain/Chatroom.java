@@ -2,7 +2,6 @@ package de.juplo.kafka.chat.backend.domain;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,7 +19,7 @@ public class Chatroom
   private final UUID id;
   @Getter
   private final String name;
-  private final LinkedHashMap<MessageKey, Message> messages = new LinkedHashMap<>();
+  private final LinkedHashMap<Message.MessageKey, Message> messages = new LinkedHashMap<>();
   private final Sinks.Many<Message> sink = Sinks.many().multicast().onBackpressureBuffer();
 
   synchronized public Mono<Message> addMessage(
@@ -39,9 +38,9 @@ public class Chatroom
       String user,
       String text)
   {
-    Message message = new Message(id, (long)messages.size(), timestamp, user, text);
+    Message.MessageKey key = Message.MessageKey.of(user, id);
+    Message message = new Message(key, (long)messages.size(), timestamp, text);
 
-    MessageKey key = new MessageKey(user, id);
     Message existing = messages.get(key);
     if (existing != null)
     {
@@ -61,7 +60,7 @@ public class Chatroom
   {
     return Mono.fromSupplier(() ->
     {
-      MessageKey key = MessageKey.of(username, messageId);
+      Message.MessageKey key = Message.MessageKey.of(username, messageId);
       return messages.get(key);
     });
   }
@@ -81,13 +80,5 @@ public class Chatroom
           long serial = message.getSerialNumber();
           return serial >= first && serial <= last;
         }));
-  }
-
-
-  @Value(staticConstructor = "of")
-  static class MessageKey
-  {
-    String username;
-    Long messageId;
   }
 }

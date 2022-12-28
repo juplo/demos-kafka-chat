@@ -1,9 +1,6 @@
 package de.juplo.kafka.chat.backend.domain;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,9 +11,26 @@ import java.time.LocalDateTime;
 @ToString
 public class Message
 {
-  private final Long id;
+  private final MessageKey key;
   private final Long serialNumber;
   private final LocalDateTime timestamp;
-  private final String username;
   private final String messageText;
+
+  public Long getId()
+  {
+    return key.messageId;
+  }
+
+  public String getUsername()
+  {
+    return key.username;
+  }
+
+
+  @Value(staticConstructor = "of")
+  public static class MessageKey
+  {
+    String username;
+    Long messageId;
+  }
 }
