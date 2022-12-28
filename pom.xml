@@ -9,10 +9,10 @@
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
   <groupId>de.juplo.kafka</groupId>
-  <artifactId>chatroom</artifactId>
+  <artifactId>chat-backend</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>Chatroom Service</name>
-  <description>Simplified Chatroom-Service, that needs state on the server</description>
+  <description>Simplified Chat-Service, that needs state on the server</description>
   <properties>
     <java.version>17</java.version>
   </properties>
