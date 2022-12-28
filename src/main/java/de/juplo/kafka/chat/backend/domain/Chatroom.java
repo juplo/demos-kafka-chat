@@ -10,7 +10,6 @@ import reactor.core.publisher.Sinks;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Stream;
 
 
 @RequiredArgsConstructor
@@ -72,16 +71,16 @@ public class Chatroom
     return sink.asFlux();
   }
 
-  public Stream<Message> getMessages(long first, long last)
+  public Flux<Message> getMessages(long first, long last)
   {
-    return messages
+    return Flux.fromStream(messages
         .values()
         .stream()
         .filter(message ->
         {
           long serial = message.getSerialNumber();
           return serial >= first && serial <= last;
-        });
+        }));
   }
 
 
