@@ -3,22 +3,15 @@ package de.juplo.kafka.chat.backend.persistence;
 import de.juplo.kafka.chat.backend.domain.Message;
 import de.juplo.kafka.chat.backend.domain.MessageMutationException;
 import de.juplo.kafka.chat.backend.domain.PersistenceStrategy;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Sinks;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 
-@Component
 @RequiredArgsConstructor
 @Slf4j
 public class InMemoryPersistenceStrategy implements PersistenceStrategy

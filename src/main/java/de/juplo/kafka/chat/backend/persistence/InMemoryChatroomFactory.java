@@ -4,11 +4,9 @@ import de.juplo.kafka.chat.backend.domain.Chatroom;
 import de.juplo.kafka.chat.backend.domain.ChatroomFactory;
 import de.juplo.kafka.chat.backend.domain.PersistenceStrategy;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-@Component
 @RequiredArgsConstructor
 public class InMemoryChatroomFactory implements ChatroomFactory
 {
