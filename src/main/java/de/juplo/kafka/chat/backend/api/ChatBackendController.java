@@ -1,6 +1,7 @@
 package de.juplo.kafka.chat.backend.api;
 
 import de.juplo.kafka.chat.backend.domain.Chatroom;
+import de.juplo.kafka.chat.backend.domain.PersistenceStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +21,14 @@ import java.util.UUID;
 public class ChatBackendController
 {
   private final Map<UUID, Chatroom> chatrooms = new HashMap<>();
+  private final PersistenceStrategy persistenceStrategy;
   private final Clock clock;
 
 
   @PostMapping("create")
   public Chatroom create(@RequestBody String name)
   {
-    Chatroom chatroom = new Chatroom(UUID.randomUUID(), name);
+    Chatroom chatroom = new Chatroom(UUID.randomUUID(), name, persistenceStrategy);
     chatrooms.put(chatroom.getId(), chatroom);
     return chatroom;
   }
