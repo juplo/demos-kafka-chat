@@ -1,4 +1,4 @@
-package de.juplo.kafka.chatroom;
+package de.juplo.kafka.chat.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,7 +8,7 @@ import java.time.Clock;
 
 
 @SpringBootApplication
-public class ChatroomApplication
+public class ChatBackendApplication
 {
 	@Bean
 	public Clock clock()
@@ -19,6 +19,6 @@ public class ChatroomApplication
 
 	public static void main(String[] args)
 	{
-		SpringApplication.run(ChatroomApplication.class, args);
+		SpringApplication.run(ChatBackendApplication.class, args);
 	}
 }

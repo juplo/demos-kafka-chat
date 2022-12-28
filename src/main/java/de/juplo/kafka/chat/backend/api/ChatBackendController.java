@@ -1,6 +1,6 @@
-package de.juplo.kafka.chatroom.api;
+package de.juplo.kafka.chat.backend.api;
 
-import de.juplo.kafka.chatroom.domain.Chatroom;
+import de.juplo.kafka.chat.backend.domain.Chatroom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-public class ChatroomController
+public class ChatBackendController
 {
   private final Map<UUID, Chatroom> chatrooms = new HashMap<>();
   private final Clock clock;

@@ -1,4 +1,4 @@
-package de.juplo.kafka.chatroom.domain;
+package de.juplo.kafka.chat.backend.domain;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

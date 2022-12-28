@@ -1,6 +1,6 @@
-package de.juplo.kafka.chatroom.api;
+package de.juplo.kafka.chat.backend.api;
 
-import de.juplo.kafka.chatroom.domain.MessageMutationException;
+import de.juplo.kafka.chat.backend.domain.MessageMutationException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -13,7 +13,7 @@ import java.util.Date;
 
 
 @ControllerAdvice
-public class ChatroomControllerAdvice
+public class ChatBackendControllerAdvice
 {
   @Value("${server.context-path:/}")
   String contextPath;

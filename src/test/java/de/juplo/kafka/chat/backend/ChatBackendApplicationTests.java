@@ -1,10 +1,10 @@
-package de.juplo.kafka.chatroom;
+package de.juplo.kafka.chat.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ChatroomApplicationTests
+class ChatBackendApplicationTests
 {
 	@Test
 	void contextLoads()

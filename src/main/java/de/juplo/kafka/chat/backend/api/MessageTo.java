@@ -1,6 +1,6 @@
-package de.juplo.kafka.chatroom.api;
+package de.juplo.kafka.chat.backend.api;
 
-import de.juplo.kafka.chatroom.domain.Message;
+import de.juplo.kafka.chat.backend.domain.Message;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
