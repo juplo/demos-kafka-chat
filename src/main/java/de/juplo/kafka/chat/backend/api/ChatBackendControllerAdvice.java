@@ -40,7 +40,7 @@ public class ChatBackendControllerAdvice
 
     stringBuilder.setLength(0);
     stringBuilder.append("The existing message with user=");
-    stringBuilder.append(e.getExisting().getUser());
+    stringBuilder.append(e.getExisting().getUsername());
     stringBuilder.append(" and id=");
     stringBuilder.append(e.getExisting().getId());
     stringBuilder.append(" cannot be mutated!");

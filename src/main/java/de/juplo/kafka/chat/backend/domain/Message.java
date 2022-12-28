@@ -17,6 +17,6 @@ public class Message
   private final Long id;
   private final Long serialNumber;
   private final LocalDateTime timestamp;
-  private final String user;
-  private final String text;
+  private final String username;
+  private final String messageText;
 }

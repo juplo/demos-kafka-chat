@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 public class MessageTo
 {
   private Long id;
-  private Long serialNumber;
-  private LocalDateTime timestamp;
+  private Long serial;
+  private LocalDateTime time;
   private String user;
   private String text;
 
@@ -24,7 +24,7 @@ public class MessageTo
             message.getId(),
             message.getSerialNumber(),
             message.getTimestamp(),
-            message.getUser(),
-            message.getText());
+            message.getUsername(),
+            message.getMessageText());
   }
 }
