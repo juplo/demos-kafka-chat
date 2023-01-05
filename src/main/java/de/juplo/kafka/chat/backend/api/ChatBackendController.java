@@ -1,7 +1,7 @@
 package de.juplo.kafka.chat.backend.api;
 
+import de.juplo.kafka.chat.backend.domain.ChatHome;
 import de.juplo.kafka.chat.backend.domain.Chatroom;
-import de.juplo.kafka.chat.backend.domain.ChatroomFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -11,8 +11,6 @@ import reactor.core.publisher.Mono;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 
@@ -20,29 +18,26 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChatBackendController
 {
-  private final Map<UUID, Chatroom> chatrooms = new HashMap<>();
-  private final ChatroomFactory factory;
+  private final ChatHome chatHome;
   private final Clock clock;
 
 
   @PostMapping("create")
   public Chatroom create(@RequestBody String name)
   {
-    Chatroom chatroom = factory.createChatroom(UUID.randomUUID(), name);
-    chatrooms.put(chatroom.getId(), chatroom);
-    return chatroom;
+    return chatHome.createChatroom(name);
   }
 
   @GetMapping("list")
   public Collection<Chatroom> list()
   {
-    return chatrooms.values();
+    return chatHome.list();
   }
 
   @GetMapping("get/{chatroomId}")
   public Chatroom get(@PathVariable UUID chatroomId)
   {
-    return chatrooms.get(chatroomId);
+    return chatHome.getChatroom(chatroomId);
   }
 
   @PutMapping("put/{chatroomId}/{username}/{messageId}")
@@ -52,7 +47,7 @@ public class ChatBackendController
       @PathVariable Long messageId,
       @RequestBody String text)
   {
-    Chatroom chatroom = chatrooms.get(chatroomId);
+    Chatroom chatroom = chatHome.getChatroom(chatroomId);
     return
         chatroom
             .addMessage(
@@ -71,8 +66,8 @@ public class ChatBackendController
       @PathVariable Long messageId)
   {
     return
-        chatrooms
-            .get(chatroomId)
+        chatHome
+            .getChatroom(chatroomId)
             .getMessage(username, messageId)
             .map(message -> MessageTo.from(message));
   }
@@ -82,8 +77,8 @@ public class ChatBackendController
       produces = MediaType.TEXT_EVENT_STREAM_VALUE)
   public Flux<MessageTo> listen(@PathVariable UUID chatroomId)
   {
-    return chatrooms
-        .get(chatroomId)
+    return chatHome
+        .getChatroom(chatroomId)
         .listen()
         .log()
         .map(message -> MessageTo.from(message));
