@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 
 @RestController
@@ -24,21 +25,21 @@ public class ChatBackendController
 
 
   @PostMapping("create")
-  public Chatroom create(@RequestBody String name)
+  public ChatroomTo create(@RequestBody String name)
   {
-    return chatHome.createChatroom(name);
+    return ChatroomTo.from(chatHome.createChatroom(name));
   }
 
   @GetMapping("list")
-  public Collection<Chatroom> list()
+  public Stream<ChatroomTo> list()
   {
-    return chatHome.list();
+    return chatHome.list().map(chatroom -> ChatroomTo.from(chatroom));
   }
 
   @GetMapping("get/{chatroomId}")
-  public Optional<Chatroom> get(@PathVariable UUID chatroomId)
+  public Optional<ChatroomTo> get(@PathVariable UUID chatroomId)
   {
-    return chatHome.getChatroom(chatroomId);
+    return chatHome.getChatroom(chatroomId).map(chatroom -> ChatroomTo.from(chatroom));
   }
 
   @PutMapping("put/{chatroomId}/{username}/{messageId}")

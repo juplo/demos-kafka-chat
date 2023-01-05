@@ -21,7 +21,7 @@ public class ChatBackendApplication
 	@PreDestroy
 	public void onExit()
 	{
-		storageStrategy.writeChatrooms(Flux.fromIterable(chatHome.list()));
+		storageStrategy.writeChatrooms(Flux.fromStream(chatHome.list()));
 	}
 
 	public static void main(String[] args)

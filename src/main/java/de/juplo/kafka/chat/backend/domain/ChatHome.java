@@ -3,6 +3,7 @@ package de.juplo.kafka.chat.backend.domain;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 
 @RequiredArgsConstructor
@@ -24,8 +25,8 @@ public class ChatHome
     return Optional.ofNullable(chatrooms.get(id));
   }
 
-  public Collection<Chatroom> list()
+  public Stream<Chatroom> list()
   {
-    return chatrooms.values();
+    return chatrooms.values().stream();
   }
 }

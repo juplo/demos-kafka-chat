@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend.persistence;
+package de.juplo.kafka.chat.backend.api;
 
 import de.juplo.kafka.chat.backend.domain.Chatroom;
 import lombok.Data;
@@ -6,15 +6,15 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-public class ChatroomInfo
+public class ChatroomTo
 {
   private UUID id;
   private String name;
 
 
-  public static ChatroomInfo from(Chatroom chatroom)
+  public static ChatroomTo from(Chatroom chatroom)
   {
-    ChatroomInfo info = new ChatroomInfo();
+    ChatroomTo info = new ChatroomTo();
     info.id = chatroom.getId();
     info.name = chatroom.getName();
     return info;
