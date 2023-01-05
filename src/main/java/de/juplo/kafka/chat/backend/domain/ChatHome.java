@@ -8,7 +8,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class ChatHome
 {
-  private final Map<UUID, Chatroom> chatrooms = new HashMap<>();
+  private final Map<UUID, Chatroom> chatrooms;
   private final ChatroomFactory factory;
 
 

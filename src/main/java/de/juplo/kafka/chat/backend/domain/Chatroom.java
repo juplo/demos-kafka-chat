@@ -44,6 +44,11 @@ public class Chatroom
     return sink.asFlux();
   }
 
+  public Flux<Message> getMessages()
+  {
+    return getMessages(0, Long.MAX_VALUE);
+  }
+
   public Flux<Message> getMessages(long first, long last)
   {
     return persistence.getMessages(first, last);

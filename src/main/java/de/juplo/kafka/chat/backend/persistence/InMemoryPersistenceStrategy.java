@@ -3,7 +3,6 @@ package de.juplo.kafka.chat.backend.persistence;
 import de.juplo.kafka.chat.backend.domain.Message;
 import de.juplo.kafka.chat.backend.domain.MessageMutationException;
 import de.juplo.kafka.chat.backend.domain.PersistenceStrategy;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,11 +11,17 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 
 
-@RequiredArgsConstructor
 @Slf4j
 public class InMemoryPersistenceStrategy implements PersistenceStrategy
 {
-  private final LinkedHashMap<Message.MessageKey, Message> messages = new LinkedHashMap<>();
+  private final LinkedHashMap<Message.MessageKey, Message> messages;
+
+
+  public InMemoryPersistenceStrategy(LinkedHashMap<Message.MessageKey, Message> messages)
+  {
+    this.messages = messages;
+  }
+
 
   @Override
   public Mono<Message> persistMessage(

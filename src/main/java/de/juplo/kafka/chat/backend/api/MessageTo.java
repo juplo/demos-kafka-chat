@@ -17,6 +17,11 @@ public class MessageTo
   private String user;
   private String text;
 
+  public Message toMessage()
+  {
+    return new Message(Message.MessageKey.of(user, id), serial, time, text);
+  }
+
   public static MessageTo from(Message message)
   {
     return

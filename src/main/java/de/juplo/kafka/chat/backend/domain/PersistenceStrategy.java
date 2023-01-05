@@ -1,6 +1,5 @@
 package de.juplo.kafka.chat.backend.domain;
 
-import lombok.Value;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
