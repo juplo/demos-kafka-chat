@@ -6,17 +6,29 @@ import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+import org.springframework.web.reactive.config.CorsRegistry;
+import org.springframework.web.reactive.config.WebFluxConfigurer;
 import reactor.core.publisher.Flux;
 
 
 @SpringBootApplication
-public class ChatBackendApplication
+public class ChatBackendApplication implements WebFluxConfigurer
 {
+	@Autowired
+	ChatBackendProperties properties;
 	@Autowired
 	ChatHome chatHome;
 	@Autowired
 	StorageStrategy storageStrategy;
+
+
+	@Override
+	public void addCorsMappings(CorsRegistry registry)
+	{
+		registry
+				.addMapping("/**")
+				.allowedOrigins(properties.getAllowedOrigins());
+	}
 
 	@PreDestroy
 	public void onExit()
