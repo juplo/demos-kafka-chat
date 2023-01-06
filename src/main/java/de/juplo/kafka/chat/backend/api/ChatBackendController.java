@@ -2,6 +2,7 @@ package de.juplo.kafka.chat.backend.api;
 
 import de.juplo.kafka.chat.backend.domain.ChatHome;
 import de.juplo.kafka.chat.backend.domain.Chatroom;
+import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +11,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -22,6 +22,7 @@ public class ChatBackendController
 {
   private final ChatHome chatHome;
   private final Clock clock;
+  private final StorageStrategy storageStrategy;
 
 
   @PostMapping("create")
@@ -114,5 +115,11 @@ public class ChatBackendController
         .listen()
         .log()
         .map(message -> MessageTo.from(message));
+  }
+
+  @PostMapping("/store")
+  public void store()
+  {
+    storageStrategy.writeChatrooms(Flux.fromStream(chatHome.list()));
   }
 }
