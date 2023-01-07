@@ -41,9 +41,9 @@ public class ChatBackendConfiguration
   }
 
   @Bean
-  ChatroomFactory chatroomFactory()
+  ChatroomFactory chatroomFactory(ChatBackendProperties properties)
   {
-    return new InMemoryChatroomFactory();
+    return new InMemoryChatroomFactory(properties.getChatroomBufferSize());
   }
 
   @Bean

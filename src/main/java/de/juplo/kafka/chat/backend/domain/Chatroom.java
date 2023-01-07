@@ -1,7 +1,6 @@
 package de.juplo.kafka.chat.backend.domain;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -11,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 
-@RequiredArgsConstructor
 @Slf4j
 public class Chatroom
 {
@@ -20,7 +18,20 @@ public class Chatroom
   @Getter
   private final String name;
   private final PersistenceStrategy persistence;
-  private final Sinks.Many<Message> sink = Sinks.many().multicast().onBackpressureBuffer();
+  private final Sinks.Many<Message> sink;
+
+  public Chatroom(
+      UUID id,
+      String name,
+      PersistenceStrategy persistence,
+      int bufferSize)
+  {
+    this.id = id;
+    this.name = name;
+    this.persistence = persistence;
+    this.sink = Sinks.many().multicast().onBackpressureBuffer(bufferSize);
+  }
+
 
   synchronized public Mono<Message> addMessage(
       Long id,

@@ -14,4 +14,5 @@ public class ChatBackendProperties
 {
   private String datadir = Paths.get(System.getProperty("java.io.tmpdir"),"chat", "backend").toString();
   private String allowedOrigins = "http://localhost:4200";
+  private int chatroomBufferSize = 8;
 }
