@@ -11,12 +11,11 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class InMemoryChatroomFactory implements ChatroomFactory<InMemoryPersistenceStrategy>
 {
-  private final PersistenceStrategy persistenceStrategy;
-
-
   @Override
   public Chatroom createChatroom(UUID id, String name)
   {
+    InMemoryPersistenceStrategy persistenceStrategy =
+        new InMemoryPersistenceStrategy(new LinkedHashMap<>());
     return new Chatroom(id, name, persistenceStrategy);
   }
 

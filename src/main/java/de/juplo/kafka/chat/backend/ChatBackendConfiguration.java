@@ -3,9 +3,7 @@ package de.juplo.kafka.chat.backend;
 import de.juplo.kafka.chat.backend.domain.ChatHome;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.juplo.kafka.chat.backend.domain.ChatroomFactory;
-import de.juplo.kafka.chat.backend.domain.Message;
 import de.juplo.kafka.chat.backend.persistence.InMemoryChatroomFactory;
-import de.juplo.kafka.chat.backend.persistence.InMemoryPersistenceStrategy;
 import de.juplo.kafka.chat.backend.persistence.LocalJsonFilesStorageStrategy;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -14,7 +12,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.nio.file.Paths;
 import java.time.Clock;
-import java.util.LinkedHashMap;
 
 
 @Configuration
@@ -44,15 +41,9 @@ public class ChatBackendConfiguration
   }
 
   @Bean
-  ChatroomFactory chatroomFactory(InMemoryPersistenceStrategy persistenceStrategy)
+  ChatroomFactory chatroomFactory()
   {
-    return new InMemoryChatroomFactory(persistenceStrategy);
-  }
-
-  @Bean
-  InMemoryPersistenceStrategy persistenceStrategy()
-  {
-    return new InMemoryPersistenceStrategy(new LinkedHashMap<>());
+    return new InMemoryChatroomFactory();
   }
 
   @Bean
