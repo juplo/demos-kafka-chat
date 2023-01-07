@@ -5,6 +5,7 @@ import de.juplo.kafka.chat.backend.domain.Chatroom;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -98,10 +99,8 @@ public class ChatBackendController
             .map(message -> MessageTo.from(message));
   }
 
-  @GetMapping(
-      path = "listen/{chatroomId}",
-      produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public Flux<MessageTo> listen(@PathVariable UUID chatroomId)
+  @GetMapping(path = "listen/{chatroomId}")
+  public Flux<ServerSentEvent<MessageTo>> listen(@PathVariable UUID chatroomId)
   {
     return chatHome
         .getChatroom(chatroomId)
@@ -109,12 +108,18 @@ public class ChatBackendController
         .orElseThrow(() -> new UnknownChatroomException(chatroomId));
   }
 
-  private Flux<MessageTo> listen(Chatroom chatroom)
+  private Flux<ServerSentEvent<MessageTo>> listen(Chatroom chatroom)
   {
     return chatroom
         .listen()
         .log()
-        .map(message -> MessageTo.from(message));
+        .map(message -> MessageTo.from(message))
+        .map(messageTo ->
+            ServerSentEvent
+                .builder(messageTo)
+                .id(messageTo.getSerial().toString())
+                .event("message")
+                .build());
   }
 
   @PostMapping("/store")
