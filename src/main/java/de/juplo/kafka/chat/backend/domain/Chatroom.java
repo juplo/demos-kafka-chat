@@ -18,7 +18,8 @@ public class Chatroom
   @Getter
   private final String name;
   private final PersistenceStrategy persistence;
-  private final Sinks.Many<Message> sink;
+  private final int bufferSize;
+  private Sinks.Many<Message> sink;
 
   public Chatroom(
       UUID id,
@@ -29,7 +30,8 @@ public class Chatroom
     this.id = id;
     this.name = name;
     this.persistence = persistence;
-    this.sink = Sinks.many().multicast().onBackpressureBuffer(bufferSize);
+    this.bufferSize = bufferSize;
+    this.sink = createSink();
   }
 
 
@@ -41,7 +43,14 @@ public class Chatroom
   {
     return persistence
         .persistMessage(Message.MessageKey.of(user, id), timestamp, text)
-        .doOnNext(message -> sink.tryEmitNext(message).orThrow());
+        .doOnNext(message ->
+        {
+          Sinks.EmitResult result = sink.tryEmitNext(message);
+          if (result.isFailure())
+          {
+            log.warn("Emitting of message failed with {} for {}", result.name(), message);
+          }
+        });
   }
 
 
@@ -50,9 +59,11 @@ public class Chatroom
     return persistence.getMessage(Message.MessageKey.of(username, messageId));
   }
 
-  public Flux<Message> listen()
+  synchronized public Flux<Message> listen()
   {
-    return sink.asFlux();
+    return sink
+        .asFlux()
+        .doOnCancel(() -> sink = createSink()); // Sink hast to be recreated on auto-cancel!
   }
 
   public Flux<Message> getMessages()
@@ -63,5 +74,13 @@ public class Chatroom
   public Flux<Message> getMessages(long first, long last)
   {
     return persistence.getMessages(first, last);
+  }
+
+  private Sinks.Many<Message> createSink()
+  {
+    return Sinks
+        .many()
+        .multicast()
+        .onBackpressureBuffer(bufferSize);
   }
 }
