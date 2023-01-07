@@ -23,9 +23,7 @@ public class ChatBackendConfiguration
       ChatroomFactory chatroomFactory,
       StorageStrategy storageStrategy)
   {
-    return new ChatHome(
-        storageStrategy.readChatrooms().collectMap(chatroom -> chatroom.getId()).block(),
-        chatroomFactory);
+    return new ChatHome(chatroomFactory, storageStrategy.readChatrooms());
   }
 
   @Bean
