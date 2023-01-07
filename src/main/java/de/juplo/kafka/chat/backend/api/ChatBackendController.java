@@ -38,6 +38,17 @@ public class ChatBackendController
     return chatHome.list().map(chatroom -> ChatroomTo.from(chatroom));
   }
 
+  @GetMapping("list/{chatroomId}")
+  public Flux<MessageTo> list(@PathVariable UUID chatroomId)
+  {
+    return chatHome
+        .getChatroom(chatroomId)
+        .map(chatroom -> chatroom
+            .getMessages()
+            .map(MessageTo::from))
+        .get();
+  }
+
   @GetMapping("get/{chatroomId}")
   public Optional<ChatroomTo> get(@PathVariable UUID chatroomId)
   {
