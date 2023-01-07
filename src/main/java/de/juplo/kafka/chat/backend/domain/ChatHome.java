@@ -19,9 +19,9 @@ public class ChatHome
     return chatroom;
   }
 
-  public Chatroom getChatroom(UUID id)
+  public Optional<Chatroom> getChatroom(UUID id)
   {
-    return chatrooms.get(id);
+    return Optional.ofNullable(chatrooms.get(id));
   }
 
   public Collection<Chatroom> list()

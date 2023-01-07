@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -35,7 +36,7 @@ public class ChatBackendController
   }
 
   @GetMapping("get/{chatroomId}")
-  public Chatroom get(@PathVariable UUID chatroomId)
+  public Optional<Chatroom> get(@PathVariable UUID chatroomId)
   {
     return chatHome.getChatroom(chatroomId);
   }
@@ -47,7 +48,19 @@ public class ChatBackendController
       @PathVariable Long messageId,
       @RequestBody String text)
   {
-    Chatroom chatroom = chatHome.getChatroom(chatroomId);
+    return
+        chatHome
+            .getChatroom(chatroomId)
+            .map(chatroom -> put(chatroom, username, messageId, text))
+            .orElseThrow(() -> new UnknownChatroomException(chatroomId));
+  }
+
+  public Mono<MessageTo> put(
+      Chatroom chatroom,
+      String username,
+      Long messageId,
+      String text)
+  {
     return
         chatroom
             .addMessage(
@@ -68,6 +81,17 @@ public class ChatBackendController
     return
         chatHome
             .getChatroom(chatroomId)
+            .map(chatroom -> get(chatroom, username, messageId))
+            .orElseThrow(() -> new UnknownChatroomException(chatroomId));
+  }
+
+  private Mono<MessageTo> get(
+      Chatroom chatroom,
+      String username,
+      Long messageId)
+  {
+    return
+        chatroom
             .getMessage(username, messageId)
             .map(message -> MessageTo.from(message));
   }
@@ -79,6 +103,13 @@ public class ChatBackendController
   {
     return chatHome
         .getChatroom(chatroomId)
+        .map(chatroom -> listen(chatroom))
+        .orElseThrow(() -> new UnknownChatroomException(chatroomId));
+  }
+
+  private Flux<MessageTo> listen(Chatroom chatroom)
+  {
+    return chatroom
         .listen()
         .log()
         .map(message -> MessageTo.from(message));
