@@ -30,7 +30,7 @@ public class ChatBackendConfiguration
   public StorageStrategy storageStrategy(
       ChatBackendProperties properties,
       ObjectMapper mapper,
-      ChatroomFactory chatroomFactory)
+      InMemoryChatroomFactory chatroomFactory)
   {
     return new LocalJsonFilesStorageStrategy(
         Paths.get(properties.getDatadir()),
@@ -39,7 +39,7 @@ public class ChatBackendConfiguration
   }
 
   @Bean
-  ChatroomFactory chatroomFactory(ChatBackendProperties properties)
+  InMemoryChatroomFactory chatroomFactory(ChatBackendProperties properties)
   {
     return new InMemoryChatroomFactory(properties.getChatroomBufferSize());
   }

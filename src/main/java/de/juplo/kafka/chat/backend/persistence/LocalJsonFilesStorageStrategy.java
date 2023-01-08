@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.juplo.kafka.chat.backend.api.ChatroomTo;
 import de.juplo.kafka.chat.backend.api.MessageTo;
 import de.juplo.kafka.chat.backend.domain.Chatroom;
-import de.juplo.kafka.chat.backend.domain.ChatroomFactory;
 import de.juplo.kafka.chat.backend.domain.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,7 @@ public class LocalJsonFilesStorageStrategy implements StorageStrategy
 
   private final Path storagePath;
   private final ObjectMapper mapper;
-  private final ChatroomFactory chatroomFactory;
+  private final InMemoryChatroomFactory chatroomFactory;
 
 
   @Override

@@ -22,7 +22,6 @@ public class InMemoryChatroomFactory implements ChatroomFactory<InMemoryPersiste
     return new Chatroom(id, name, persistenceStrategy, bufferSize);
   }
 
-  @Override
   public Chatroom restoreChatroom(
       UUID id,
       String name,
