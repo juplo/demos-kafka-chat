@@ -8,7 +8,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.reactive.config.CorsRegistry;
 import org.springframework.web.reactive.config.WebFluxConfigurer;
-import reactor.core.publisher.Flux;
 
 
 @SpringBootApplication
@@ -33,7 +32,7 @@ public class ChatBackendApplication implements WebFluxConfigurer
 	@PreDestroy
 	public void onExit()
 	{
-		storageStrategy.writeChatrooms(Flux.fromStream(chatHome.list()));
+		storageStrategy.writeChatrooms(chatHome.list());
 	}
 
 	public static void main(String[] args)

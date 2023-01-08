@@ -9,7 +9,6 @@ import de.juplo.kafka.chat.backend.domain.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,7 +42,7 @@ public class LocalJsonFilesStorageStrategyIT
 
   void stop()
   {
-    storageStrategy.writeChatrooms(Flux.fromStream(chathome.list()));
+    storageStrategy.writeChatrooms(chathome.list());
   }
 
   @Test
@@ -51,30 +50,28 @@ public class LocalJsonFilesStorageStrategyIT
   {
     start();
 
-    assertThat(chathome.list()).hasSize(0);
+    assertThat(chathome.list().toStream()).hasSize(0);
 
-    ChatRoom chatroom = chathome.createChatroom("FOO");
+    ChatRoom chatroom = chathome.createChatroom("FOO").block();
     Message m1 = chatroom.addMessage(1l,"Peter", "Hallo, ich heiße Peter!").block();
     Message m2 = chatroom.addMessage(1l, "Ute", "Ich bin Ute...").block();
     Message m3 = chatroom.addMessage(2l, "Peter", "Willst du mit mir gehen?").block();
     Message m4 = chatroom.addMessage(1l, "Klaus", "Ja? Nein? Vielleicht??").block();
 
-    assertThat(chathome.list()).containsExactlyElementsOf(List.of(chatroom));
-    assertThat(chathome.getChatroom(chatroom.getId())).contains(chatroom);
+    assertThat(chathome.list().toStream()).containsExactlyElementsOf(List.of(chatroom));
+    assertThat(chathome.getChatroom(chatroom.getId())).emitsExactly(chatroom);
     assertThat(chathome
         .getChatroom(chatroom.getId())
-        .get()
-        .getMessages()).emitsExactly(m1, m2, m3, m4);
+        .flatMapMany(cr -> cr.getMessages())).emitsExactly(m1, m2, m3, m4);
 
     stop();
     start();
 
-    assertThat(chathome.list()).containsExactlyElementsOf(List.of(chatroom));
-    assertThat(chathome.getChatroom(chatroom.getId())).contains(chatroom);
+    assertThat(chathome.list().toStream()).containsExactlyElementsOf(List.of(chatroom));
+    assertThat(chathome.getChatroom(chatroom.getId())).emitsExactly(chatroom);
     assertThat(chathome
         .getChatroom(chatroom.getId())
-        .get()
-        .getMessages()).emitsExactly(m1, m2, m3, m4);
+        .flatMapMany(cr -> cr.getMessages())).emitsExactly(m1, m2, m3, m4);
   }
 
   @BeforeEach

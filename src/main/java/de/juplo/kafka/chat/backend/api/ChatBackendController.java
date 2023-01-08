@@ -2,7 +2,6 @@ package de.juplo.kafka.chat.backend.api;
 
 import de.juplo.kafka.chat.backend.domain.ChatHome;
 import de.juplo.kafka.chat.backend.domain.ChatRoom;
-import de.juplo.kafka.chat.backend.domain.UnknownChatroomException;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.codec.ServerSentEvent;
@@ -10,9 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 
 @RestController
@@ -24,13 +21,13 @@ public class ChatBackendController
 
 
   @PostMapping("create")
-  public ChatRoomTo create(@RequestBody String name)
+  public Mono<ChatRoomTo> create(@RequestBody String name)
   {
-    return ChatRoomTo.from(chatHome.createChatroom(name));
+    return chatHome.createChatroom(name).map(ChatRoomTo::from);
   }
 
   @GetMapping("list")
-  public Stream<ChatRoomTo> list()
+  public Flux<ChatRoomTo> list()
   {
     return chatHome.list().map(chatroom -> ChatRoomTo.from(chatroom));
   }
@@ -40,14 +37,13 @@ public class ChatBackendController
   {
     return chatHome
         .getChatroom(chatroomId)
-        .map(chatroom -> chatroom
+        .flatMapMany(chatroom -> chatroom
             .getMessages()
-            .map(MessageTo::from))
-        .get();
+            .map(MessageTo::from));
   }
 
   @GetMapping("get/{chatroomId}")
-  public Optional<ChatRoomTo> get(@PathVariable UUID chatroomId)
+  public Mono<ChatRoomTo> get(@PathVariable UUID chatroomId)
   {
     return chatHome.getChatroom(chatroomId).map(chatroom -> ChatRoomTo.from(chatroom));
   }
@@ -62,8 +58,7 @@ public class ChatBackendController
     return
         chatHome
             .getChatroom(chatroomId)
-            .map(chatroom -> put(chatroom, username, messageId, text))
-            .orElseThrow(() -> new UnknownChatroomException(chatroomId));
+            .flatMap(chatroom -> put(chatroom, username, messageId, text));
   }
 
   public Mono<MessageTo> put(
@@ -91,8 +86,7 @@ public class ChatBackendController
     return
         chatHome
             .getChatroom(chatroomId)
-            .map(chatroom -> get(chatroom, username, messageId))
-            .orElseThrow(() -> new UnknownChatroomException(chatroomId));
+            .flatMap(chatroom -> get(chatroom, username, messageId));
   }
 
   private Mono<MessageTo> get(
@@ -111,8 +105,7 @@ public class ChatBackendController
   {
     return chatHome
         .getChatroom(chatroomId)
-        .map(chatroom -> listen(chatroom))
-        .orElseThrow(() -> new UnknownChatroomException(chatroomId));
+        .flatMapMany(chatroom -> listen(chatroom));
   }
 
   private Flux<ServerSentEvent<MessageTo>> listen(ChatRoom chatroom)
@@ -132,6 +125,6 @@ public class ChatBackendController
   @PostMapping("/store")
   public void store()
   {
-    storageStrategy.writeChatrooms(Flux.fromStream(chatHome.list()));
+    storageStrategy.writeChatrooms(chatHome.list());
   }
 }

@@ -2,9 +2,9 @@ package de.juplo.kafka.chat.backend.domain;
 
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 
 @Slf4j
@@ -21,20 +21,22 @@ public class ChatHome
     chatroomFlux.subscribe(chatroom -> chatrooms.put(chatroom.getId(), chatroom));
   }
 
-  public ChatRoom createChatroom(String name)
+  public Mono<ChatRoom> createChatroom(String name)
   {
     ChatRoom chatroom = service.createChatroom(UUID.randomUUID(), name);
     chatrooms.put(chatroom.getId(), chatroom);
-    return chatroom;
+    return Mono.justOrEmpty(chatroom);
   }
 
-  public Optional<ChatRoom> getChatroom(UUID id)
+  public Mono<ChatRoom> getChatroom(UUID id)
   {
-    return Optional.ofNullable(chatrooms.get(id));
+    return Mono
+        .justOrEmpty(chatrooms.get(id))
+        .or(Mono.error(() -> new UnknownChatroomException(id)));
   }
 
-  public Stream<ChatRoom> list()
+  public Flux<ChatRoom> list()
   {
-    return chatrooms.values().stream();
+    return Flux.fromStream(chatrooms.values().stream());
   }
 }
