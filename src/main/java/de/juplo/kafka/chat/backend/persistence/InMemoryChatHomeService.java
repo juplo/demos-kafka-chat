@@ -4,6 +4,7 @@ import de.juplo.kafka.chat.backend.domain.ChatRoom;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import lombok.RequiredArgsConstructor;
 
+import java.time.Clock;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
@@ -11,6 +12,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatRoomService>
 {
+  private final Clock clock;
   private final int bufferSize;
 
 
@@ -19,7 +21,7 @@ public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatRoom
   {
     InMemoryChatRoomService service =
         new InMemoryChatRoomService(new LinkedHashMap<>());
-    return new ChatRoom(id, name, service, bufferSize);
+    return new ChatRoom(id, name, clock, service, bufferSize);
   }
 
   public ChatRoom restoreChatroom(
@@ -27,6 +29,6 @@ public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatRoom
       String name,
       InMemoryChatRoomService service)
   {
-    return new ChatRoom(id, name, service, bufferSize);
+    return new ChatRoom(id, name, clock, service, bufferSize);
   }
 }

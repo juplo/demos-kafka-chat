@@ -9,8 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -21,7 +19,6 @@ import java.util.stream.Stream;
 public class ChatBackendController
 {
   private final ChatHome chatHome;
-  private final Clock clock;
   private final StorageStrategy storageStrategy;
 
 
@@ -78,7 +75,6 @@ public class ChatBackendController
         chatroom
             .addMessage(
                 messageId,
-                LocalDateTime.now(clock),
                 username,
                 text)
             .switchIfEmpty(chatroom.getMessage(username, messageId))

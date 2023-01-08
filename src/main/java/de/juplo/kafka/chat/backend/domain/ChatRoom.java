@@ -6,6 +6,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -17,6 +18,7 @@ public class ChatRoom
   private final UUID id;
   @Getter
   private final String name;
+  private final Clock clock;
   private final ChatRoomService service;
   private final int bufferSize;
   private Sinks.Many<Message> sink;
@@ -24,11 +26,13 @@ public class ChatRoom
   public ChatRoom(
       UUID id,
       String name,
+      Clock clock,
       ChatRoomService service,
       int bufferSize)
   {
     this.id = id;
     this.name = name;
+    this.clock = clock;
     this.service = service;
     this.bufferSize = bufferSize;
     this.sink = createSink();
@@ -37,12 +41,11 @@ public class ChatRoom
 
   synchronized public Mono<Message> addMessage(
       Long id,
-      LocalDateTime timestamp,
       String user,
       String text)
   {
     return service
-        .persistMessage(Message.MessageKey.of(user, id), timestamp, text)
+        .persistMessage(Message.MessageKey.of(user, id), LocalDateTime.now(clock), text)
         .doOnNext(message ->
         {
           Sinks.EmitResult result = sink.tryEmitNext(message);

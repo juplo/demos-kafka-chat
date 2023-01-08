@@ -39,9 +39,11 @@ public class ChatBackendConfiguration
   }
 
   @Bean
-  InMemoryChatHomeService chatHomeService(ChatBackendProperties properties)
+  InMemoryChatHomeService chatHomeService(
+      Clock clock,
+      ChatBackendProperties properties)
   {
-    return new InMemoryChatHomeService(properties.getChatroomBufferSize());
+    return new InMemoryChatHomeService(clock, properties.getChatroomBufferSize());
   }
 
   @Bean
