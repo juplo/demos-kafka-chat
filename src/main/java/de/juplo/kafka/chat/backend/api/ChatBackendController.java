@@ -26,15 +26,15 @@ public class ChatBackendController
 
 
   @PostMapping("create")
-  public ChatroomTo create(@RequestBody String name)
+  public ChatRoomTo create(@RequestBody String name)
   {
-    return ChatroomTo.from(chatHome.createChatroom(name));
+    return ChatRoomTo.from(chatHome.createChatroom(name));
   }
 
   @GetMapping("list")
-  public Stream<ChatroomTo> list()
+  public Stream<ChatRoomTo> list()
   {
-    return chatHome.list().map(chatroom -> ChatroomTo.from(chatroom));
+    return chatHome.list().map(chatroom -> ChatRoomTo.from(chatroom));
   }
 
   @GetMapping("list/{chatroomId}")
@@ -49,9 +49,9 @@ public class ChatBackendController
   }
 
   @GetMapping("get/{chatroomId}")
-  public Optional<ChatroomTo> get(@PathVariable UUID chatroomId)
+  public Optional<ChatRoomTo> get(@PathVariable UUID chatroomId)
   {
-    return chatHome.getChatroom(chatroomId).map(chatroom -> ChatroomTo.from(chatroom));
+    return chatHome.getChatroom(chatroomId).map(chatroom -> ChatRoomTo.from(chatroom));
   }
 
   @PutMapping("put/{chatroomId}/{username}/{messageId}")

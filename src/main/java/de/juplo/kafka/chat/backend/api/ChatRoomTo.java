@@ -6,15 +6,15 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-public class ChatroomTo
+public class ChatRoomTo
 {
   private UUID id;
   private String name;
 
 
-  public static ChatroomTo from(ChatRoom chatroom)
+  public static ChatRoomTo from(ChatRoom chatroom)
   {
-    ChatroomTo info = new ChatroomTo();
+    ChatRoomTo info = new ChatRoomTo();
     info.id = chatroom.getId();
     info.name = chatroom.getName();
     return info;

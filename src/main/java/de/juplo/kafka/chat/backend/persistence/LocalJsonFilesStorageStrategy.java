@@ -3,7 +3,7 @@ package de.juplo.kafka.chat.backend.persistence;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.juplo.kafka.chat.backend.api.ChatroomTo;
+import de.juplo.kafka.chat.backend.api.ChatRoomTo;
 import de.juplo.kafka.chat.backend.api.MessageTo;
 import de.juplo.kafka.chat.backend.domain.ChatRoom;
 import de.juplo.kafka.chat.backend.domain.Message;
@@ -75,7 +75,7 @@ public class LocalJsonFilesStorageStrategy implements StorageStrategy
           {
             try
             {
-              ChatroomTo chatroomTo = ChatroomTo.from(chatroom);
+              ChatRoomTo chatroomTo = ChatRoomTo.from(chatroom);
               generator.writeObject(chatroomTo);
               writeMessages(chatroomTo, chatroom.getMessages());
             }
@@ -94,23 +94,23 @@ public class LocalJsonFilesStorageStrategy implements StorageStrategy
   @Override
   public Flux<ChatRoom> readChatrooms()
   {
-    JavaType type = mapper.getTypeFactory().constructType(ChatroomTo.class);
+    JavaType type = mapper.getTypeFactory().constructType(ChatRoomTo.class);
     return Flux
-        .from(new JsonFilePublisher<ChatroomTo>(chatroomsPath(), mapper, type))
+        .from(new JsonFilePublisher<ChatRoomTo>(chatroomsPath(), mapper, type))
         .log()
-        .map(chatroomTo ->
+        .map(chatRoomTo ->
         {
           InMemoryChatroomService chatroomService =
-              new InMemoryChatroomService(readMessages(chatroomTo));
+              new InMemoryChatroomService(readMessages(chatRoomTo));
           return service.restoreChatroom(
-              chatroomTo.getId(),
-              chatroomTo.getName(),
+              chatRoomTo.getId(),
+              chatRoomTo.getName(),
               chatroomService);
         });
   }
 
   @Override
-  public void writeMessages(ChatroomTo chatroomTo, Flux<Message> messageFlux)
+  public void writeMessages(ChatRoomTo chatroomTo, Flux<Message> messageFlux)
   {
     Path path = chatroomPath(chatroomTo);
     log.info("Writing messages for {} to {}", chatroomTo, path);
@@ -169,7 +169,7 @@ public class LocalJsonFilesStorageStrategy implements StorageStrategy
   }
 
   @Override
-  public Flux<Message> readMessages(ChatroomTo chatroomTo)
+  public Flux<Message> readMessages(ChatRoomTo chatroomTo)
   {
     JavaType type = mapper.getTypeFactory().constructType(MessageTo.class);
     return Flux
@@ -183,7 +183,7 @@ public class LocalJsonFilesStorageStrategy implements StorageStrategy
     return storagePath.resolve(Path.of(CHATROOMS_FILENAME));
   }
 
-  Path chatroomPath(ChatroomTo chatroomTo)
+  Path chatroomPath(ChatRoomTo chatroomTo)
   {
     return storagePath.resolve(Path.of(chatroomTo.getId().toString() + ".json"));
   }
