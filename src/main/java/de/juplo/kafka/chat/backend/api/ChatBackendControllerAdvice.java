@@ -18,6 +18,36 @@ public class ChatBackendControllerAdvice
   @Value("${server.context-path:/}")
   String contextPath;
 
+  @ExceptionHandler(UnknownChatroomException.class)
+  public final ProblemDetail handleException(
+      UnknownChatroomException e,
+      ServerWebExchange exchange,
+      UriComponentsBuilder uriComponentsBuilder)
+  {
+    final HttpStatus status = HttpStatus.NOT_FOUND;
+    ProblemDetail problem = ProblemDetail.forStatus(status);
+
+    problem.setProperty("timestamp", new Date());
+
+    problem.setProperty("requestId", exchange.getRequest().getId());
+
+    problem.setType(uriComponentsBuilder.replacePath(contextPath).path("/problem/unknown-chatroom").build().toUri());
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(status.getReasonPhrase());
+    stringBuilder.append(" - ");
+    stringBuilder.append(e.getMessage());
+    problem.setTitle(stringBuilder.toString());
+
+    stringBuilder.setLength(0);
+    stringBuilder.append("Chatroom unknown: ");
+    stringBuilder.append(e.getChatroomId());
+    problem.setDetail(stringBuilder.toString());
+
+    problem.setProperty("chatroomId", e.getChatroomId());
+
+    return problem;
+  }
+
   @ExceptionHandler(MessageMutationException.class)
   public final ProblemDetail handleException(
       MessageMutationException e,
