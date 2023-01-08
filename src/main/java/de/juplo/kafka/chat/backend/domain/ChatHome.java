@@ -25,14 +25,15 @@ public class ChatHome
   {
     ChatRoom chatroom = service.createChatroom(UUID.randomUUID(), name);
     chatrooms.put(chatroom.getId(), chatroom);
-    return Mono.justOrEmpty(chatroom);
+    return Mono.just(chatroom);
   }
 
   public Mono<ChatRoom> getChatroom(UUID id)
   {
-    return Mono
-        .justOrEmpty(chatrooms.get(id))
-        .or(Mono.error(() -> new UnknownChatroomException(id)));
+    ChatRoom chatroom = chatrooms.get(id);
+    return chatroom == null
+        ? Mono.error(() -> new UnknownChatroomException(id))
+        : Mono.just(chatroom);
   }
 
   public Flux<ChatRoom> list()
