@@ -1,7 +1,7 @@
 package de.juplo.kafka.chat.backend.persistence;
 
 import de.juplo.kafka.chat.backend.domain.Chatroom;
-import de.juplo.kafka.chat.backend.domain.ChatroomFactory;
+import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import lombok.RequiredArgsConstructor;
 
 import java.util.LinkedHashMap;
@@ -9,7 +9,7 @@ import java.util.UUID;
 
 
 @RequiredArgsConstructor
-public class InMemoryChatroomFactory implements ChatroomFactory<InMemoryChatroomService>
+public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatroomService>
 {
   private final int bufferSize;
 

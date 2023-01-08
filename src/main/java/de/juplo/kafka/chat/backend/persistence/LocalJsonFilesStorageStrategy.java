@@ -28,7 +28,7 @@ public class LocalJsonFilesStorageStrategy implements StorageStrategy
 
   private final Path storagePath;
   private final ObjectMapper mapper;
-  private final InMemoryChatroomFactory chatroomFactory;
+  private final InMemoryChatHomeService service;
 
 
   @Override
@@ -102,7 +102,7 @@ public class LocalJsonFilesStorageStrategy implements StorageStrategy
         {
           InMemoryChatroomService chatroomService =
               new InMemoryChatroomService(readMessages(chatroomTo));
-          return chatroomFactory.restoreChatroom(
+          return service.restoreChatroom(
               chatroomTo.getId(),
               chatroomTo.getName(),
               chatroomService);

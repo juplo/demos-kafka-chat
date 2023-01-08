@@ -2,8 +2,8 @@ package de.juplo.kafka.chat.backend;
 
 import de.juplo.kafka.chat.backend.domain.ChatHome;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.juplo.kafka.chat.backend.domain.ChatroomFactory;
-import de.juplo.kafka.chat.backend.persistence.InMemoryChatroomFactory;
+import de.juplo.kafka.chat.backend.domain.ChatHomeService;
+import de.juplo.kafka.chat.backend.persistence.InMemoryChatHomeService;
 import de.juplo.kafka.chat.backend.persistence.LocalJsonFilesStorageStrategy;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -20,28 +20,28 @@ public class ChatBackendConfiguration
 {
   @Bean
   public ChatHome chatHome(
-      ChatroomFactory chatroomFactory,
+      ChatHomeService chatHomeService,
       StorageStrategy storageStrategy)
   {
-    return new ChatHome(chatroomFactory, storageStrategy.readChatrooms());
+    return new ChatHome(chatHomeService, storageStrategy.readChatrooms());
   }
 
   @Bean
   public StorageStrategy storageStrategy(
       ChatBackendProperties properties,
       ObjectMapper mapper,
-      InMemoryChatroomFactory chatroomFactory)
+      InMemoryChatHomeService chatHomeService)
   {
     return new LocalJsonFilesStorageStrategy(
         Paths.get(properties.getDatadir()),
         mapper,
-        chatroomFactory);
+        chatHomeService);
   }
 
   @Bean
-  InMemoryChatroomFactory chatroomFactory(ChatBackendProperties properties)
+  InMemoryChatHomeService chatHomeService(ChatBackendProperties properties)
   {
-    return new InMemoryChatroomFactory(properties.getChatroomBufferSize());
+    return new InMemoryChatHomeService(properties.getChatroomBufferSize());
   }
 
   @Bean

@@ -11,19 +11,19 @@ import java.util.stream.Stream;
 public class ChatHome
 {
   private final Map<UUID, Chatroom> chatrooms;
-  private final ChatroomFactory factory;
+  private final ChatHomeService service;
 
-  public ChatHome(ChatroomFactory factory, Flux<Chatroom> chatroomFlux)
+  public ChatHome(ChatHomeService service, Flux<Chatroom> chatroomFlux)
   {
-    log.debug("Creating ChatHome with factory: {}", factory);
-    this.factory = factory;
+    log.debug("Creating ChatHome with factory: {}", service);
+    this.service = service;
     this.chatrooms = new HashMap<>();
     chatroomFlux.subscribe(chatroom -> chatrooms.put(chatroom.getId(), chatroom));
   }
 
   public Chatroom createChatroom(String name)
   {
-    Chatroom chatroom = factory.createChatroom(UUID.randomUUID(), name);
+    Chatroom chatroom = service.createChatroom(UUID.randomUUID(), name);
     chatrooms.put(chatroom.getId(), chatroom);
     return chatroom;
   }
