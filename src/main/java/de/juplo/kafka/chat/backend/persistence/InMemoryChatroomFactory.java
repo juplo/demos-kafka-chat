@@ -9,7 +9,7 @@ import java.util.UUID;
 
 
 @RequiredArgsConstructor
-public class InMemoryChatroomFactory implements ChatroomFactory<InMemoryPersistenceStrategy>
+public class InMemoryChatroomFactory implements ChatroomFactory<InMemoryChatroomService>
 {
   private final int bufferSize;
 
@@ -17,16 +17,16 @@ public class InMemoryChatroomFactory implements ChatroomFactory<InMemoryPersiste
   @Override
   public Chatroom createChatroom(UUID id, String name)
   {
-    InMemoryPersistenceStrategy persistenceStrategy =
-        new InMemoryPersistenceStrategy(new LinkedHashMap<>());
-    return new Chatroom(id, name, persistenceStrategy, bufferSize);
+    InMemoryChatroomService chatroomService =
+        new InMemoryChatroomService(new LinkedHashMap<>());
+    return new Chatroom(id, name, chatroomService, bufferSize);
   }
 
   public Chatroom restoreChatroom(
       UUID id,
       String name,
-      InMemoryPersistenceStrategy persistenceStrategy)
+      InMemoryChatroomService chatroomService)
   {
-    return new Chatroom(id, name, persistenceStrategy, bufferSize);
+    return new Chatroom(id, name, chatroomService, bufferSize);
   }
 }

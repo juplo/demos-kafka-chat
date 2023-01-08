@@ -17,19 +17,19 @@ public class Chatroom
   private final UUID id;
   @Getter
   private final String name;
-  private final PersistenceStrategy persistence;
+  private final ChatroomService chatroomService;
   private final int bufferSize;
   private Sinks.Many<Message> sink;
 
   public Chatroom(
       UUID id,
       String name,
-      PersistenceStrategy persistence,
+      ChatroomService chatroomService,
       int bufferSize)
   {
     this.id = id;
     this.name = name;
-    this.persistence = persistence;
+    this.chatroomService = chatroomService;
     this.bufferSize = bufferSize;
     this.sink = createSink();
   }
@@ -41,7 +41,7 @@ public class Chatroom
       String user,
       String text)
   {
-    return persistence
+    return chatroomService
         .persistMessage(Message.MessageKey.of(user, id), timestamp, text)
         .doOnNext(message ->
         {
@@ -56,7 +56,8 @@ public class Chatroom
 
   public Mono<Message> getMessage(String username, Long messageId)
   {
-    return persistence.getMessage(Message.MessageKey.of(username, messageId));
+    Message.MessageKey key = Message.MessageKey.of(username, messageId);
+    return chatroomService.getMessage(key);
   }
 
   synchronized public Flux<Message> listen()
@@ -73,7 +74,7 @@ public class Chatroom
 
   public Flux<Message> getMessages(long first, long last)
   {
-    return persistence.getMessages(first, last);
+    return chatroomService.getMessages(first, last);
   }
 
   private Sinks.Many<Message> createSink()
