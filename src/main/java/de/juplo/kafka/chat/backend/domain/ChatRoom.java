@@ -1,6 +1,8 @@
 package de.juplo.kafka.chat.backend.domain;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,6 +14,8 @@ import java.util.*;
 
 
 @Slf4j
+@EqualsAndHashCode(of = { "id" })
+@ToString(of = { "id", "name" })
 public class ChatRoom
 {
   @Getter

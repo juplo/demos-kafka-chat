@@ -64,6 +64,11 @@ public class LocalJsonFilesStorageStrategyIT
     assertThat(chathome.getChatroom(chatroom.getId()).get().getMessages().toStream()).containsExactlyElementsOf(List.of(m1, m2, m3, m4));
 
     stop();
+    start();
+
+    assertThat(chathome.list()).containsExactlyElementsOf(List.of(chatroom));
+    assertThat(chathome.getChatroom(chatroom.getId())).contains(chatroom);
+    assertThat(chathome.getChatroom(chatroom.getId()).get().getMessages().toStream()).containsExactlyElementsOf(List.of(m1, m2, m3, m4));
   }
 
   @BeforeEach
