@@ -1,6 +1,7 @@
 package de.juplo.kafka.chat.backend.api;
 
 import de.juplo.kafka.chat.backend.domain.MessageMutationException;
+import de.juplo.kafka.chat.backend.domain.UnknownChatroomException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
