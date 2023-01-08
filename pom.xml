@@ -15,6 +15,7 @@
   <description>Simplified Chat-Service, that needs state on the server</description>
   <properties>
     <java.version>17</java.version>
+    <assertj-reactor.version>1.0.8</assertj-reactor.version>
   </properties>
   <dependencies>
     <dependency>
@@ -41,6 +42,12 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>pl.rzrz</groupId>
+      <artifactId>assertj-reactor</artifactId>
+      <version>${assertj-reactor.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

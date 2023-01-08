@@ -18,7 +18,7 @@ import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.List;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static pl.rzrz.assertj.reactor.Assertions.*;
 
 
 @Slf4j
@@ -61,14 +61,20 @@ public class LocalJsonFilesStorageStrategyIT
 
     assertThat(chathome.list()).containsExactlyElementsOf(List.of(chatroom));
     assertThat(chathome.getChatroom(chatroom.getId())).contains(chatroom);
-    assertThat(chathome.getChatroom(chatroom.getId()).get().getMessages().toStream()).containsExactlyElementsOf(List.of(m1, m2, m3, m4));
+    assertThat(chathome
+        .getChatroom(chatroom.getId())
+        .get()
+        .getMessages()).emitsExactly(m1, m2, m3, m4);
 
     stop();
     start();
 
     assertThat(chathome.list()).containsExactlyElementsOf(List.of(chatroom));
     assertThat(chathome.getChatroom(chatroom.getId())).contains(chatroom);
-    assertThat(chathome.getChatroom(chatroom.getId()).get().getMessages().toStream()).containsExactlyElementsOf(List.of(m1, m2, m3, m4));
+    assertThat(chathome
+        .getChatroom(chatroom.getId())
+        .get()
+        .getMessages()).emitsExactly(m1, m2, m3, m4);
   }
 
   @BeforeEach
