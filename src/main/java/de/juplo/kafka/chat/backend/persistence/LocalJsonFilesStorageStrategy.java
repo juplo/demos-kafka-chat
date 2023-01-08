@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.juplo.kafka.chat.backend.api.ChatroomTo;
 import de.juplo.kafka.chat.backend.api.MessageTo;
-import de.juplo.kafka.chat.backend.domain.Chatroom;
+import de.juplo.kafka.chat.backend.domain.ChatRoom;
 import de.juplo.kafka.chat.backend.domain.Message;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class LocalJsonFilesStorageStrategy implements StorageStrategy
 
 
   @Override
-  public void writeChatrooms(Flux<Chatroom> chatroomFlux)
+  public void writeChatrooms(Flux<ChatRoom> chatroomFlux)
   {
     Path path = chatroomsPath();
     log.info("Writing chatrooms to {}", path);
@@ -92,7 +92,7 @@ public class LocalJsonFilesStorageStrategy implements StorageStrategy
   }
 
   @Override
-  public Flux<Chatroom> readChatrooms()
+  public Flux<ChatRoom> readChatrooms()
   {
     JavaType type = mapper.getTypeFactory().constructType(ChatroomTo.class);
     return Flux

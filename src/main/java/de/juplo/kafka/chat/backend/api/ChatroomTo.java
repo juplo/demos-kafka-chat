@@ -1,6 +1,6 @@
 package de.juplo.kafka.chat.backend.api;
 
-import de.juplo.kafka.chat.backend.domain.Chatroom;
+import de.juplo.kafka.chat.backend.domain.ChatRoom;
 import lombok.Data;
 
 import java.util.UUID;
@@ -12,7 +12,7 @@ public class ChatroomTo
   private String name;
 
 
-  public static ChatroomTo from(Chatroom chatroom)
+  public static ChatroomTo from(ChatRoom chatroom)
   {
     ChatroomTo info = new ChatroomTo();
     info.id = chatroom.getId();

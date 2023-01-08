@@ -1,6 +1,6 @@
 package de.juplo.kafka.chat.backend.persistence;
 
-import de.juplo.kafka.chat.backend.domain.Chatroom;
+import de.juplo.kafka.chat.backend.domain.ChatRoom;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import lombok.RequiredArgsConstructor;
 
@@ -15,18 +15,18 @@ public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatroom
 
 
   @Override
-  public Chatroom createChatroom(UUID id, String name)
+  public ChatRoom createChatroom(UUID id, String name)
   {
     InMemoryChatroomService chatroomService =
         new InMemoryChatroomService(new LinkedHashMap<>());
-    return new Chatroom(id, name, chatroomService, bufferSize);
+    return new ChatRoom(id, name, chatroomService, bufferSize);
   }
 
-  public Chatroom restoreChatroom(
+  public ChatRoom restoreChatroom(
       UUID id,
       String name,
       InMemoryChatroomService chatroomService)
   {
-    return new Chatroom(id, name, chatroomService, bufferSize);
+    return new ChatRoom(id, name, chatroomService, bufferSize);
   }
 }

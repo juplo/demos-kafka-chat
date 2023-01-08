@@ -1,10 +1,9 @@
 package de.juplo.kafka.chat.backend.api;
 
 import de.juplo.kafka.chat.backend.domain.ChatHome;
-import de.juplo.kafka.chat.backend.domain.Chatroom;
+import de.juplo.kafka.chat.backend.domain.ChatRoom;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -70,7 +69,7 @@ public class ChatBackendController
   }
 
   public Mono<MessageTo> put(
-      Chatroom chatroom,
+      ChatRoom chatroom,
       String username,
       Long messageId,
       String text)
@@ -100,7 +99,7 @@ public class ChatBackendController
   }
 
   private Mono<MessageTo> get(
-      Chatroom chatroom,
+      ChatRoom chatroom,
       String username,
       Long messageId)
   {
@@ -119,7 +118,7 @@ public class ChatBackendController
         .orElseThrow(() -> new UnknownChatroomException(chatroomId));
   }
 
-  private Flux<ServerSentEvent<MessageTo>> listen(Chatroom chatroom)
+  private Flux<ServerSentEvent<MessageTo>> listen(ChatRoom chatroom)
   {
     return chatroom
         .listen()

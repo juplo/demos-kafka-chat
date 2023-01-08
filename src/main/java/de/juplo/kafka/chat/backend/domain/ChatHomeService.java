@@ -5,5 +5,5 @@ import java.util.UUID;
 
 public interface ChatHomeService<T extends ChatroomService>
 {
-  Chatroom createChatroom(UUID id, String name);
+  ChatRoom createChatroom(UUID id, String name);
 }

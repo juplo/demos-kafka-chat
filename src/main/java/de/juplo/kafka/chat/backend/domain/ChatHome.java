@@ -10,10 +10,10 @@ import java.util.stream.Stream;
 @Slf4j
 public class ChatHome
 {
-  private final Map<UUID, Chatroom> chatrooms;
+  private final Map<UUID, ChatRoom> chatrooms;
   private final ChatHomeService service;
 
-  public ChatHome(ChatHomeService service, Flux<Chatroom> chatroomFlux)
+  public ChatHome(ChatHomeService service, Flux<ChatRoom> chatroomFlux)
   {
     log.debug("Creating ChatHome with factory: {}", service);
     this.service = service;
@@ -21,19 +21,19 @@ public class ChatHome
     chatroomFlux.subscribe(chatroom -> chatrooms.put(chatroom.getId(), chatroom));
   }
 
-  public Chatroom createChatroom(String name)
+  public ChatRoom createChatroom(String name)
   {
-    Chatroom chatroom = service.createChatroom(UUID.randomUUID(), name);
+    ChatRoom chatroom = service.createChatroom(UUID.randomUUID(), name);
     chatrooms.put(chatroom.getId(), chatroom);
     return chatroom;
   }
 
-  public Optional<Chatroom> getChatroom(UUID id)
+  public Optional<ChatRoom> getChatroom(UUID id)
   {
     return Optional.ofNullable(chatrooms.get(id));
   }
 
-  public Stream<Chatroom> list()
+  public Stream<ChatRoom> list()
   {
     return chatrooms.values().stream();
   }

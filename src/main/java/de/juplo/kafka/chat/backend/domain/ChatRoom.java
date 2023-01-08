@@ -11,7 +11,7 @@ import java.util.*;
 
 
 @Slf4j
-public class Chatroom
+public class ChatRoom
 {
   @Getter
   private final UUID id;
@@ -21,7 +21,7 @@ public class Chatroom
   private final int bufferSize;
   private Sinks.Many<Message> sink;
 
-  public Chatroom(
+  public ChatRoom(
       UUID id,
       String name,
       ChatroomService chatroomService,
