@@ -48,16 +48,23 @@ public class ChatRoom
       String user,
       String text)
   {
+    Message.MessageKey key = Message.MessageKey.of(user, id);
     return service
-        .persistMessage(Message.MessageKey.of(user, id), LocalDateTime.now(clock), text)
-        .doOnNext(message ->
-        {
-          Sinks.EmitResult result = sink.tryEmitNext(message);
-          if (result.isFailure())
-          {
-            log.warn("Emitting of message failed with {} for {}", result.name(), message);
-          }
-        });
+        .getMessage(key)
+        .flatMap(existing -> text.equals(existing.getMessageText())
+            ? Mono.just(existing)
+            : Mono.error(() -> new MessageMutationException(existing, text)))
+        .switchIfEmpty(
+            Mono
+                .just(service.persistMessage(key, LocalDateTime.now(clock), text))
+                .doOnNext(m ->
+                {
+                  Sinks.EmitResult result = sink.tryEmitNext(m);
+                  if (result.isFailure())
+                  {
+                    log.warn("Emitting of message failed with {} for {}", result.name(), m);
+                  }
+                }));
   }
 
 

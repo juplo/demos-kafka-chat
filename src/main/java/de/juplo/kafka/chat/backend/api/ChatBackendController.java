@@ -73,7 +73,6 @@ public class ChatBackendController
                 messageId,
                 username,
                 text)
-            .switchIfEmpty(chatroom.getMessage(username, messageId))
             .map(message -> MessageTo.from(message));
   }
 

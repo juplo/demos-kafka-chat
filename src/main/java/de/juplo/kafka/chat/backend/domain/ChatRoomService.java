@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public interface ChatRoomService
 {
-  Mono<Message> persistMessage(
+  Message persistMessage(
       Message.MessageKey key,
       LocalDateTime timestamp,
       String text);

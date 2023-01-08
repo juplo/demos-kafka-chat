@@ -13,7 +13,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -167,10 +166,9 @@ public class ChatBackendControllerTest
         .thenReturn(Mono.just(chatRoom));
     Message.MessageKey key = Message.MessageKey.of("foo", 1l);
     LocalDateTime timestamp = LocalDateTime.now();
-    Message mutated = new Message(key, 0l, timestamp, "Mutated!");
     Message existing = new Message(key, 0l, timestamp, "Existing");
     when(chatRoom.addMessage(any(Long.class), any(String.class), any(String.class)))
-        .thenThrow(new MessageMutationException(mutated, existing));
+        .thenReturn(Mono.error(() -> new MessageMutationException(existing, "Mutated!")));
 
     // When
     client
@@ -187,7 +185,7 @@ public class ChatBackendControllerTest
         .expectStatus().is4xxClientError()
         .expectBody()
         .jsonPath("$.type").isEqualTo("/problem/message-mutation")
-        .jsonPath("$.mutatedMessage.text").isEqualTo("Mutated!")
-        .jsonPath("$.existingMessage.text").isEqualTo("Existing");
+        .jsonPath("$.existingMessage.text").isEqualTo("Existing")
+        .jsonPath("$.mutatedText").isEqualTo("Mutated!");
   }
 }
