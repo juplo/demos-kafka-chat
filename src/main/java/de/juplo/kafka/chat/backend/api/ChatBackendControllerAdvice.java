@@ -76,9 +76,9 @@ public class ChatBackendControllerAdvice
     stringBuilder.append(" cannot be mutated!");
     problem.setDetail(stringBuilder.toString());
 
-    problem.setProperty("mutatedMessage", e.getMutated());
+    problem.setProperty("mutatedMessage", MessageTo.from(e.getMutated()));
 
-    problem.setProperty("existingMessage", e.getExisting());
+    problem.setProperty("existingMessage", MessageTo.from(e.getExisting()));
 
     return problem;
   }

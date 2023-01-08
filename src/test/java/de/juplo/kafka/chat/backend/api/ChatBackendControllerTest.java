@@ -12,10 +12,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 
@@ -147,5 +149,42 @@ public class ChatBackendControllerTest
         .expectBody()
         .jsonPath("$.type").isEqualTo("/problem/unknown-chatroom")
         .jsonPath("$.chatroomId").isEqualTo(chatroomId.toString());
+  }
+
+  @Test
+  @DisplayName("Assert expected problem-details for message mutation on PUT /put/{chatroomId}/{username}/{messageId}")
+  void testMessageMutationException(@Autowired WebTestClient client) throws Exception
+  {
+    // Given
+    UUID chatroomId = UUID.randomUUID();
+    String username = "foo";
+    Long messageId = 66l;
+    ChatRoom chatRoom = mock(ChatRoom.class);
+    when(chatHome.getChatroom(any(UUID.class)))
+        .thenReturn(Optional.of(chatRoom));
+    Message.MessageKey key = Message.MessageKey.of("foo", 1l);
+    LocalDateTime timestamp = LocalDateTime.now();
+    Message mutated = new Message(key, 0l, timestamp, "Mutated!");
+    Message existing = new Message(key, 0l, timestamp, "Existing");
+    when(chatRoom.addMessage(any(Long.class), any(String.class), any(String.class)))
+        .thenThrow(new MessageMutationException(mutated, existing));
+
+    // When
+    client
+        .put()
+        .uri(
+            "/put/{chatroomId}/{username}/{messageId}",
+            chatroomId,
+            username,
+            messageId)
+        .bodyValue("bar")
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        // Then
+        .expectStatus().is4xxClientError()
+        .expectBody()
+        .jsonPath("$.type").isEqualTo("/problem/message-mutation")
+        .jsonPath("$.mutatedMessage.text").isEqualTo("Mutated!")
+        .jsonPath("$.existingMessage.text").isEqualTo("Existing");
   }
 }
