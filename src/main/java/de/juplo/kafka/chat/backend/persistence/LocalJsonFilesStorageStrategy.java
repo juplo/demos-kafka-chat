@@ -100,8 +100,8 @@ public class LocalJsonFilesStorageStrategy implements StorageStrategy
         .log()
         .map(chatRoomTo ->
         {
-          InMemoryChatroomService chatroomService =
-              new InMemoryChatroomService(readMessages(chatRoomTo));
+          InMemoryChatRoomService chatroomService =
+              new InMemoryChatRoomService(readMessages(chatRoomTo));
           return service.restoreChatroom(
               chatRoomTo.getId(),
               chatRoomTo.getName(),

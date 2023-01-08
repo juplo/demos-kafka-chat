@@ -2,7 +2,7 @@ package de.juplo.kafka.chat.backend.persistence;
 
 import de.juplo.kafka.chat.backend.domain.Message;
 import de.juplo.kafka.chat.backend.domain.MessageMutationException;
-import de.juplo.kafka.chat.backend.domain.ChatroomService;
+import de.juplo.kafka.chat.backend.domain.ChatRoomService;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,17 +12,17 @@ import java.util.LinkedHashMap;
 
 
 @Slf4j
-public class InMemoryChatroomService implements ChatroomService
+public class InMemoryChatRoomService implements ChatRoomService
 {
   private final LinkedHashMap<Message.MessageKey, Message> messages;
 
 
-  public InMemoryChatroomService(LinkedHashMap<Message.MessageKey, Message> messages)
+  public InMemoryChatRoomService(LinkedHashMap<Message.MessageKey, Message> messages)
   {
     this.messages = messages;
   }
 
-  public InMemoryChatroomService(Flux<Message> messageFlux)
+  public InMemoryChatRoomService(Flux<Message> messageFlux)
   {
     log.debug("Creating InMemoryChatroomService");
     messages = new LinkedHashMap<>();

@@ -9,7 +9,7 @@ import java.util.UUID;
 
 
 @RequiredArgsConstructor
-public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatroomService>
+public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatRoomService>
 {
   private final int bufferSize;
 
@@ -17,16 +17,16 @@ public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatroom
   @Override
   public ChatRoom createChatroom(UUID id, String name)
   {
-    InMemoryChatroomService chatroomService =
-        new InMemoryChatroomService(new LinkedHashMap<>());
-    return new ChatRoom(id, name, chatroomService, bufferSize);
+    InMemoryChatRoomService service =
+        new InMemoryChatRoomService(new LinkedHashMap<>());
+    return new ChatRoom(id, name, service, bufferSize);
   }
 
   public ChatRoom restoreChatroom(
       UUID id,
       String name,
-      InMemoryChatroomService chatroomService)
+      InMemoryChatRoomService service)
   {
-    return new ChatRoom(id, name, chatroomService, bufferSize);
+    return new ChatRoom(id, name, service, bufferSize);
   }
 }
