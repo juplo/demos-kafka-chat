@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend.persistence;
+package de.juplo.kafka.chat.backend.persistence.filestorage;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
@@ -7,6 +7,8 @@ import de.juplo.kafka.chat.backend.api.ChatRoomTo;
 import de.juplo.kafka.chat.backend.api.MessageTo;
 import de.juplo.kafka.chat.backend.domain.ChatRoom;
 import de.juplo.kafka.chat.backend.domain.Message;
+import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
+import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -22,7 +24,7 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 @RequiredArgsConstructor
 @Slf4j
-public class LocalJsonFilesStorageStrategy implements StorageStrategy
+public class FileStorageStrategy implements StorageStrategy
 {
   public static final String CHATROOMS_FILENAME = "chatrooms.json";
 

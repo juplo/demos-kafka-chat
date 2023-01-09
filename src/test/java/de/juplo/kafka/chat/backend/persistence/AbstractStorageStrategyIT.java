@@ -16,24 +16,24 @@ import static pl.rzrz.assertj.reactor.Assertions.*;
 @Slf4j
 public abstract class AbstractStorageStrategyIT
 {
-  ChatHome chathome;
+  protected ChatHome chathome;
 
 
-  abstract StorageStrategy getStorageStrategy();
-  abstract Supplier<ChatHomeService> chatHomeServiceSupplier();
+  protected abstract StorageStrategy getStorageStrategy();
+  protected abstract Supplier<ChatHomeService> chatHomeServiceSupplier();
 
-  void start()
+  protected void start()
   {
     chathome = new ChatHome(chatHomeServiceSupplier().get());
   }
 
-  void stop()
+  protected void stop()
   {
     getStorageStrategy().writeChatrooms(chathome.getChatRooms());
   }
 
   @Test
-  void testStoreAndRecreate()
+  protected void testStoreAndRecreate()
   {
     start();
 

@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend.persistence;
+package de.juplo.kafka.chat.backend.persistence.inmemory;
 
 import de.juplo.kafka.chat.backend.domain.ChatRoom;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;

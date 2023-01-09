@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
+import de.juplo.kafka.chat.backend.persistence.filestorage.FileStorageStrategy;
+import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatHomeService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -16,34 +18,34 @@ import java.util.function.Supplier;
 
 
 @Slf4j
-public class LocalJsonFilesStorageStrategyIT extends AbstractStorageStrategyIT
+public class InMemoryWithFileStorageStrategyIT extends AbstractStorageStrategyIT
 {
   final static Path path = Paths.get("target","local-json-files");
 
   final Clock clock;
   final ObjectMapper mapper;
-  final LocalJsonFilesStorageStrategy storageStrategy;
+  final FileStorageStrategy storageStrategy;
 
 
-  public LocalJsonFilesStorageStrategyIT()
+  public InMemoryWithFileStorageStrategyIT()
   {
     clock = Clock.systemDefaultZone();
     mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    storageStrategy = new LocalJsonFilesStorageStrategy(path, clock, 8, mapper);
+    storageStrategy = new FileStorageStrategy(path, clock, 8, mapper);
 
   }
 
 
   @Override
-  StorageStrategy getStorageStrategy()
+  protected StorageStrategy getStorageStrategy()
   {
     return storageStrategy;
   }
 
   @Override
-  Supplier<ChatHomeService> chatHomeServiceSupplier()
+  protected Supplier<ChatHomeService> chatHomeServiceSupplier()
   {
     return () -> new InMemoryChatHomeService(getStorageStrategy().readChatrooms(), clock, 8);
   }
