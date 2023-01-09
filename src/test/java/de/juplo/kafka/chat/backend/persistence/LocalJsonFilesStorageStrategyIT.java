@@ -3,75 +3,49 @@ package de.juplo.kafka.chat.backend.persistence;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import de.juplo.kafka.chat.backend.domain.ChatHome;
-import de.juplo.kafka.chat.backend.domain.ChatRoom;
-import de.juplo.kafka.chat.backend.domain.Message;
+import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
-import java.util.List;
-
-import static pl.rzrz.assertj.reactor.Assertions.*;
+import java.util.function.Supplier;
 
 
 @Slf4j
-public class LocalJsonFilesStorageStrategyIT
+public class LocalJsonFilesStorageStrategyIT extends AbstractStorageStrategyIT
 {
   final static Path path = Paths.get("target","local-json-files");
 
-  InMemoryChatHomeService chatHomeService;
-  StorageStrategy storageStrategy;
-  ChatHome chathome;
+  final Clock clock;
+  final ObjectMapper mapper;
+  final LocalJsonFilesStorageStrategy storageStrategy;
 
-  void start()
+
+  public LocalJsonFilesStorageStrategyIT()
   {
-    Clock clock = Clock.systemDefaultZone();
-    ObjectMapper mapper = new ObjectMapper();
+    clock = Clock.systemDefaultZone();
+    mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     storageStrategy = new LocalJsonFilesStorageStrategy(path, clock, 8, mapper);
-    chatHomeService = new InMemoryChatHomeService(storageStrategy.readChatrooms(), clock, 8);
-    chathome = new ChatHome(chatHomeService);
+
   }
 
-  void stop()
+
+  @Override
+  StorageStrategy getStorageStrategy()
   {
-    storageStrategy.writeChatrooms(chathome.getChatRooms());
+    return storageStrategy;
   }
 
-  @Test
-  void testStoreAndRecreate()
+  @Override
+  Supplier<ChatHomeService> chatHomeServiceSupplier()
   {
-    start();
-
-    assertThat(chathome.getChatRooms().toStream()).hasSize(0);
-
-    ChatRoom chatroom = chathome.createChatroom("FOO").block();
-    Message m1 = chatroom.addMessage(1l,"Peter", "Hallo, ich heiße Peter!").block();
-    Message m2 = chatroom.addMessage(1l, "Ute", "Ich bin Ute...").block();
-    Message m3 = chatroom.addMessage(2l, "Peter", "Willst du mit mir gehen?").block();
-    Message m4 = chatroom.addMessage(1l, "Klaus", "Ja? Nein? Vielleicht??").block();
-
-    assertThat(chathome.getChatRooms().toStream()).containsExactlyElementsOf(List.of(chatroom));
-    assertThat(chathome.getChatRoom(chatroom.getId())).emitsExactly(chatroom);
-    assertThat(chathome
-        .getChatRoom(chatroom.getId())
-        .flatMapMany(cr -> cr.getMessages())).emitsExactly(m1, m2, m3, m4);
-
-    stop();
-    start();
-
-    assertThat(chathome.getChatRooms().toStream()).containsExactlyElementsOf(List.of(chatroom));
-    assertThat(chathome.getChatRoom(chatroom.getId())).emitsExactly(chatroom);
-    assertThat(chathome
-        .getChatRoom(chatroom.getId())
-        .flatMapMany(cr -> cr.getMessages())).emitsExactly(m1, m2, m3, m4);
+    return () -> new InMemoryChatHomeService(getStorageStrategy().readChatrooms(), clock, 8);
   }
 
   @BeforeEach
