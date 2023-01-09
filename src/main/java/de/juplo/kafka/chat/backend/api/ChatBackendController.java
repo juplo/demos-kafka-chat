@@ -124,6 +124,6 @@ public class ChatBackendController
   @PostMapping("/store")
   public void store()
   {
-    storageStrategy.writeChatrooms(chatHome.getChatRooms());
+    storageStrategy.write(chatHome.getChatRooms());
   }
 }

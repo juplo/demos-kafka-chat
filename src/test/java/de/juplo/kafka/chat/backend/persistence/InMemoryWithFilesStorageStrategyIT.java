@@ -52,7 +52,7 @@ public class InMemoryWithFilesStorageStrategyIT extends AbstractStorageStrategyI
   @Override
   protected Supplier<ChatHomeService> chatHomeServiceSupplier()
   {
-    return () -> new InMemoryChatHomeService(getStorageStrategy().readChatrooms(), clock, 8);
+    return () -> new InMemoryChatHomeService(getStorageStrategy().read(), clock, 8);
   }
 
   @BeforeEach

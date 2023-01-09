@@ -36,7 +36,7 @@ public class FilesStorageStrategy implements StorageStrategy
 
 
   @Override
-  public void writeChatrooms(Flux<ChatRoom> chatroomFlux)
+  public void write(Flux<ChatRoom> chatroomFlux)
   {
     Path path = chatroomsPath();
     log.info("Writing chatrooms to {}", path);
@@ -96,7 +96,7 @@ public class FilesStorageStrategy implements StorageStrategy
   }
 
   @Override
-  public Flux<ChatRoom> readChatrooms()
+  public Flux<ChatRoom> read()
   {
     JavaType type = mapper.getTypeFactory().constructType(ChatRoomTo.class);
     return Flux
@@ -110,7 +110,6 @@ public class FilesStorageStrategy implements StorageStrategy
             bufferSize));
   }
 
-  @Override
   public void writeMessages(ChatRoomTo chatroomTo, Flux<Message> messageFlux)
   {
     Path path = chatroomPath(chatroomTo);
@@ -169,7 +168,6 @@ public class FilesStorageStrategy implements StorageStrategy
     }
   }
 
-  @Override
   public Flux<Message> readMessages(ChatRoomTo chatroomTo)
   {
     JavaType type = mapper.getTypeFactory().constructType(MessageTo.class);

@@ -29,7 +29,7 @@ public abstract class AbstractStorageStrategyIT
 
   protected void stop()
   {
-    getStorageStrategy().writeChatrooms(chathome.getChatRooms());
+    getStorageStrategy().write(chathome.getChatRooms());
   }
 
   @Test

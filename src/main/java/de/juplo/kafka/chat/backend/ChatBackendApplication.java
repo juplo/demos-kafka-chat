@@ -32,7 +32,7 @@ public class ChatBackendApplication implements WebFluxConfigurer
 	@PreDestroy
 	public void onExit()
 	{
-		storageStrategy.writeChatrooms(chatHome.getChatRooms());
+		storageStrategy.write(chatHome.getChatRooms());
 	}
 
 	public static void main(String[] args)

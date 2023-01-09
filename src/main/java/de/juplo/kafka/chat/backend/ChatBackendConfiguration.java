@@ -32,7 +32,7 @@ public class ChatBackendConfiguration
       ChatBackendProperties properties)
   {
     return new InMemoryChatHomeService(
-        storageStrategy.readChatrooms(),
+        storageStrategy.read(),
         clock,
         properties.getChatroomBufferSize());
   }
