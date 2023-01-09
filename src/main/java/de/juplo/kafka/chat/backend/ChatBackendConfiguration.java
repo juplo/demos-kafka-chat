@@ -43,7 +43,7 @@ public class ChatBackendConfiguration
       ObjectMapper mapper)
   {
     return new LocalJsonFilesStorageStrategy(
-        Paths.get(properties.getDatadir()),
+        Paths.get(properties.getStorageDirectory()),
         clock,
         properties.getChatroomBufferSize(),
         mapper);

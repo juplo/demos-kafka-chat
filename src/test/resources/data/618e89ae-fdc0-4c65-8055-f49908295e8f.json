@@ -1,0 +1,19 @@
+[ {
+  "id" : 1477,
+  "serial" : 0,
+  "time" : "2023-01-08T00:10:08.817267716",
+  "user" : "ute",
+  "text" : "Nachricht Nr. 1477"
+}, {
+  "id" : 1478,
+  "serial" : 1,
+  "time" : "2023-01-08T00:10:10.03333094",
+  "user" : "ute",
+  "text" : "Nachricht Nr. 1478"
+}, {
+  "id" : 1479,
+  "serial" : 2,
+  "time" : "2023-01-08T00:10:11.22582036",
+  "user" : "ute",
+  "text" : "Nachricht Nr. 1479"
+} ]
