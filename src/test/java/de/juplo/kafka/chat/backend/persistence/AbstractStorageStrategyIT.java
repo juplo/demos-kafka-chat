@@ -20,11 +20,11 @@ public abstract class AbstractStorageStrategyIT
 
 
   protected abstract StorageStrategy getStorageStrategy();
-  protected abstract Supplier<ChatHomeService> chatHomeServiceSupplier();
+  protected abstract Supplier<ChatHomeService> getChatHomeServiceSupplier();
 
   protected void start()
   {
-    chathome = new ChatHome(chatHomeServiceSupplier().get());
+    chathome = new ChatHome(getChatHomeServiceSupplier().get());
   }
 
   protected void stop()
@@ -40,10 +40,10 @@ public abstract class AbstractStorageStrategyIT
     assertThat(chathome.getChatRooms().toStream()).hasSize(0);
 
     ChatRoom chatroom = chathome.createChatroom("FOO").block();
-    Message m1 = chatroom.addMessage(1l,"Peter", "Hallo, ich heiße Peter!").block();
-    Message m2 = chatroom.addMessage(1l, "Ute", "Ich bin Ute...").block();
-    Message m3 = chatroom.addMessage(2l, "Peter", "Willst du mit mir gehen?").block();
-    Message m4 = chatroom.addMessage(1l, "Klaus", "Ja? Nein? Vielleicht??").block();
+    Message m1 = chatroom.addMessage(1l,"peter", "Hallo, ich heiße Peter!").block();
+    Message m2 = chatroom.addMessage(1l, "ute", "Ich bin Ute...").block();
+    Message m3 = chatroom.addMessage(2l, "peter", "Willst du mit mir gehen?").block();
+    Message m4 = chatroom.addMessage(1l, "klaus", "Ja? Nein? Vielleicht??").block();
 
     assertThat(chathome.getChatRooms().toStream()).containsExactlyElementsOf(List.of(chatroom));
     assertThat(chathome.getChatRoom(chatroom.getId())).emitsExactly(chatroom);

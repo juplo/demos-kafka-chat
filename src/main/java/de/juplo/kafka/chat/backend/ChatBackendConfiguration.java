@@ -10,6 +10,7 @@ import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
 import java.nio.file.Paths;
 import java.time.Clock;
@@ -17,6 +18,7 @@ import java.time.Clock;
 
 @Configuration
 @EnableConfigurationProperties(ChatBackendProperties.class)
+@EnableReactiveMongoRepositories
 public class ChatBackendConfiguration
 {
   @Bean

@@ -28,7 +28,7 @@ public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatRoom
   {
     log.debug("Creating InMemoryChatHomeService with buffer-size {} (for created ChatRoom's)", bufferSize);
     this.chatrooms = new HashMap<>();
-    chatroomFlux.subscribe(chatroom -> chatrooms.put(chatroom.getId(), chatroom));
+    chatroomFlux.toStream().forEach(chatroom -> chatrooms.put(chatroom.getId(), chatroom));
     this.clock = clock;
     this.bufferSize = bufferSize;
   }
