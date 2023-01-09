@@ -19,31 +19,34 @@ import java.time.Clock;
 public class ChatBackendConfiguration
 {
   @Bean
-  public ChatHome chatHome(
-      ChatHomeService chatHomeService,
-      StorageStrategy storageStrategy)
+  public ChatHome chatHome(ChatHomeService chatHomeService)
   {
-    return new ChatHome(chatHomeService, storageStrategy.readChatrooms());
+    return new ChatHome(chatHomeService);
+  }
+
+  @Bean
+  InMemoryChatHomeService chatHomeService(
+      StorageStrategy storageStrategy,
+      Clock clock,
+      ChatBackendProperties properties)
+  {
+    return new InMemoryChatHomeService(
+        storageStrategy.readChatrooms(),
+        clock,
+        properties.getChatroomBufferSize());
   }
 
   @Bean
   public StorageStrategy storageStrategy(
       ChatBackendProperties properties,
-      ObjectMapper mapper,
-      InMemoryChatHomeService chatHomeService)
+      Clock clock,
+      ObjectMapper mapper)
   {
     return new LocalJsonFilesStorageStrategy(
         Paths.get(properties.getDatadir()),
-        mapper,
-        chatHomeService);
-  }
-
-  @Bean
-  InMemoryChatHomeService chatHomeService(
-      Clock clock,
-      ChatBackendProperties properties)
-  {
-    return new InMemoryChatHomeService(clock, properties.getChatroomBufferSize());
+        clock,
+        properties.getChatroomBufferSize(),
+        mapper);
   }
 
   @Bean

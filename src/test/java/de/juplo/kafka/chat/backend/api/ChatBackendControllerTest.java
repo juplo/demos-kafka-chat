@@ -34,7 +34,7 @@ public class ChatBackendControllerTest
   {
     // Given
     UUID chatroomId = UUID.randomUUID();
-    when(chatHome.getChatroom(any(UUID.class)))
+    when(chatHome.getChatRoom(any(UUID.class)))
         .thenReturn(Mono.error(() -> new UnknownChatroomException(chatroomId)));
 
     // When
@@ -55,7 +55,7 @@ public class ChatBackendControllerTest
   {
     // Given
     UUID chatroomId = UUID.randomUUID();
-    when(chatHome.getChatroom(any(UUID.class)))
+    when(chatHome.getChatRoom(any(UUID.class)))
         .thenReturn(Mono.error(() -> new UnknownChatroomException(chatroomId)));
 
     // When
@@ -77,7 +77,7 @@ public class ChatBackendControllerTest
     UUID chatroomId = UUID.randomUUID();
     String username = "foo";
     Long messageId = 66l;
-    when(chatHome.getChatroom(any(UUID.class)))
+    when(chatHome.getChatRoom(any(UUID.class)))
         .thenReturn(Mono.error(() -> new UnknownChatroomException(chatroomId)));
 
     // When
@@ -104,7 +104,7 @@ public class ChatBackendControllerTest
     UUID chatroomId = UUID.randomUUID();
     String username = "foo";
     Long messageId = 66l;
-    when(chatHome.getChatroom(any(UUID.class)))
+    when(chatHome.getChatRoom(any(UUID.class)))
         .thenReturn(Mono.error(() -> new UnknownChatroomException(chatroomId)));
 
     // When
@@ -128,7 +128,7 @@ public class ChatBackendControllerTest
   {
     // Given
     UUID chatroomId = UUID.randomUUID();
-    when(chatHome.getChatroom(any(UUID.class)))
+    when(chatHome.getChatRoom(any(UUID.class)))
         .thenReturn(Mono.error(() -> new UnknownChatroomException(chatroomId)));
 
     // When
@@ -162,7 +162,7 @@ public class ChatBackendControllerTest
     String username = "foo";
     Long messageId = 66l;
     ChatRoom chatRoom = mock(ChatRoom.class);
-    when(chatHome.getChatroom(any(UUID.class)))
+    when(chatHome.getChatRoom(any(UUID.class)))
         .thenReturn(Mono.just(chatRoom));
     Message.MessageKey key = Message.MessageKey.of("foo", 1l);
     LocalDateTime timestamp = LocalDateTime.now();

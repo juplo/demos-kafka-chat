@@ -14,6 +14,7 @@ import reactor.core.publisher.Flux;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Clock;
 
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -27,8 +28,9 @@ public class LocalJsonFilesStorageStrategy implements StorageStrategy
 
 
   private final Path storagePath;
+  private final Clock clock;
+  private final int bufferSize;
   private final ObjectMapper mapper;
-  private final InMemoryChatHomeService service;
 
 
   @Override
@@ -102,10 +104,12 @@ public class LocalJsonFilesStorageStrategy implements StorageStrategy
         {
           InMemoryChatRoomService chatroomService =
               new InMemoryChatRoomService(readMessages(chatRoomTo));
-          return service.restoreChatroom(
+          return new ChatRoom(
               chatRoomTo.getId(),
               chatRoomTo.getName(),
-              chatroomService);
+              clock,
+              chatroomService,
+              bufferSize);
         });
   }
 

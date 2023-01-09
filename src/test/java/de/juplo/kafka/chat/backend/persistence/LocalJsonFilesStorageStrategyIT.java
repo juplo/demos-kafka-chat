@@ -25,24 +25,24 @@ public class LocalJsonFilesStorageStrategyIT
 {
   final static Path path = Paths.get("target","local-json-files");
 
-  InMemoryChatHomeService service;
+  InMemoryChatHomeService chatHomeService;
   StorageStrategy storageStrategy;
   ChatHome chathome;
 
   void start()
   {
     Clock clock = Clock.systemDefaultZone();
-    service = new InMemoryChatHomeService(clock, 8);
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    storageStrategy = new LocalJsonFilesStorageStrategy(path, mapper, service);
-    chathome = new ChatHome(service, storageStrategy.readChatrooms());
+    storageStrategy = new LocalJsonFilesStorageStrategy(path, clock, 8, mapper);
+    chatHomeService = new InMemoryChatHomeService(storageStrategy.readChatrooms(), clock, 8);
+    chathome = new ChatHome(chatHomeService);
   }
 
   void stop()
   {
-    storageStrategy.writeChatrooms(chathome.list());
+    storageStrategy.writeChatrooms(chathome.getChatRooms());
   }
 
   @Test
@@ -50,7 +50,7 @@ public class LocalJsonFilesStorageStrategyIT
   {
     start();
 
-    assertThat(chathome.list().toStream()).hasSize(0);
+    assertThat(chathome.getChatRooms().toStream()).hasSize(0);
 
     ChatRoom chatroom = chathome.createChatroom("FOO").block();
     Message m1 = chatroom.addMessage(1l,"Peter", "Hallo, ich heiße Peter!").block();
@@ -58,19 +58,19 @@ public class LocalJsonFilesStorageStrategyIT
     Message m3 = chatroom.addMessage(2l, "Peter", "Willst du mit mir gehen?").block();
     Message m4 = chatroom.addMessage(1l, "Klaus", "Ja? Nein? Vielleicht??").block();
 
-    assertThat(chathome.list().toStream()).containsExactlyElementsOf(List.of(chatroom));
-    assertThat(chathome.getChatroom(chatroom.getId())).emitsExactly(chatroom);
+    assertThat(chathome.getChatRooms().toStream()).containsExactlyElementsOf(List.of(chatroom));
+    assertThat(chathome.getChatRoom(chatroom.getId())).emitsExactly(chatroom);
     assertThat(chathome
-        .getChatroom(chatroom.getId())
+        .getChatRoom(chatroom.getId())
         .flatMapMany(cr -> cr.getMessages())).emitsExactly(m1, m2, m3, m4);
 
     stop();
     start();
 
-    assertThat(chathome.list().toStream()).containsExactlyElementsOf(List.of(chatroom));
-    assertThat(chathome.getChatroom(chatroom.getId())).emitsExactly(chatroom);
+    assertThat(chathome.getChatRooms().toStream()).containsExactlyElementsOf(List.of(chatroom));
+    assertThat(chathome.getChatRoom(chatroom.getId())).emitsExactly(chatroom);
     assertThat(chathome
-        .getChatroom(chatroom.getId())
+        .getChatRoom(chatroom.getId())
         .flatMapMany(cr -> cr.getMessages())).emitsExactly(m1, m2, m3, m4);
   }
 

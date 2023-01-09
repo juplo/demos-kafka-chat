@@ -23,7 +23,7 @@ public class InMemoryChatRoomService implements ChatRoomService
 
   public InMemoryChatRoomService(Flux<Message> messageFlux)
   {
-    log.debug("Creating InMemoryChatroomService");
+    log.debug("Creating InMemoryChatRoomService");
     messages = new LinkedHashMap<>();
     messageFlux.subscribe(message -> messages.put(message.getKey(), message));
   }

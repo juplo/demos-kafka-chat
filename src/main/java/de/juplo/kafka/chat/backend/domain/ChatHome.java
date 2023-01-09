@@ -1,5 +1,6 @@
 package de.juplo.kafka.chat.backend.domain;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -8,36 +9,25 @@ import java.util.*;
 
 
 @Slf4j
+@RequiredArgsConstructor
 public class ChatHome
 {
-  private final Map<UUID, ChatRoom> chatrooms;
   private final ChatHomeService service;
-
-  public ChatHome(ChatHomeService service, Flux<ChatRoom> chatroomFlux)
-  {
-    log.debug("Creating ChatHome with factory: {}", service);
-    this.service = service;
-    this.chatrooms = new HashMap<>();
-    chatroomFlux.subscribe(chatroom -> chatrooms.put(chatroom.getId(), chatroom));
-  }
 
   public Mono<ChatRoom> createChatroom(String name)
   {
-    ChatRoom chatroom = service.createChatroom(UUID.randomUUID(), name);
-    chatrooms.put(chatroom.getId(), chatroom);
-    return Mono.just(chatroom);
+    return service.createChatRoom(UUID.randomUUID(), name);
   }
 
-  public Mono<ChatRoom> getChatroom(UUID id)
+  public Mono<ChatRoom> getChatRoom(UUID id)
   {
-    ChatRoom chatroom = chatrooms.get(id);
-    return chatroom == null
-        ? Mono.error(() -> new UnknownChatroomException(id))
-        : Mono.just(chatroom);
+    return service
+        .getChatRoom(id)
+        .switchIfEmpty(Mono.error(() -> new UnknownChatroomException(id)));
   }
 
-  public Flux<ChatRoom> list()
+  public Flux<ChatRoom> getChatRooms()
   {
-    return Flux.fromStream(chatrooms.values().stream());
+    return service.getChatRooms();
   }
 }

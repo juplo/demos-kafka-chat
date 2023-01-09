@@ -29,14 +29,14 @@ public class ChatBackendController
   @GetMapping("list")
   public Flux<ChatRoomTo> list()
   {
-    return chatHome.list().map(chatroom -> ChatRoomTo.from(chatroom));
+    return chatHome.getChatRooms().map(chatroom -> ChatRoomTo.from(chatroom));
   }
 
   @GetMapping("list/{chatroomId}")
   public Flux<MessageTo> list(@PathVariable UUID chatroomId)
   {
     return chatHome
-        .getChatroom(chatroomId)
+        .getChatRoom(chatroomId)
         .flatMapMany(chatroom -> chatroom
             .getMessages()
             .map(MessageTo::from));
@@ -45,7 +45,7 @@ public class ChatBackendController
   @GetMapping("get/{chatroomId}")
   public Mono<ChatRoomTo> get(@PathVariable UUID chatroomId)
   {
-    return chatHome.getChatroom(chatroomId).map(chatroom -> ChatRoomTo.from(chatroom));
+    return chatHome.getChatRoom(chatroomId).map(chatroom -> ChatRoomTo.from(chatroom));
   }
 
   @PutMapping("put/{chatroomId}/{username}/{messageId}")
@@ -57,7 +57,7 @@ public class ChatBackendController
   {
     return
         chatHome
-            .getChatroom(chatroomId)
+            .getChatRoom(chatroomId)
             .flatMap(chatroom -> put(chatroom, username, messageId, text));
   }
 
@@ -84,7 +84,7 @@ public class ChatBackendController
   {
     return
         chatHome
-            .getChatroom(chatroomId)
+            .getChatRoom(chatroomId)
             .flatMap(chatroom -> get(chatroom, username, messageId));
   }
 
@@ -103,7 +103,7 @@ public class ChatBackendController
   public Flux<ServerSentEvent<MessageTo>> listen(@PathVariable UUID chatroomId)
   {
     return chatHome
-        .getChatroom(chatroomId)
+        .getChatRoom(chatroomId)
         .flatMapMany(chatroom -> listen(chatroom));
   }
 
@@ -124,6 +124,6 @@ public class ChatBackendController
   @PostMapping("/store")
   public void store()
   {
-    storageStrategy.writeChatrooms(chatHome.list());
+    storageStrategy.writeChatrooms(chatHome.getChatRooms());
   }
 }

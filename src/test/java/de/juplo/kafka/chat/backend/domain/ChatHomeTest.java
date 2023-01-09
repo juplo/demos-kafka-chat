@@ -2,13 +2,14 @@ package de.juplo.kafka.chat.backend.domain;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Clock;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static pl.rzrz.assertj.reactor.Assertions.assertThat;
 
 
@@ -20,13 +21,17 @@ public class ChatHomeTest
   {
     // Given
     ChatHomeService chatHomeService = mock(ChatHomeService.class);
-    ChatRoomService chatRoomService = mock(ChatRoomService.class);
-    UUID chatroomId = UUID.randomUUID();
-    ChatRoom chatRoom = new ChatRoom(chatroomId, "Foo", Clock.systemDefaultZone(), chatRoomService, 8);
-    ChatHome chatHome = new ChatHome(chatHomeService, Flux.just(chatRoom));
+    ChatRoom chatRoom = new ChatRoom(
+        UUID.randomUUID(),
+        "Foo",
+        Clock.systemDefaultZone(),
+        mock(ChatRoomService.class),
+        8);
+    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.just(chatRoom));
+    ChatHome chatHome = new ChatHome(chatHomeService);
 
     // When
-    Mono<ChatRoom> mono = chatHome.getChatroom(chatroomId);
+    Mono<ChatRoom> mono = chatHome.getChatRoom(chatRoom.getId());
 
     // Then
     assertThat(mono).emitsExactly(chatRoom);
@@ -38,10 +43,11 @@ public class ChatHomeTest
   {
     // Given
     ChatHomeService chatHomeService = mock(ChatHomeService.class);
-    ChatHome chatHome = new ChatHome(chatHomeService, Flux.empty());
+    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.empty());
+    ChatHome chatHome = new ChatHome(chatHomeService);
 
     // When
-    Mono<ChatRoom> mono = chatHome.getChatroom(UUID.randomUUID());
+    Mono<ChatRoom> mono = chatHome.getChatRoom(UUID.randomUUID());
 
     // Then
     assertThat(mono).sendsError();
