@@ -4,7 +4,7 @@ import de.juplo.kafka.chat.backend.domain.ChatHome;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatHomeService;
-import de.juplo.kafka.chat.backend.persistence.filestorage.FileStorageStrategy;
+import de.juplo.kafka.chat.backend.persistence.storage.files.FilesStorageStrategy;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -43,7 +43,7 @@ public class ChatBackendConfiguration
       Clock clock,
       ObjectMapper mapper)
   {
-    return new FileStorageStrategy(
+    return new FilesStorageStrategy(
         Paths.get(properties.getStorageDirectory()),
         clock,
         properties.getChatroomBufferSize(),

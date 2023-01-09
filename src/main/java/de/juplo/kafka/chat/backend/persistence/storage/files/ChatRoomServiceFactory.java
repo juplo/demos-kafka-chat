@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend.persistence.filestorage;
+package de.juplo.kafka.chat.backend.persistence.storage.files;
 
 import de.juplo.kafka.chat.backend.domain.ChatRoomService;
 import de.juplo.kafka.chat.backend.domain.Message;

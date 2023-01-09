@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
-import de.juplo.kafka.chat.backend.persistence.filestorage.FileStorageStrategy;
+import de.juplo.kafka.chat.backend.persistence.storage.files.FilesStorageStrategy;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatHomeService;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
 import lombok.extern.slf4j.Slf4j;
@@ -19,22 +19,22 @@ import java.util.function.Supplier;
 
 
 @Slf4j
-public class InMemoryWithFileStorageStrategyIT extends AbstractStorageStrategyIT
+public class InMemoryWithFilesStorageStrategyIT extends AbstractStorageStrategyIT
 {
   final static Path path = Paths.get("target","local-json-files");
 
   final Clock clock;
   final ObjectMapper mapper;
-  final FileStorageStrategy storageStrategy;
+  final FilesStorageStrategy storageStrategy;
 
 
-  public InMemoryWithFileStorageStrategyIT()
+  public InMemoryWithFilesStorageStrategyIT()
   {
     clock = Clock.systemDefaultZone();
     mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    storageStrategy = new FileStorageStrategy(
+    storageStrategy = new FilesStorageStrategy(
         path,
         clock,
         8,

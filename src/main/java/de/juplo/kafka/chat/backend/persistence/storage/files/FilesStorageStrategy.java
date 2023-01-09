@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend.persistence.filestorage;
+package de.juplo.kafka.chat.backend.persistence.storage.files;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
@@ -23,7 +23,7 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 @RequiredArgsConstructor
 @Slf4j
-public class FileStorageStrategy implements StorageStrategy
+public class FilesStorageStrategy implements StorageStrategy
 {
   public static final String CHATROOMS_FILENAME = "chatrooms.json";
 
