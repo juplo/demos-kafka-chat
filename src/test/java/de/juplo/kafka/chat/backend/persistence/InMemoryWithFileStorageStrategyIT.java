@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.persistence.filestorage.FileStorageStrategy;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatHomeService;
+import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -33,8 +34,12 @@ public class InMemoryWithFileStorageStrategyIT extends AbstractStorageStrategyIT
     mapper = new ObjectMapper();
     mapper.registerModule(new JavaTimeModule());
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    storageStrategy = new FileStorageStrategy(path, clock, 8, mapper);
-
+    storageStrategy = new FileStorageStrategy(
+        path,
+        clock,
+        8,
+        messageFlux -> new InMemoryChatRoomService(messageFlux),
+        mapper);
   }
 
 

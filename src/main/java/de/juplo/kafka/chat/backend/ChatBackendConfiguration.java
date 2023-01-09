@@ -6,6 +6,7 @@ import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatHomeService;
 import de.juplo.kafka.chat.backend.persistence.filestorage.FileStorageStrategy;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
+import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,6 +47,7 @@ public class ChatBackendConfiguration
         Paths.get(properties.getStorageDirectory()),
         clock,
         properties.getChatroomBufferSize(),
+        messageFlux -> new InMemoryChatRoomService(messageFlux),
         mapper);
   }
 

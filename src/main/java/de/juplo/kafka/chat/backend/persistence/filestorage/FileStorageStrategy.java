@@ -8,7 +8,6 @@ import de.juplo.kafka.chat.backend.api.MessageTo;
 import de.juplo.kafka.chat.backend.domain.ChatRoom;
 import de.juplo.kafka.chat.backend.domain.Message;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
-import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -32,6 +31,7 @@ public class FileStorageStrategy implements StorageStrategy
   private final Path storagePath;
   private final Clock clock;
   private final int bufferSize;
+  private final ChatRoomServiceFactory factory;
   private final ObjectMapper mapper;
 
 
@@ -102,17 +102,12 @@ public class FileStorageStrategy implements StorageStrategy
     return Flux
         .from(new JsonFilePublisher<ChatRoomTo>(chatroomsPath(), mapper, type))
         .log()
-        .map(chatRoomTo ->
-        {
-          InMemoryChatRoomService chatroomService =
-              new InMemoryChatRoomService(readMessages(chatRoomTo));
-          return new ChatRoom(
-              chatRoomTo.getId(),
-              chatRoomTo.getName(),
-              clock,
-              chatroomService,
-              bufferSize);
-        });
+        .map(chatRoomTo -> new ChatRoom(
+            chatRoomTo.getId(),
+            chatRoomTo.getName(),
+            clock,
+            factory.create(readMessages(chatRoomTo)),
+            bufferSize));
   }
 
   @Override
