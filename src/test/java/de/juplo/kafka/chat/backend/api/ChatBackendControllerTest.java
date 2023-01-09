@@ -12,12 +12,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @SpringBootTest(properties = "spring.main.allow-bean-definition-overriding=true")
@@ -26,7 +26,9 @@ import static org.mockito.Mockito.when;
 public class ChatBackendControllerTest
 {
   @MockBean
-  ChatHome chatHome;
+  ChatHomeService chatHomeService;
+  @MockBean
+  ChatRoomService chatRoomService;
 
   @Test
   @DisplayName("Assert expected problem-details for unknown chatroom on GET /list/{chatroomId}")
@@ -34,8 +36,7 @@ public class ChatBackendControllerTest
   {
     // Given
     UUID chatroomId = UUID.randomUUID();
-    when(chatHome.getChatRoom(any(UUID.class)))
-        .thenReturn(Mono.error(() -> new UnknownChatroomException(chatroomId)));
+    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.empty());
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -55,8 +56,7 @@ public class ChatBackendControllerTest
   {
     // Given
     UUID chatroomId = UUID.randomUUID();
-    when(chatHome.getChatRoom(any(UUID.class)))
-        .thenReturn(Mono.error(() -> new UnknownChatroomException(chatroomId)));
+    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.empty());
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -77,8 +77,7 @@ public class ChatBackendControllerTest
     UUID chatroomId = UUID.randomUUID();
     String username = "foo";
     Long messageId = 66l;
-    when(chatHome.getChatRoom(any(UUID.class)))
-        .thenReturn(Mono.error(() -> new UnknownChatroomException(chatroomId)));
+    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.empty());
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -104,8 +103,7 @@ public class ChatBackendControllerTest
     UUID chatroomId = UUID.randomUUID();
     String username = "foo";
     Long messageId = 66l;
-    when(chatHome.getChatRoom(any(UUID.class)))
-        .thenReturn(Mono.error(() -> new UnknownChatroomException(chatroomId)));
+    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.empty());
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -128,8 +126,7 @@ public class ChatBackendControllerTest
   {
     // Given
     UUID chatroomId = UUID.randomUUID();
-    when(chatHome.getChatRoom(any(UUID.class)))
-        .thenReturn(Mono.error(() -> new UnknownChatroomException(chatroomId)));
+    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.empty());
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -159,16 +156,30 @@ public class ChatBackendControllerTest
   {
     // Given
     UUID chatroomId = UUID.randomUUID();
-    String username = "foo";
+    String user = "foo";
     Long messageId = 66l;
-    ChatRoom chatRoom = mock(ChatRoom.class);
-    when(chatHome.getChatRoom(any(UUID.class)))
-        .thenReturn(Mono.just(chatRoom));
-    Message.MessageKey key = Message.MessageKey.of("foo", 1l);
-    LocalDateTime timestamp = LocalDateTime.now();
-    Message existing = new Message(key, 0l, timestamp, "Existing");
-    when(chatRoom.addMessage(any(Long.class), any(String.class), any(String.class)))
-        .thenReturn(Mono.error(() -> new MessageMutationException(existing, "Mutated!")));
+    Message.MessageKey key = Message.MessageKey.of(user, messageId);
+    Long serialNumberExistingMessage = 0l;
+    String timeExistingMessageAsString = "2023-01-09T20:44:57.389665447";
+    LocalDateTime timeExistingMessage = LocalDateTime.parse(timeExistingMessageAsString);
+    String textExistingMessage = "Existing";
+    String textMutatedMessage = "Mutated!";
+    ChatRoom chatRoom = new ChatRoom(
+        chatroomId,
+        "Test-ChatRoom",
+        Clock.systemDefaultZone(),
+        chatRoomService, 8);
+    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.just(chatRoom));
+    Message existingMessage = new Message(
+        key,
+        serialNumberExistingMessage,
+        timeExistingMessage,
+        textExistingMessage);
+    when(chatRoomService.getMessage(any(Message.MessageKey.class)))
+        .thenReturn(Mono.just(existingMessage));
+    // Needed for readable error-reports, in case of a bug that leads to according unwanted call
+    when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class)))
+        .thenReturn(mock(Message.class));
 
     // When
     client
@@ -176,16 +187,21 @@ public class ChatBackendControllerTest
         .uri(
             "/put/{chatroomId}/{username}/{messageId}",
             chatroomId,
-            username,
+            user,
             messageId)
-        .bodyValue("bar")
+        .bodyValue(textMutatedMessage)
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         // Then
         .expectStatus().is4xxClientError()
         .expectBody()
         .jsonPath("$.type").isEqualTo("/problem/message-mutation")
-        .jsonPath("$.existingMessage.text").isEqualTo("Existing")
-        .jsonPath("$.mutatedText").isEqualTo("Mutated!");
+        .jsonPath("$.existingMessage.id").isEqualTo(messageId)
+        .jsonPath("$.existingMessage.serial").isEqualTo(serialNumberExistingMessage)
+        .jsonPath("$.existingMessage.time").isEqualTo(timeExistingMessageAsString)
+        .jsonPath("$.existingMessage.user").isEqualTo(user)
+        .jsonPath("$.existingMessage.text").isEqualTo(textExistingMessage)
+        .jsonPath("$.mutatedText").isEqualTo(textMutatedMessage);
+    verify(chatRoomService, never()).persistMessage(eq(key), any(LocalDateTime.class), any(String.class));
   }
 }

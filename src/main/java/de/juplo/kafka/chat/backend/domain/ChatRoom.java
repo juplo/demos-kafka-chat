@@ -56,7 +56,7 @@ public class ChatRoom
             : Mono.error(() -> new MessageMutationException(existing, text)))
         .switchIfEmpty(
             Mono
-                .just(service.persistMessage(key, LocalDateTime.now(clock), text))
+                .fromSupplier(() ->service.persistMessage(key, LocalDateTime.now(clock), text))
                 .doOnNext(m ->
                 {
                   Sinks.EmitResult result = sink.tryEmitNext(m);
