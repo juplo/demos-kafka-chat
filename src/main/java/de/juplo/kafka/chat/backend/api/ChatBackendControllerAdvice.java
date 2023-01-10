@@ -1,5 +1,6 @@
 package de.juplo.kafka.chat.backend.api;
 
+import de.juplo.kafka.chat.backend.domain.InvalidUsernameException;
 import de.juplo.kafka.chat.backend.domain.MessageMutationException;
 import de.juplo.kafka.chat.backend.domain.UnknownChatroomException;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,6 +81,39 @@ public class ChatBackendControllerAdvice
     problem.setProperty("existingMessage", MessageTo.from(e.getExisting()));
 
     problem.setProperty("mutatedText", e.getMutatedText());
+
+    return problem;
+  }
+
+  @ExceptionHandler(InvalidUsernameException.class)
+  public final ProblemDetail handleException(
+      InvalidUsernameException e,
+      ServerWebExchange exchange,
+      UriComponentsBuilder uriComponentsBuilder)
+  {
+    final HttpStatus status = HttpStatus.BAD_REQUEST;
+    ProblemDetail problem = ProblemDetail.forStatus(status);
+
+    problem.setProperty("timestamp", new Date());
+
+    problem.setProperty("requestId", exchange.getRequest().getId());
+
+    problem.setType(uriComponentsBuilder.replacePath(contextPath).path("/problem/invalid-username").build().toUri());
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(status.getReasonPhrase());
+    stringBuilder.append(" - ");
+    stringBuilder.append(e.getMessage());
+    problem.setTitle(stringBuilder.toString());
+
+    stringBuilder.setLength(0);
+    stringBuilder.append("Invalid username: ");
+    stringBuilder.append(e.getUsername());
+    stringBuilder.append(
+        "! A valid username must consist of at at least two letters and " +
+        "must only contain lower case letters a-z, numbers and dashes");
+    problem.setDetail(stringBuilder.toString());
+
+    problem.setProperty("username", e.getUsername());
 
     return problem;
   }

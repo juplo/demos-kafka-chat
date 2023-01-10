@@ -11,6 +11,8 @@ import reactor.core.publisher.Sinks;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Slf4j
@@ -18,6 +20,7 @@ import java.util.*;
 @ToString(of = { "id", "name" })
 public class ChatRoom
 {
+  public final static Pattern VALID_USER = Pattern.compile("^[a-z0-9-]{2,}$");
   @Getter
   private final UUID id;
   @Getter
@@ -48,6 +51,10 @@ public class ChatRoom
       String user,
       String text)
   {
+    Matcher matcher = VALID_USER.matcher(user);
+    if (!matcher.matches())
+      throw new InvalidUsernameException(user);
+
     Message.MessageKey key = Message.MessageKey.of(user, id);
     return service
         .getMessage(key)

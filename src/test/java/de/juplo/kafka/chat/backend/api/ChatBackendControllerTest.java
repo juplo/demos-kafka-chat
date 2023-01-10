@@ -204,4 +204,46 @@ public class ChatBackendControllerTest
         .jsonPath("$.mutatedText").isEqualTo(textMutatedMessage);
     verify(chatRoomService, never()).persistMessage(eq(key), any(LocalDateTime.class), any(String.class));
   }
+
+  @Test
+  @DisplayName("Assert expected problem-details for invalid username on PUT /put/{chatroomId}/{username}/{messageId}")
+  void testInvalidUsernameException(@Autowired WebTestClient client) throws Exception
+  {
+    // Given
+    UUID chatroomId = UUID.randomUUID();
+    String user = "Foo";
+    Long messageId = 66l;
+    Message.MessageKey key = Message.MessageKey.of(user, messageId);
+    String textMessage = "Hallo Welt";
+    ChatRoom chatRoom = new ChatRoom(
+        chatroomId,
+        "Test-ChatRoom",
+        Clock.systemDefaultZone(),
+        chatRoomService, 8);
+    when(chatHomeService.getChatRoom(any(UUID.class)))
+        .thenReturn(Mono.just(chatRoom));
+    when(chatRoomService.getMessage(any(Message.MessageKey.class)))
+        .thenReturn(Mono.empty());
+    // Needed for readable error-reports, in case of a bug that leads to according unwanted call
+    when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class)))
+        .thenReturn(mock(Message.class));
+
+    // When
+    client
+        .put()
+        .uri(
+            "/put/{chatroomId}/{username}/{messageId}",
+            chatroomId,
+            user,
+            messageId)
+        .bodyValue(textMessage)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        // Then
+        .expectStatus().is4xxClientError()
+        .expectBody()
+        .jsonPath("$.type").isEqualTo("/problem/invalid-username")
+        .jsonPath("$.username").isEqualTo(user);
+    verify(chatRoomService, never()).persistMessage(eq(key), any(LocalDateTime.class), any(String.class));
+  }
 }
