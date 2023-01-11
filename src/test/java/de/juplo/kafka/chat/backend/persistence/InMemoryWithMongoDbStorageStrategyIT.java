@@ -7,6 +7,7 @@ import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
 import de.juplo.kafka.chat.backend.persistence.storage.mongodb.ChatRoomRepository;
 import de.juplo.kafka.chat.backend.persistence.storage.mongodb.MongoDbStorageStrategy;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -15,10 +16,10 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.TestPropertySourceUtils;
+import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Container;
@@ -82,7 +83,6 @@ public class InMemoryWithMongoDbStorageStrategyIT extends AbstractStorageStrateg
   @Container
   private static final GenericContainer CONTAINER =
       new GenericContainer("mongo:6")
-          .withEnv("MONGO_INITDB_DATABASE", "test")
           .withExposedPorts(MONGODB_PORT);
 
   public static class DataSourceInitializer
@@ -96,8 +96,13 @@ public class InMemoryWithMongoDbStorageStrategyIT extends AbstractStorageStrateg
           "spring.data.mongodb.host=localhost",
           "spring.data.mongodb.port=" + CONTAINER.getMappedPort(MONGODB_PORT),
           "spring.data.mongodb.database=test");
+    }
+  }
 
-      Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(log);
-      CONTAINER.followOutput(logConsumer);    }
+  @BeforeEach
+  void setUpLogging()
+  {
+    Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(log);
+    CONTAINER.followOutput(logConsumer);
   }
 }
