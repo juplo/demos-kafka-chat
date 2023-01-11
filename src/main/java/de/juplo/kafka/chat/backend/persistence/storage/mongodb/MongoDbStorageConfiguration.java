@@ -1,6 +1,5 @@
-package de.juplo.kafka.chat.backend.persistence.storage.files;
+package de.juplo.kafka.chat.backend.persistence.storage.mongodb;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
@@ -8,29 +7,26 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.nio.file.Paths;
 import java.time.Clock;
 
 
 @ConditionalOnProperty(
     prefix = "chat.backend",
     name = "storage",
-    havingValue = "files",
-    matchIfMissing = true)
+    havingValue = "mongodb")
 @Configuration
-public class FilesStorageConfiguration
+public class MongoDbStorageConfiguration
 {
   @Bean
   public StorageStrategy storageStrategy(
+      ChatRoomRepository chatRoomRepository,
       ChatBackendProperties properties,
-      Clock clock,
-      ObjectMapper mapper)
+      Clock clock)
   {
-    return new FilesStorageStrategy(
-        Paths.get(properties.getStorageDirectory()),
+    return new MongoDbStorageStrategy(
+        chatRoomRepository,
         clock,
         properties.getChatroomBufferSize(),
-        messageFlux -> new InMemoryChatRoomService(messageFlux),
-        mapper);
+        messageFlux -> new InMemoryChatRoomService(messageFlux));
   }
 }
