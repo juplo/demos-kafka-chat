@@ -41,7 +41,7 @@ public class ChatBackendControllerTest
     // When
     WebTestClient.ResponseSpec responseSpec = client
         .get()
-        .uri("/list/{chatroomId}", chatroomId)
+        .uri("/{chatroomId}/list", chatroomId)
         .accept(MediaType.APPLICATION_JSON)
         .exchange();
 
@@ -61,7 +61,7 @@ public class ChatBackendControllerTest
     // When
     WebTestClient.ResponseSpec responseSpec = client
         .get()
-        .uri("/get/{chatroomId}", chatroomId)
+        .uri("/{chatroomId}", chatroomId)
         .accept(MediaType.APPLICATION_JSON)
         .exchange();
 
@@ -83,7 +83,7 @@ public class ChatBackendControllerTest
     WebTestClient.ResponseSpec responseSpec = client
         .put()
         .uri(
-            "/put/{chatroomId}/{username}/{messageId}",
+            "/{chatroomId}/{username}/{messageId}",
             chatroomId,
             username,
             messageId)
@@ -109,7 +109,7 @@ public class ChatBackendControllerTest
     WebTestClient.ResponseSpec responseSpec = client
         .get()
         .uri(
-            "/get/{chatroomId}/{username}/{messageId}",
+            "/{chatroomId}/{username}/{messageId}",
             chatroomId,
             username,
             messageId)
@@ -131,7 +131,7 @@ public class ChatBackendControllerTest
     // When
     WebTestClient.ResponseSpec responseSpec = client
         .get()
-        .uri("/listen/{chatroomId}", chatroomId)
+        .uri("/{chatroomId}/listen", chatroomId)
         // .accept(MediaType.TEXT_EVENT_STREAM, MediaType.APPLICATION_JSON) << TODO: Does not work!
         .exchange();
 
@@ -185,7 +185,7 @@ public class ChatBackendControllerTest
     client
         .put()
         .uri(
-            "/put/{chatroomId}/{username}/{messageId}",
+            "/{chatroomId}/{username}/{messageId}",
             chatroomId,
             user,
             messageId)
@@ -232,7 +232,7 @@ public class ChatBackendControllerTest
     client
         .put()
         .uri(
-            "/put/{chatroomId}/{username}/{messageId}",
+            "/{chatroomId}/{username}/{messageId}",
             chatroomId,
             user,
             messageId)

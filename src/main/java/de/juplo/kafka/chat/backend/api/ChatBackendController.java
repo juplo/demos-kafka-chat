@@ -32,7 +32,7 @@ public class ChatBackendController
     return chatHome.getChatRooms().map(chatroom -> ChatRoomTo.from(chatroom));
   }
 
-  @GetMapping("list/{chatroomId}")
+  @GetMapping("{chatroomId}/list")
   public Flux<MessageTo> list(@PathVariable UUID chatroomId)
   {
     return chatHome
@@ -42,13 +42,13 @@ public class ChatBackendController
             .map(MessageTo::from));
   }
 
-  @GetMapping("get/{chatroomId}")
+  @GetMapping("{chatroomId}")
   public Mono<ChatRoomTo> get(@PathVariable UUID chatroomId)
   {
     return chatHome.getChatRoom(chatroomId).map(chatroom -> ChatRoomTo.from(chatroom));
   }
 
-  @PutMapping("put/{chatroomId}/{username}/{messageId}")
+  @PutMapping("{chatroomId}/{username}/{messageId}")
   public Mono<MessageTo> put(
       @PathVariable UUID chatroomId,
       @PathVariable String username,
@@ -76,7 +76,7 @@ public class ChatBackendController
             .map(message -> MessageTo.from(message));
   }
 
-  @GetMapping("get/{chatroomId}/{username}/{messageId}")
+  @GetMapping("{chatroomId}/{username}/{messageId}")
   public Mono<MessageTo> get(
       @PathVariable UUID chatroomId,
       @PathVariable String username,
@@ -99,7 +99,7 @@ public class ChatBackendController
             .map(message -> MessageTo.from(message));
   }
 
-  @GetMapping(path = "listen/{chatroomId}")
+  @GetMapping(path = "{chatroomId}/listen")
   public Flux<ServerSentEvent<MessageTo>> listen(@PathVariable UUID chatroomId)
   {
     return chatHome
