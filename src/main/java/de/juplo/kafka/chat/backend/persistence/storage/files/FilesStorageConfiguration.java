@@ -4,7 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,6 +21,10 @@ import java.time.Clock;
     havingValue = "files",
     matchIfMissing = true)
 @Configuration
+@EnableAutoConfiguration(
+    exclude = {
+        MongoRepositoriesAutoConfiguration.class,
+        MongoAutoConfiguration.class })
 public class FilesStorageConfiguration
 {
   @Bean
