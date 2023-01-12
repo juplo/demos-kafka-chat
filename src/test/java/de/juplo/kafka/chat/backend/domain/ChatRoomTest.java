@@ -24,7 +24,13 @@ public class ChatRoomTest
     String user = "foo";
     Long messageId = 1l;
     ChatRoomService chatRoomService = mock(ChatRoomService.class);
-    ChatRoom chatRoom = new ChatRoom(UUID.randomUUID(), "Foo", Clock.systemDefaultZone(), chatRoomService, 8);
+    ChatRoom chatRoom = new ChatRoom(
+        UUID.randomUUID(),
+        "Foo",
+        0,
+        Clock.systemDefaultZone(),
+        chatRoomService,
+        8);
     Message.MessageKey key = Message.MessageKey.of(user, messageId);
     LocalDateTime timestamp = LocalDateTime.now();
     Message message = new Message(key, 0l, timestamp, "Bar");
@@ -45,7 +51,13 @@ public class ChatRoomTest
     String user = "foo";
     Long messageId = 1l;
     ChatRoomService chatRoomService = mock(ChatRoomService.class);
-    ChatRoom chatRoom = new ChatRoom(UUID.randomUUID(), "Foo", Clock.systemDefaultZone(), chatRoomService, 8);
+    ChatRoom chatRoom = new ChatRoom(
+        UUID.randomUUID(),
+        "Foo",
+        0,
+        Clock.systemDefaultZone(),
+        chatRoomService,
+        8);
     when(chatRoomService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.empty());
 
     // When
@@ -63,7 +75,13 @@ public class ChatRoomTest
     String user = "foo";
     Long messageId = 1l;
     ChatRoomService chatRoomService = mock(ChatRoomService.class);
-    ChatRoom chatRoom = new ChatRoom(UUID.randomUUID(), "Foo", Clock.systemDefaultZone(), chatRoomService, 8);
+    ChatRoom chatRoom = new ChatRoom(
+        UUID.randomUUID(),
+        "Foo",
+        0,
+        Clock.systemDefaultZone(),
+        chatRoomService,
+        8);
     Message.MessageKey key = Message.MessageKey.of(user, messageId);
     Clock now = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     LocalDateTime timestamp = LocalDateTime.now(now);
@@ -87,7 +105,13 @@ public class ChatRoomTest
     String user = "foo";
     Long messageId = 1l;
     ChatRoomService chatRoomService = mock(ChatRoomService.class);
-    ChatRoom chatRoom = new ChatRoom(UUID.randomUUID(), "Foo", Clock.systemDefaultZone(), chatRoomService, 8);
+    ChatRoom chatRoom = new ChatRoom(
+        UUID.randomUUID(),
+        "Foo",
+        0,
+        Clock.systemDefaultZone(),
+        chatRoomService,
+        8);
     Message.MessageKey key = Message.MessageKey.of(user, messageId);
     Clock now = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     LocalDateTime timestamp = LocalDateTime.now(now);
@@ -111,7 +135,13 @@ public class ChatRoomTest
     String user = "foo";
     Long messageId = 1l;
     ChatRoomService chatRoomService = mock(ChatRoomService.class);
-    ChatRoom chatRoom = new ChatRoom(UUID.randomUUID(), "Foo", Clock.systemDefaultZone(), chatRoomService, 8);
+    ChatRoom chatRoom = new ChatRoom(
+        UUID.randomUUID(),
+        "Foo",
+        0,
+        Clock.systemDefaultZone(),
+        chatRoomService,
+        8);
     Message.MessageKey key = Message.MessageKey.of(user, messageId);
     Clock now = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     LocalDateTime timestamp = LocalDateTime.now(now);

@@ -1,8 +1,11 @@
 package de.juplo.kafka.chat.backend.persistence;
 
+import de.juplo.kafka.chat.backend.api.ShardingStrategy;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
+import de.juplo.kafka.chat.backend.domain.ChatRoomFactory;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatHomeService;
 import de.juplo.kafka.chat.backend.persistence.InMemoryWithMongoDbStorageStrategyIT.DataSourceInitializer;
+import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomFactory;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
 import de.juplo.kafka.chat.backend.persistence.storage.mongodb.ChatRoomRepository;
 import de.juplo.kafka.chat.backend.persistence.storage.mongodb.MongoDbStorageStrategy;
@@ -19,7 +22,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.TestPropertySourceUtils;
-import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.junit.jupiter.Container;
@@ -52,9 +54,15 @@ public class InMemoryWithMongoDbStorageStrategyIT extends AbstractStorageStrateg
   @Override
   protected Supplier<ChatHomeService> getChatHomeServiceSupplier()
   {
-    return () -> new InMemoryChatHomeService(getStorageStrategy().read(), clock, 8);
+    return () -> new InMemoryChatHomeService(1, getStorageStrategy().read());
   }
 
+  @Override
+  protected ChatRoomFactory getChatRoomFactory()
+  {
+    ShardingStrategy strategy = chatRoomId -> 0;
+    return new InMemoryChatRoomFactory(strategy, clock, 8);
+  }
 
   @TestConfiguration
   static class InMemoryWithMongoDbStorageStrategyITConfig

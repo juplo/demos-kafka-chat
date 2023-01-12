@@ -13,21 +13,22 @@ import java.util.*;
 public class ChatHome
 {
   private final ChatHomeService service;
+  private final int shard;
 
-  public Mono<ChatRoom> createChatroom(String name)
+  public Mono<ChatRoom> putChatRoom(ChatRoom chatRoom)
   {
-    return service.createChatRoom(UUID.randomUUID(), name);
+    return service.putChatRoom(chatRoom);
   }
 
   public Mono<ChatRoom> getChatRoom(UUID id)
   {
     return service
-        .getChatRoom(id)
+        .getChatRoom(shard, id)
         .switchIfEmpty(Mono.error(() -> new UnknownChatroomException(id)));
   }
 
   public Flux<ChatRoom> getChatRooms()
   {
-    return service.getChatRooms();
+    return service.getChatRooms(shard);
   }
 }

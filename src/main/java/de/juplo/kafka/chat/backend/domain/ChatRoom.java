@@ -25,23 +25,31 @@ public class ChatRoom
   private final UUID id;
   @Getter
   private final String name;
+  @Getter
+  private final int shard;
   private final Clock clock;
   private final ChatRoomService service;
   private final int bufferSize;
   private Sinks.Many<Message> sink;
 
+
   public ChatRoom(
       UUID id,
       String name,
+      int shard,
       Clock clock,
       ChatRoomService service,
       int bufferSize)
   {
     this.id = id;
     this.name = name;
+    this.shard = shard;
     this.clock = clock;
     this.service = service;
     this.bufferSize = bufferSize;
+    // @RequiredArgsConstructor unfortunately not possible, because
+    // the `bufferSize` is not set, if `createSink()` is called
+    // from the variable declaration!
     this.sink = createSink();
   }
 

@@ -16,7 +16,7 @@ public class ChatBackendConfiguration
   @Bean
   public ChatHome chatHome(ChatHomeService chatHomeService)
   {
-    return new ChatHome(chatHomeService);
+    return new ChatHome(chatHomeService, 0);
   }
 
   @Bean

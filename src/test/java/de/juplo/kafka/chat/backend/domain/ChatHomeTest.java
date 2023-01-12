@@ -8,6 +8,7 @@ import java.time.Clock;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static pl.rzrz.assertj.reactor.Assertions.assertThat;
@@ -24,11 +25,12 @@ public class ChatHomeTest
     ChatRoom chatRoom = new ChatRoom(
         UUID.randomUUID(),
         "Foo",
+        0,
         Clock.systemDefaultZone(),
         mock(ChatRoomService.class),
         8);
-    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.just(chatRoom));
-    ChatHome chatHome = new ChatHome(chatHomeService);
+    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.just(chatRoom));
+    ChatHome chatHome = new ChatHome(chatHomeService, 0);
 
     // When
     Mono<ChatRoom> mono = chatHome.getChatRoom(chatRoom.getId());
@@ -43,8 +45,8 @@ public class ChatHomeTest
   {
     // Given
     ChatHomeService chatHomeService = mock(ChatHomeService.class);
-    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.empty());
-    ChatHome chatHome = new ChatHome(chatHomeService);
+    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
+    ChatHome chatHome = new ChatHome(chatHomeService, 0);
 
     // When
     Mono<ChatRoom> mono = chatHome.getChatRoom(UUID.randomUUID());

@@ -20,6 +20,7 @@ public class ChatRoomTo
   @Id
   private String id;
   private String name;
+  private int shard;
   private List<MessageTo> messages;
 
   public static ChatRoomTo from(ChatRoom chatroom)
@@ -27,6 +28,7 @@ public class ChatRoomTo
     return new ChatRoomTo(
         chatroom.getId().toString(),
         chatroom.getName(),
+        chatroom.getShard(),
         chatroom
             .getMessages()
             .map(MessageTo::from)

@@ -105,6 +105,7 @@ public class FilesStorageStrategy implements StorageStrategy
         .map(chatRoomTo -> new ChatRoom(
             chatRoomTo.getId(),
             chatRoomTo.getName(),
+            chatRoomTo.getShard(),
             clock,
             factory.create(readMessages(chatRoomTo)),
             bufferSize));

@@ -37,6 +37,7 @@ public class MongoDbStorageStrategy implements StorageStrategy
         .map(chatRoomTo -> new ChatRoom(
             UUID.fromString(chatRoomTo.getId()),
             chatRoomTo.getName(),
+            chatRoomTo.getShard(),
             clock,
             factory.create(
                 Flux

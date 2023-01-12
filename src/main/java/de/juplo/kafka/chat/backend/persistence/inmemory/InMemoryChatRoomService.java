@@ -16,11 +16,6 @@ public class InMemoryChatRoomService implements ChatRoomService
   private final LinkedHashMap<Message.MessageKey, Message> messages;
 
 
-  public InMemoryChatRoomService(LinkedHashMap<Message.MessageKey, Message> messages)
-  {
-    this.messages = messages;
-  }
-
   public InMemoryChatRoomService(Flux<Message> messageFlux)
   {
     log.debug("Creating InMemoryChatRoomService");

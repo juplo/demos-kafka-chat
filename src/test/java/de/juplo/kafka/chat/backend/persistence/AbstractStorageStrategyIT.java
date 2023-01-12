@@ -1,13 +1,11 @@
 package de.juplo.kafka.chat.backend.persistence;
 
-import de.juplo.kafka.chat.backend.domain.ChatHome;
-import de.juplo.kafka.chat.backend.domain.ChatHomeService;
-import de.juplo.kafka.chat.backend.domain.ChatRoom;
-import de.juplo.kafka.chat.backend.domain.Message;
+import de.juplo.kafka.chat.backend.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 import static pl.rzrz.assertj.reactor.Assertions.*;
@@ -17,14 +15,17 @@ import static pl.rzrz.assertj.reactor.Assertions.*;
 public abstract class AbstractStorageStrategyIT
 {
   protected ChatHome chathome;
+  protected ChatRoomFactory chatRoomFactory;
 
 
   protected abstract StorageStrategy getStorageStrategy();
   protected abstract Supplier<ChatHomeService> getChatHomeServiceSupplier();
+  protected abstract ChatRoomFactory getChatRoomFactory();
 
   protected void start()
   {
-    chathome = new ChatHome(getChatHomeServiceSupplier().get());
+    chathome = new ChatHome(getChatHomeServiceSupplier().get(), 0);
+    chatRoomFactory = getChatRoomFactory();
   }
 
   protected void stop()
@@ -39,7 +40,9 @@ public abstract class AbstractStorageStrategyIT
 
     assertThat(chathome.getChatRooms().toStream()).hasSize(0);
 
-    ChatRoom chatroom = chathome.createChatroom("FOO").block();
+    UUID chatRoomId = UUID.randomUUID();
+    ChatRoom chatroom = chatRoomFactory.createChatRoom(chatRoomId, "FOO").block();
+    chathome.putChatRoom(chatroom);
     Message m1 = chatroom.addMessage(1l,"peter", "Hallo, ich heiße Peter!").block();
     Message m2 = chatroom.addMessage(1l, "ute", "Ich bin Ute...").block();
     Message m3 = chatroom.addMessage(2l, "peter", "Willst du mit mir gehen?").block();

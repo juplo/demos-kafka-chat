@@ -36,7 +36,7 @@ public class ChatBackendControllerTest
   {
     // Given
     UUID chatroomId = UUID.randomUUID();
-    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.empty());
+    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -56,7 +56,7 @@ public class ChatBackendControllerTest
   {
     // Given
     UUID chatroomId = UUID.randomUUID();
-    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.empty());
+    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -77,7 +77,7 @@ public class ChatBackendControllerTest
     UUID chatroomId = UUID.randomUUID();
     String username = "foo";
     Long messageId = 66l;
-    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.empty());
+    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -103,7 +103,7 @@ public class ChatBackendControllerTest
     UUID chatroomId = UUID.randomUUID();
     String username = "foo";
     Long messageId = 66l;
-    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.empty());
+    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -126,7 +126,7 @@ public class ChatBackendControllerTest
   {
     // Given
     UUID chatroomId = UUID.randomUUID();
-    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.empty());
+    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -167,9 +167,10 @@ public class ChatBackendControllerTest
     ChatRoom chatRoom = new ChatRoom(
         chatroomId,
         "Test-ChatRoom",
+        0,
         Clock.systemDefaultZone(),
         chatRoomService, 8);
-    when(chatHomeService.getChatRoom(any(UUID.class))).thenReturn(Mono.just(chatRoom));
+    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.just(chatRoom));
     Message existingMessage = new Message(
         key,
         serialNumberExistingMessage,
@@ -218,9 +219,10 @@ public class ChatBackendControllerTest
     ChatRoom chatRoom = new ChatRoom(
         chatroomId,
         "Test-ChatRoom",
+        0,
         Clock.systemDefaultZone(),
         chatRoomService, 8);
-    when(chatHomeService.getChatRoom(any(UUID.class)))
+    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class)))
         .thenReturn(Mono.just(chatRoom));
     when(chatRoomService.getMessage(any(Message.MessageKey.class)))
         .thenReturn(Mono.empty());

@@ -10,13 +10,15 @@ public class ChatRoomTo
 {
   private UUID id;
   private String name;
+  private int shard;
 
 
   public static ChatRoomTo from(ChatRoom chatroom)
   {
-    ChatRoomTo info = new ChatRoomTo();
-    info.id = chatroom.getId();
-    info.name = chatroom.getName();
-    return info;
+    ChatRoomTo to = new ChatRoomTo();
+    to.id = chatroom.getId();
+    to.name = chatroom.getName();
+    to.shard = chatroom.getShard();
+    return to;
   }
 }
