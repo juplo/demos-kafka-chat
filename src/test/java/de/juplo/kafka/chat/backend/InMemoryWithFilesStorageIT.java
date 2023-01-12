@@ -14,7 +14,7 @@ import java.time.Duration;
 @SpringBootTest(
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		properties = "chat.backend.storage-directory=target/test-classes/data/files")
-class ChatBackendApplicationTests
+class InMemoryWithFilesStorageIT
 {
 	@LocalServerPort
 	private int port;
@@ -44,7 +44,7 @@ class ChatBackendApplicationTests
 							.expectBody().jsonPath("$.name").isEqualTo("Peter's Chat-Room");
 					webTestClient
 							.get()
-							.uri("http://localhost:{port}/4ace69b7-a79f-481b-ad0d-d756d60b66ec/ute/1478", port)
+							.uri("http://localhost:{port}/618e89ae-fdc0-4c65-8055-f49908295e8f/ute/1478", port)
 							.accept(MediaType.APPLICATION_JSON)
 							.exchange()
 							.expectStatus().isOk()
