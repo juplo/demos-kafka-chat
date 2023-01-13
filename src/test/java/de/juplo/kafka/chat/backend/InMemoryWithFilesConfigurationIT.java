@@ -14,7 +14,7 @@ import java.time.Duration;
 @SpringBootTest(
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		properties = "chat.backend.storage-directory=target/test-classes/data/files")
-class InMemoryWithFilesStorageIT
+class InMemoryWithFilesConfigurationIT
 {
 	@LocalServerPort
 	private int port;

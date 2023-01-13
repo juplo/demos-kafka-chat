@@ -22,7 +22,7 @@ import java.util.function.Supplier;
 
 
 @Slf4j
-public class InMemoryWithFilesStorageStrategyIT extends AbstractStorageStrategyIT
+public class InMemoryWithFilesStorageIT extends AbstractStorageStrategyIT
 {
   final static Path path = Paths.get("target","local-json-files");
 
@@ -31,7 +31,7 @@ public class InMemoryWithFilesStorageStrategyIT extends AbstractStorageStrategyI
   final FilesStorageStrategy storageStrategy;
 
 
-  public InMemoryWithFilesStorageStrategyIT()
+  public InMemoryWithFilesStorageIT()
   {
     clock = Clock.systemDefaultZone();
     mapper = new ObjectMapper();

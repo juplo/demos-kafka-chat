@@ -29,7 +29,7 @@ import java.time.Duration;
 				"spring.data.mongodb.database=test" })
 @Testcontainers
 @Slf4j
-class InMemoryWithMongoDbStorageIT
+class InMemoryWithMongoDbConfigurationIT
 {
 	@LocalServerPort
 	private int port;

@@ -4,7 +4,7 @@ import de.juplo.kafka.chat.backend.api.ShardingStrategy;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.domain.ChatRoomFactory;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatHomeService;
-import de.juplo.kafka.chat.backend.persistence.InMemoryWithMongoDbStorageStrategyIT.DataSourceInitializer;
+import de.juplo.kafka.chat.backend.persistence.InMemoryWithMongoDbStorageIT.DataSourceInitializer;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomFactory;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
 import de.juplo.kafka.chat.backend.persistence.storage.mongodb.ChatRoomRepository;
@@ -37,7 +37,7 @@ import java.util.function.Supplier;
 @AutoConfigureDataMongo
 @ContextConfiguration(initializers = DataSourceInitializer.class)
 @Slf4j
-public class InMemoryWithMongoDbStorageStrategyIT extends AbstractStorageStrategyIT
+public class InMemoryWithMongoDbStorageIT extends AbstractStorageStrategyIT
 {
   @Autowired
   MongoDbStorageStrategy storageStrategy;
