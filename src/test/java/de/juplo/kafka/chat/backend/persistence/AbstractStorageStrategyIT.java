@@ -40,7 +40,7 @@ public abstract class AbstractStorageStrategyIT
 
     assertThat(chathome.getChatRooms().toStream()).hasSize(0);
 
-    UUID chatRoomId = UUID.randomUUID();
+    UUID chatRoomId = UUID.fromString("5c73531c-6fc4-426c-adcb-afc5c140a0f7");
     ChatRoom chatroom = chatRoomFactory.createChatRoom(chatRoomId, "FOO").block();
     chathome.putChatRoom(chatroom);
     Message m1 = chatroom.addMessage(1l,"peter", "Hallo, ich heiße Peter!").block();

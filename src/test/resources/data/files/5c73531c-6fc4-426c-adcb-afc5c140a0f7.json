@@ -1,0 +1,25 @@
+[ {
+  "id" : 1,
+  "serial" : 0,
+  "time" : "2023-01-13T21:46:51.846312215",
+  "user" : "peter",
+  "text" : "Hallo, ich heiße Peter!"
+}, {
+  "id" : 1,
+  "serial" : 1,
+  "time" : "2023-01-13T21:46:51.847319045",
+  "user" : "ute",
+  "text" : "Ich bin Ute..."
+}, {
+  "id" : 2,
+  "serial" : 2,
+  "time" : "2023-01-13T21:46:51.847415356",
+  "user" : "peter",
+  "text" : "Willst du mit mir gehen?"
+}, {
+  "id" : 1,
+  "serial" : 3,
+  "time" : "2023-01-13T21:46:51.847465432",
+  "user" : "klaus",
+  "text" : "Ja? Nein? Vielleicht??"
+} ]

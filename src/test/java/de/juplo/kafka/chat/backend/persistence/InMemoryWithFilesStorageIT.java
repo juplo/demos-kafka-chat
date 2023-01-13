@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 @Slf4j
 public class InMemoryWithFilesStorageIT extends AbstractStorageStrategyIT
 {
-  final static Path path = Paths.get("target","local-json-files");
+  final static Path path = Paths.get("target","files");
 
   final Clock clock;
   final ObjectMapper mapper;

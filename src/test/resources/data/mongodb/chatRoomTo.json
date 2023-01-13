@@ -1,29 +1,30 @@
 {
-  "_id": "4ace69b7-a79f-481b-ad0d-d756d60b66ec",
+  "_id": "5c73531c-6fc4-426c-adcb-afc5c140a0f7",
   "name": "FOO",
+  "shard": 0,
   "messages": [
     {
       "_id": "peter--1",
       "serial": 0,
-      "time": "2023-01-11T20:53:05.143528961",
+      "time": "2023-01-13T20:43:16.803382151",
       "text": "Hallo, ich heiße Peter!"
     },
     {
       "_id": "ute--1",
       "serial": 1,
-      "time": "2023-01-11T20:53:05.144161529",
+      "time": "2023-01-13T20:43:16.804049969",
       "text": "Ich bin Ute..."
     },
     {
       "_id": "peter--2",
       "serial": 2,
-      "time": "2023-01-11T20:53:05.144202513",
+      "time": "2023-01-13T20:43:16.804092782",
       "text": "Willst du mit mir gehen?"
     },
     {
       "_id": "klaus--1",
       "serial": 3,
-      "time": "2023-01-11T20:53:05.144236865",
+      "time": "2023-01-13T20:43:16.804122604",
       "text": "Ja? Nein? Vielleicht??"
     }
   ],
