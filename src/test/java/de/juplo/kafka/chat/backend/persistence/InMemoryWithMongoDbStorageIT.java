@@ -54,7 +54,10 @@ public class InMemoryWithMongoDbStorageIT extends AbstractStorageStrategyIT
   @Override
   protected Supplier<ChatHomeService> getChatHomeServiceSupplier()
   {
-    return () -> new InMemoryChatHomeService(1, getStorageStrategy().read());
+    return () -> new InMemoryChatHomeService(
+        1,
+        new int[] { 0 },
+        getStorageStrategy().read());
   }
 
   @Override
@@ -76,6 +79,7 @@ public class InMemoryWithMongoDbStorageIT extends AbstractStorageStrategyIT
           chatRoomRepository,
           clock,
           8,
+          chatRoomId -> 0,
           messageFlux -> new InMemoryChatRoomService(messageFlux));
     }
 

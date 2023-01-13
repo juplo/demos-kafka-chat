@@ -41,6 +41,7 @@ public class InMemoryWithFilesStorageIT extends AbstractStorageStrategyIT
         path,
         clock,
         8,
+        chatRoomId -> 0,
         messageFlux -> new InMemoryChatRoomService(messageFlux),
         mapper);
   }
@@ -55,7 +56,10 @@ public class InMemoryWithFilesStorageIT extends AbstractStorageStrategyIT
   @Override
   protected Supplier<ChatHomeService> getChatHomeServiceSupplier()
   {
-    return () -> new InMemoryChatHomeService(1, getStorageStrategy().read());
+    return () -> new InMemoryChatHomeService(
+        1,
+        new int[] { 0 },
+        getStorageStrategy().read());
   }
 
   @Override

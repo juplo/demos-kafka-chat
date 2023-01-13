@@ -6,9 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 
 @Slf4j
@@ -17,13 +15,38 @@ public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatRoom
   private final Map<UUID, ChatRoom>[] chatrooms;
 
 
-  public InMemoryChatHomeService(int numShards, Flux<ChatRoom> chatroomFlux)
+  public InMemoryChatHomeService(
+      int numShards,
+      int[] ownedShards,
+      Flux<ChatRoom> chatroomFlux)
   {
     log.debug("Creating InMemoryChatHomeService");
     this.chatrooms = new Map[numShards];
+    Set<Integer> owned = Arrays
+        .stream(ownedShards)
+        .collect(
+            () -> new HashSet<>(),
+            (set, i) -> set.add(i),
+            (a, b) -> a.addAll(b));
     for (int shard = 0; shard < numShards; shard++)
-        chatrooms[shard] = new HashMap<>();
+    {
+      chatrooms[shard] = owned.contains(shard)
+          ? new HashMap<>()
+          : null;
+    }
     chatroomFlux
+        .filter(chatRoom ->
+        {
+          if (owned.contains(chatRoom.getShard()))
+          {
+            return true;
+          }
+          else
+          {
+            log.info("Ignoring not owned chat-room {}", chatRoom);
+            return false;
+          }
+        })
         .toStream()
         .forEach(chatroom -> chatrooms[chatroom.getShard()].put(chatroom.getId(), chatroom));
   }

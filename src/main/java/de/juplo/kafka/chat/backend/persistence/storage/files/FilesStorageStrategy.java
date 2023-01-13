@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.juplo.kafka.chat.backend.api.ChatRoomTo;
 import de.juplo.kafka.chat.backend.api.MessageTo;
+import de.juplo.kafka.chat.backend.api.ShardingStrategy;
 import de.juplo.kafka.chat.backend.domain.ChatRoom;
 import de.juplo.kafka.chat.backend.domain.Message;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.util.UUID;
 
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -31,6 +33,7 @@ public class FilesStorageStrategy implements StorageStrategy
   private final Path storagePath;
   private final Clock clock;
   private final int bufferSize;
+  private final ShardingStrategy shardingStrategy;
   private final ChatRoomServiceFactory factory;
   private final ObjectMapper mapper;
 
@@ -102,13 +105,18 @@ public class FilesStorageStrategy implements StorageStrategy
     return Flux
         .from(new JsonFilePublisher<ChatRoomTo>(chatroomsPath(), mapper, type))
         .log()
-        .map(chatRoomTo -> new ChatRoom(
-            chatRoomTo.getId(),
-            chatRoomTo.getName(),
-            chatRoomTo.getShard(),
-            clock,
-            factory.create(readMessages(chatRoomTo)),
-            bufferSize));
+        .map(chatRoomTo ->
+        {
+          UUID chatRoomId = chatRoomTo.getId();
+          int shard = shardingStrategy.selectShard(chatRoomId);
+          return new ChatRoom(
+              chatRoomTo.getId(),
+              chatRoomTo.getName(),
+              shard,
+              clock,
+              factory.create(readMessages(chatRoomTo)),
+              bufferSize);
+        });
   }
 
   public void writeMessages(ChatRoomTo chatroomTo, Flux<Message> messageFlux)

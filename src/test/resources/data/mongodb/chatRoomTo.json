@@ -1,7 +1,6 @@
 {
   "_id": "5c73531c-6fc4-426c-adcb-afc5c140a0f7",
   "name": "FOO",
-  "shard": 0,
   "messages": [
     {
       "_id": "peter--1",

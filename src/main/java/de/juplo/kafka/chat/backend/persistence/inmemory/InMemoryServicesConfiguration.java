@@ -1,6 +1,7 @@
 package de.juplo.kafka.chat.backend.persistence.inmemory;
 
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
+import de.juplo.kafka.chat.backend.api.KafkaLikeShardingStrategy;
 import de.juplo.kafka.chat.backend.api.ShardingStrategy;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,15 +14,26 @@ import java.time.Clock;
 @ConditionalOnProperty(
     prefix = "chat.backend",
     name = "services",
-    havingValue = "in-memory",
+    havingValue = "inmemory",
     matchIfMissing = true)
 @Configuration
 public class InMemoryServicesConfiguration
 {
   @Bean
-  InMemoryChatHomeService chatHomeService(StorageStrategy storageStrategy)
+  InMemoryChatHomeService chatHomeService(
+      ChatBackendProperties properties,
+      StorageStrategy storageStrategy)
   {
-    return new InMemoryChatHomeService(1, storageStrategy.read());
+    return new InMemoryChatHomeService(
+        properties.getInmemory().getNumShards(),
+        properties.getInmemory().getOwnedShards(),
+        storageStrategy.read());
+  }
+
+  @Bean
+  InMemoryChatHomeFactory chatHomeFactory(InMemoryChatHomeService service)
+  {
+    return new InMemoryChatHomeFactory(service);
   }
 
   @Bean
@@ -36,9 +48,25 @@ public class InMemoryServicesConfiguration
         properties.getChatroomBufferSize());
   }
 
+  @ConditionalOnProperty(
+      prefix = "chat.backend.inmemory",
+      name = "sharding-strategy",
+      havingValue = "none",
+      matchIfMissing = true)
   @Bean
-  ShardingStrategy shardingStrategy()
+  ShardingStrategy defaultShardingStrategy()
   {
     return chatRoomId -> 0;
+  }
+
+  @ConditionalOnProperty(
+      prefix = "chat.backend.inmemory",
+      name = "sharding-strategy",
+      havingValue = "kafkalike")
+  @Bean
+  ShardingStrategy kafkalikeShardingStrategy(ChatBackendProperties properties)
+  {
+    return new KafkaLikeShardingStrategy(
+        properties.getInmemory().getNumShards());
   }
 }

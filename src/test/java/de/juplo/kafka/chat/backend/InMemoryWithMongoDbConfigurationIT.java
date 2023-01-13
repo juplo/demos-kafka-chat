@@ -15,9 +15,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @SpringBootTest(
 		webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
 		properties = {
-				"chat.backend.storage=mongodb",
 				"spring.data.mongodb.host=localhost",
-				"spring.data.mongodb.database=test" })
+				"spring.data.mongodb.database=test",
+				"chat.backend.inmemory.sharding-strategy=kafkalike",
+				"chat.backend.inmemory.storage-strategy=mongodb" })
 @Testcontainers
 @Slf4j
 class InMemoryWithMongoDbConfigurationIT extends AbstractConfigurationIT

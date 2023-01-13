@@ -16,7 +16,7 @@ public class ChatBackendApplication implements WebFluxConfigurer
 	@Autowired
 	ChatBackendProperties properties;
 	@Autowired
-	ChatHome chatHome;
+	ChatHome[] chatHomes;
 	@Autowired
 	StorageStrategy storageStrategy;
 
@@ -32,7 +32,8 @@ public class ChatBackendApplication implements WebFluxConfigurer
 	@PreDestroy
 	public void onExit()
 	{
-		storageStrategy.write(chatHome.getChatRooms());
+		for (int shard = 0; shard < chatHomes.length; shard++)
+			storageStrategy.write(chatHomes[shard].getChatRooms());
 	}
 
 	public static void main(String[] args)
