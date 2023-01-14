@@ -24,7 +24,7 @@ public abstract class AbstractStorageStrategyIT
 
   protected void start()
   {
-    chathome = new SimpleChatHome(getChatHomeServiceSupplier().get(), 0);
+    chathome = new SimpleChatHome(getChatHomeServiceSupplier().get());
     chatRoomFactory = getChatRoomFactory();
   }
 

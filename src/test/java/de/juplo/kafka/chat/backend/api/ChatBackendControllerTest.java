@@ -1,6 +1,5 @@
 package de.juplo.kafka.chat.backend.api;
 
-import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.*;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatHomeService;
 import lombok.extern.slf4j.Slf4j;
@@ -9,16 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -27,7 +23,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(properties = {
     "spring.main.allow-bean-definition-overriding=true",
-    "chat.backend.inmemory.owned-shards=0,1,2,3,4,5,6,7,8,9" })
+    "chat.backend.inmemory.sharding-strategy=none" })
 @AutoConfigureWebTestClient
 @Slf4j
 public class ChatBackendControllerTest
@@ -254,21 +250,5 @@ public class ChatBackendControllerTest
         .jsonPath("$.type").isEqualTo("/problem/invalid-username")
         .jsonPath("$.username").isEqualTo(user);
     verify(chatRoomService, never()).persistMessage(eq(key), any(LocalDateTime.class), any(String.class));
-  }
-
-  @TestConfiguration
-  static class Config
-  {
-    @Bean
-    ChatHome[] chatHomes(
-        ChatBackendProperties properties,
-        InMemoryChatHomeService service)
-    {
-      SimpleChatHome[] chatHomes = new SimpleChatHome[properties.getInmemory().getNumShards()];
-      Arrays
-          .stream(properties.getInmemory().getOwnedShards())
-          .forEach(i -> chatHomes[i] = new SimpleChatHome(service, i));
-      return chatHomes;
-    }
   }
 }

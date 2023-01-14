@@ -30,7 +30,7 @@ public class SimpleChatHomeTest
         mock(ChatRoomService.class),
         8);
     when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.just(chatRoom));
-    SimpleChatHome chatHome = new SimpleChatHome(chatHomeService, 0);
+    SimpleChatHome chatHome = new SimpleChatHome(chatHomeService);
 
     // When
     Mono<ChatRoom> mono = chatHome.getChatRoom(chatRoom.getId());
@@ -46,7 +46,7 @@ public class SimpleChatHomeTest
     // Given
     ChatHomeService chatHomeService = mock(ChatHomeService.class);
     when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
-    SimpleChatHome chatHome = new SimpleChatHome(chatHomeService, 0);
+    SimpleChatHome chatHome = new SimpleChatHome(chatHomeService);
 
     // When
     Mono<ChatRoom> mono = chatHome.getChatRoom(UUID.randomUUID());

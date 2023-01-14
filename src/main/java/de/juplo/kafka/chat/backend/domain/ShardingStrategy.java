@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend.api;
+package de.juplo.kafka.chat.backend.domain;
 
 import java.util.UUID;
 

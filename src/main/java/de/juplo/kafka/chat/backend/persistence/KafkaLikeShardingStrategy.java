@@ -1,5 +1,6 @@
-package de.juplo.kafka.chat.backend.api;
+package de.juplo.kafka.chat.backend.persistence;
 
+import de.juplo.kafka.chat.backend.domain.ShardingStrategy;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.utils.Utils;
 

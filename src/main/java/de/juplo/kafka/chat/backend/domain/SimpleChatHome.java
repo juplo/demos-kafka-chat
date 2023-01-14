@@ -15,6 +15,13 @@ public class SimpleChatHome implements ChatHome
   private final ChatHomeService service;
   private final int shard;
 
+
+  public SimpleChatHome(ChatHomeService service)
+  {
+    this(service, 0);
+  }
+
+
   @Override
   public Mono<ChatRoom> putChatRoom(ChatRoom chatRoom)
   {

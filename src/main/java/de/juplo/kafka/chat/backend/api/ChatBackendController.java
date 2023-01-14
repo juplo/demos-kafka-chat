@@ -17,8 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChatBackendController
 {
-  private final ChatHome[] chatHomes;
-  private final ShardingStrategy selectionStrategy;
+  private final ChatHome chatHome;
   private final ChatRoomFactory factory;
   private final StorageStrategy storageStrategy;
 
@@ -29,23 +28,22 @@ public class ChatBackendController
     UUID chatRoomId = UUID.randomUUID();
     return factory
         .createChatRoom(chatRoomId, name)
-        .flatMap(chatRoom -> chatHomes[chatRoom.getShard()].putChatRoom(chatRoom))
+        .flatMap(chatRoom -> chatHome.putChatRoom(chatRoom))
         .map(ChatRoomTo::from);
   }
 
   @GetMapping("list")
   public Flux<ChatRoomTo> list()
   {
-    return Flux
-        .fromArray(chatHomes)
-        .flatMap(chatHome -> chatHome.getChatRooms())
+    return chatHome
+        .getChatRooms()
         .map(chatroom -> ChatRoomTo.from(chatroom));
   }
 
   @GetMapping("{chatroomId}/list")
   public Flux<MessageTo> list(@PathVariable UUID chatroomId)
   {
-    return chatHomes[selectShard(chatroomId)]
+    return chatHome
         .getChatRoom(chatroomId)
         .flatMapMany(chatroom -> chatroom
             .getMessages()
@@ -55,7 +53,7 @@ public class ChatBackendController
   @GetMapping("{chatroomId}")
   public Mono<ChatRoomTo> get(@PathVariable UUID chatroomId)
   {
-    return chatHomes[selectShard(chatroomId)]
+    return chatHome
         .getChatRoom(chatroomId)
         .map(chatroom -> ChatRoomTo.from(chatroom));
   }
@@ -68,7 +66,7 @@ public class ChatBackendController
       @RequestBody String text)
   {
     return
-        chatHomes[selectShard(chatroomId)]
+        chatHome
             .getChatRoom(chatroomId)
             .flatMap(chatroom -> put(chatroom, username, messageId, text));
   }
@@ -95,7 +93,7 @@ public class ChatBackendController
       @PathVariable Long messageId)
   {
     return
-        chatHomes[selectShard(chatroomId)]
+        chatHome
             .getChatRoom(chatroomId)
             .flatMap(chatroom -> get(chatroom, username, messageId));
   }
@@ -114,7 +112,7 @@ public class ChatBackendController
   @GetMapping(path = "{chatroomId}/listen")
   public Flux<ServerSentEvent<MessageTo>> listen(@PathVariable UUID chatroomId)
   {
-    return chatHomes[selectShard(chatroomId)]
+    return chatHome
         .getChatRoom(chatroomId)
         .flatMapMany(chatroom -> listen(chatroom));
   }
@@ -136,12 +134,6 @@ public class ChatBackendController
   @PostMapping("/store")
   public void store()
   {
-    for (int shard = 0; shard < chatHomes.length; shard++)
-      storageStrategy.write(chatHomes[shard].getChatRooms());
-  }
-
-  private int selectShard(UUID chatroomId)
-  {
-    return selectionStrategy.selectShard(chatroomId);
+    storageStrategy.write(chatHome.getChatRooms());
   }
 }
