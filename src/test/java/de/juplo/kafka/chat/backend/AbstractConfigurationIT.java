@@ -35,6 +35,15 @@ public abstract class AbstractConfigurationIT
               .expectBody().jsonPath("$.status").isEqualTo("UP");
           webTestClient
               .get()
+              .uri("http://localhost:{port}/list", port)
+              .accept(MediaType.APPLICATION_JSON)
+              .exchange()
+              .expectStatus().isOk()
+              .expectBody()
+                .jsonPath("$.length()").isEqualTo(1)
+                .jsonPath("$[0].name").isEqualTo("FOO");
+          webTestClient
+              .get()
               .uri("http://localhost:{port}/5c73531c-6fc4-426c-adcb-afc5c140a0f7", port)
               .accept(MediaType.APPLICATION_JSON)
               .exchange()

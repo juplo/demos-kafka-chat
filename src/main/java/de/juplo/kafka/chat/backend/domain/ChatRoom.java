@@ -38,6 +38,7 @@ public class ChatRoom
       ChatRoomService service,
       int bufferSize)
   {
+    log.info("Created ChatRoom {} with buffer-size {}", id, bufferSize);
     this.id = id;
     this.name = name;
     this.clock = clock;
