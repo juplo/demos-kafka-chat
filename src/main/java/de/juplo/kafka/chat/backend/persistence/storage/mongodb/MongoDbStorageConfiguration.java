@@ -1,7 +1,6 @@
 package de.juplo.kafka.chat.backend.persistence.storage.mongodb;
 
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
-import de.juplo.kafka.chat.backend.domain.ShardingStrategy;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -22,14 +21,12 @@ public class MongoDbStorageConfiguration
   public StorageStrategy storageStrategy(
       ChatRoomRepository chatRoomRepository,
       ChatBackendProperties properties,
-      Clock clock,
-      ShardingStrategy shardingStrategy)
+      Clock clock)
   {
     return new MongoDbStorageStrategy(
         chatRoomRepository,
         clock,
         properties.getChatroomBufferSize(),
-        shardingStrategy,
         messageFlux -> new InMemoryChatRoomService(messageFlux));
   }
 }

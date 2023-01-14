@@ -2,6 +2,7 @@ package de.juplo.kafka.chat.backend.persistence.inmemory;
 
 import de.juplo.kafka.chat.backend.domain.ChatRoom;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
+import de.juplo.kafka.chat.backend.domain.ShardingStrategy;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,15 +13,18 @@ import java.util.*;
 @Slf4j
 public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatRoomService>
 {
+  private final ShardingStrategy shardingStrategy;
   private final Map<UUID, ChatRoom>[] chatrooms;
 
 
   public InMemoryChatHomeService(
+      ShardingStrategy shardingStrategy,
       int numShards,
       int[] ownedShards,
       Flux<ChatRoom> chatroomFlux)
   {
     log.debug("Creating InMemoryChatHomeService");
+    this.shardingStrategy = shardingStrategy;
     this.chatrooms = new Map[numShards];
     Set<Integer> owned = Arrays
         .stream(ownedShards)
@@ -37,7 +41,8 @@ public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatRoom
     chatroomFlux
         .filter(chatRoom ->
         {
-          if (owned.contains(chatRoom.getShard()))
+          int shard = shardingStrategy.selectShard(chatRoom.getId());
+          if (owned.contains(shard))
           {
             return true;
           }
@@ -48,13 +53,16 @@ public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatRoom
           }
         })
         .toStream()
-        .forEach(chatroom -> chatrooms[chatroom.getShard()].put(chatroom.getId(), chatroom));
+        .forEach(chatRoom ->
+        {
+          getChatRoomMapFor(chatRoom).put(chatRoom.getId(), chatRoom);
+        });
   }
 
   @Override
   public Mono<ChatRoom> putChatRoom(ChatRoom chatRoom)
   {
-    chatrooms[chatRoom.getShard()].put(chatRoom.getId(), chatRoom);
+    getChatRoomMapFor(chatRoom).put(chatRoom.getId(), chatRoom);
     return Mono.just(chatRoom);
   }
 
@@ -68,5 +76,12 @@ public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatRoom
   public Flux<ChatRoom> getChatRooms(int shard)
   {
     return Flux.fromStream(chatrooms[shard].values().stream());
+  }
+
+
+  private Map<UUID, ChatRoom> getChatRoomMapFor(ChatRoom chatRoom)
+  {
+    int shard = shardingStrategy.selectShard(chatRoom.getId());
+    return chatrooms[shard];
   }
 }

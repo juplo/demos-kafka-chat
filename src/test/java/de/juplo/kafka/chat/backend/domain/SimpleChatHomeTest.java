@@ -25,7 +25,6 @@ public class SimpleChatHomeTest
     ChatRoom chatRoom = new ChatRoom(
         UUID.randomUUID(),
         "Foo",
-        0,
         Clock.systemDefaultZone(),
         mock(ChatRoomService.class),
         8);
