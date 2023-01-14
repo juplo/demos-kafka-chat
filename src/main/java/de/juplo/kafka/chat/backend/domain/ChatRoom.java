@@ -25,6 +25,8 @@ public class ChatRoom
   private final UUID id;
   @Getter
   private final String name;
+  @Getter
+  private final int shard;
   private final Clock clock;
   private final ChatRoomService service;
   private final int bufferSize;
@@ -34,6 +36,7 @@ public class ChatRoom
   public ChatRoom(
       UUID id,
       String name,
+      int shard,
       Clock clock,
       ChatRoomService service,
       int bufferSize)
@@ -41,6 +44,7 @@ public class ChatRoom
     log.info("Created ChatRoom {} with buffer-size {}", id, bufferSize);
     this.id = id;
     this.name = name;
+    this.shard = shard;
     this.clock = clock;
     this.service = service;
     this.bufferSize = bufferSize;

@@ -27,6 +27,7 @@ public class ChatRoomTest
     ChatRoom chatRoom = new ChatRoom(
         UUID.randomUUID(),
         "Foo",
+        0,
         Clock.systemDefaultZone(),
         chatRoomService,
         8);
@@ -53,6 +54,7 @@ public class ChatRoomTest
     ChatRoom chatRoom = new ChatRoom(
         UUID.randomUUID(),
         "Foo",
+        0,
         Clock.systemDefaultZone(),
         chatRoomService,
         8);
@@ -76,6 +78,7 @@ public class ChatRoomTest
     ChatRoom chatRoom = new ChatRoom(
         UUID.randomUUID(),
         "Foo",
+        0,
         Clock.systemDefaultZone(),
         chatRoomService,
         8);
@@ -105,6 +108,7 @@ public class ChatRoomTest
     ChatRoom chatRoom = new ChatRoom(
         UUID.randomUUID(),
         "Foo",
+        0,
         Clock.systemDefaultZone(),
         chatRoomService,
         8);
@@ -134,6 +138,7 @@ public class ChatRoomTest
     ChatRoom chatRoom = new ChatRoom(
         UUID.randomUUID(),
         "Foo",
+        0,
         Clock.systemDefaultZone(),
         chatRoomService,
         8);

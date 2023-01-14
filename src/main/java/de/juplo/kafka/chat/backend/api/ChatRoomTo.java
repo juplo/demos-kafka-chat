@@ -10,6 +10,7 @@ public class ChatRoomTo
 {
   private UUID id;
   private String name;
+  private int shard;
 
 
   public static ChatRoomTo from(ChatRoom chatroom)
@@ -17,6 +18,7 @@ public class ChatRoomTo
     ChatRoomTo to = new ChatRoomTo();
     to.id = chatroom.getId();
     to.name = chatroom.getName();
+    to.shard = chatroom.getShard();
     return to;
   }
 }

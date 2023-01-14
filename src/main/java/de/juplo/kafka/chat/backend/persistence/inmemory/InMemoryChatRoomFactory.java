@@ -26,7 +26,8 @@ public class InMemoryChatRoomFactory implements ChatRoomFactory
   public Mono<ChatRoom> createChatRoom(UUID id, String name)
   {
     log.info("Creating ChatRoom with buffer-size {}", bufferSize);
+    int shard = shardingStrategy.selectShard(id);
     ChatRoomService service = new InMemoryChatRoomService(Flux.empty());
-    return Mono.just(new ChatRoom(id, name, clock, service, bufferSize));
+    return Mono.just(new ChatRoom(id, name, shard, clock, service, bufferSize));
   }
 }

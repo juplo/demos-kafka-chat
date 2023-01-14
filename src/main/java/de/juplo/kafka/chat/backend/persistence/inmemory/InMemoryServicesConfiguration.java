@@ -45,23 +45,22 @@ public class InMemoryServicesConfiguration
       StorageStrategy storageStrategy)
   {
     int numShards = properties.getInmemory().getNumShards();
-    ShardingStrategy shardingStrategy = new KafkaLikeShardingStrategy(numShards);
     SimpleChatHome[] chatHomes = new SimpleChatHome[numShards];
     storageStrategy
         .read()
         .subscribe(chatRoom ->
         {
-          int shard = shardingStrategy.selectShard(chatRoom.getId());
+          int shard = chatRoom.getShard();
           if (chatHomes[shard] == null)
             chatHomes[shard] = new SimpleChatHome(chatHomeService, shard);
         });
-    return new ShardedChatHome(chatHomes, shardingStrategy);
+    ShardingStrategy strategy = new KafkaLikeShardingStrategy(numShards);
+    return new ShardedChatHome(chatHomes, strategy);
   }
 
   @Bean
   InMemoryChatHomeService chatHomeService(
       ChatBackendProperties properties,
-      ShardingStrategy shardingStrategy,
       StorageStrategy storageStrategy)
   {
     ShardingStrategyType sharding =
@@ -73,7 +72,6 @@ public class InMemoryServicesConfiguration
         ? new int[] { 0 }
         : properties.getInmemory().getOwnedShards();
     return new InMemoryChatHomeService(
-        shardingStrategy,
         numShards,
         ownedShards,
         storageStrategy.read());

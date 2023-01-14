@@ -170,6 +170,7 @@ public class ChatBackendControllerTest
     ChatRoom chatRoom = new ChatRoom(
         chatroomId,
         "Test-ChatRoom",
+        0,
         Clock.systemDefaultZone(),
         chatRoomService, 8);
     when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.just(chatRoom));
@@ -221,6 +222,7 @@ public class ChatBackendControllerTest
     ChatRoom chatRoom = new ChatRoom(
         chatroomId,
         "Test-ChatRoom",
+        0,
         Clock.systemDefaultZone(),
         chatRoomService, 8);
     when(chatHomeService.getChatRoom(anyInt(), any(UUID.class)))
