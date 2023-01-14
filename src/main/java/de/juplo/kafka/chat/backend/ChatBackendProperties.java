@@ -22,9 +22,9 @@ public class ChatBackendProperties
   @Setter
   public static class InMemoryServicesProperties
   {
-    private ShardingStrategyType shardingStrategy = ShardingStrategyType.kafkalike;
-    private int numShards = 10;
-    private int[] ownedShards = { 2 };
+    private ShardingStrategyType shardingStrategy = ShardingStrategyType.none;
+    private int numShards = 1;
+    private int[] ownedShards = new int[] { 0 };
     private StorageStrategyType storageStrategy = StorageStrategyType.files;
     private String storageDirectory = Paths.get(System.getProperty("java.io.tmpdir"),"chat", "backend").toString();
   }
