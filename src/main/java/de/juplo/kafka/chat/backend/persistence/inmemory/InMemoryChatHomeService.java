@@ -11,7 +11,7 @@ import java.util.*;
 
 
 @Slf4j
-public class InMemoryChatHomeService implements ChatHomeService<InMemoryChatRoomService>
+public class InMemoryChatHomeService implements ChatHomeService
 {
   private final ShardingStrategy shardingStrategy;
   private final Map<UUID, ChatRoom>[] chatrooms;
