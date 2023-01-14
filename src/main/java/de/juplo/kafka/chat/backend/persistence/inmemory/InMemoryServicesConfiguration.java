@@ -3,6 +3,7 @@ package de.juplo.kafka.chat.backend.persistence.inmemory;
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.api.KafkaLikeShardingStrategy;
 import de.juplo.kafka.chat.backend.api.ShardingStrategy;
+import de.juplo.kafka.chat.backend.domain.ChatHome;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +21,24 @@ import java.time.Clock;
 public class InMemoryServicesConfiguration
 {
   @Bean
+  ChatHome[] chatHomes(
+      ChatBackendProperties properties,
+      InMemoryChatHomeService chatHomeService,
+      StorageStrategy storageStrategy)
+  {
+    ChatHome[] chatHomes = new ChatHome[properties.getInmemory().getNumShards()];
+    storageStrategy
+        .read()
+        .subscribe(chatRoom ->
+        {
+          int shard = chatRoom.getShard();
+          if (chatHomes[shard] == null)
+            chatHomes[shard] = new ChatHome(chatHomeService, shard);
+        });
+    return chatHomes;
+  }
+
+  @Bean
   InMemoryChatHomeService chatHomeService(
       ChatBackendProperties properties,
       StorageStrategy storageStrategy)
@@ -28,12 +47,6 @@ public class InMemoryServicesConfiguration
         properties.getInmemory().getNumShards(),
         properties.getInmemory().getOwnedShards(),
         storageStrategy.read());
-  }
-
-  @Bean
-  InMemoryChatHomeFactory chatHomeFactory(InMemoryChatHomeService service)
-  {
-    return new InMemoryChatHomeFactory(service);
   }
 
   @Bean

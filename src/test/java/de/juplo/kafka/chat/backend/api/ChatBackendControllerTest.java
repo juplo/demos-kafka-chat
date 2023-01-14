@@ -262,12 +262,12 @@ public class ChatBackendControllerTest
     @Bean
     ChatHome[] chatHomes(
         ChatBackendProperties properties,
-        ChatHomeFactory factory)
+        InMemoryChatHomeService service)
     {
       ChatHome[] chatHomes = new ChatHome[properties.getInmemory().getNumShards()];
       Arrays
           .stream(properties.getInmemory().getOwnedShards())
-          .forEach(i -> chatHomes[i] = factory.createChatHome(i));
+          .forEach(i -> chatHomes[i] = new ChatHome(service, i));
       return chatHomes;
     }
   }
