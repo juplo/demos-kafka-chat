@@ -4,6 +4,7 @@ import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.api.KafkaLikeShardingStrategy;
 import de.juplo.kafka.chat.backend.api.ShardingStrategy;
 import de.juplo.kafka.chat.backend.domain.ChatHome;
+import de.juplo.kafka.chat.backend.domain.SimpleChatHome;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -26,14 +27,14 @@ public class InMemoryServicesConfiguration
       InMemoryChatHomeService chatHomeService,
       StorageStrategy storageStrategy)
   {
-    ChatHome[] chatHomes = new ChatHome[properties.getInmemory().getNumShards()];
+    SimpleChatHome[] chatHomes = new SimpleChatHome[properties.getInmemory().getNumShards()];
     storageStrategy
         .read()
         .subscribe(chatRoom ->
         {
           int shard = chatRoom.getShard();
           if (chatHomes[shard] == null)
-            chatHomes[shard] = new ChatHome(chatHomeService, shard);
+            chatHomes[shard] = new SimpleChatHome(chatHomeService, shard);
         });
     return chatHomes;
   }

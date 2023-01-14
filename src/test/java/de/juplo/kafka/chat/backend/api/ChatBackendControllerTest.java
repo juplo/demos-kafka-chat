@@ -264,10 +264,10 @@ public class ChatBackendControllerTest
         ChatBackendProperties properties,
         InMemoryChatHomeService service)
     {
-      ChatHome[] chatHomes = new ChatHome[properties.getInmemory().getNumShards()];
+      SimpleChatHome[] chatHomes = new SimpleChatHome[properties.getInmemory().getNumShards()];
       Arrays
           .stream(properties.getInmemory().getOwnedShards())
-          .forEach(i -> chatHomes[i] = new ChatHome(service, i));
+          .forEach(i -> chatHomes[i] = new SimpleChatHome(service, i));
       return chatHomes;
     }
   }

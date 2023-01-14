@@ -14,7 +14,7 @@ import static org.mockito.Mockito.when;
 import static pl.rzrz.assertj.reactor.Assertions.assertThat;
 
 
-public class ChatHomeTest
+public class SimpleChatHomeTest
 {
   @Test
   @DisplayName("Assert chatroom is delivered, if it exists")
@@ -30,7 +30,7 @@ public class ChatHomeTest
         mock(ChatRoomService.class),
         8);
     when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.just(chatRoom));
-    ChatHome chatHome = new ChatHome(chatHomeService, 0);
+    SimpleChatHome chatHome = new SimpleChatHome(chatHomeService, 0);
 
     // When
     Mono<ChatRoom> mono = chatHome.getChatRoom(chatRoom.getId());
@@ -46,7 +46,7 @@ public class ChatHomeTest
     // Given
     ChatHomeService chatHomeService = mock(ChatHomeService.class);
     when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
-    ChatHome chatHome = new ChatHome(chatHomeService, 0);
+    SimpleChatHome chatHome = new SimpleChatHome(chatHomeService, 0);
 
     // When
     Mono<ChatRoom> mono = chatHome.getChatRoom(UUID.randomUUID());
