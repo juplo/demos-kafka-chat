@@ -16,6 +16,7 @@ public class ChatBackendProperties
   private int chatroomBufferSize = 8;
   private ServiceType services = ServiceType.inmemory;
   private InMemoryServicesProperties inmemory = new InMemoryServicesProperties();
+  private KafkaServicesProperties kafka = new KafkaServicesProperties();
 
 
   @Getter
@@ -29,7 +30,17 @@ public class ChatBackendProperties
     private String storageDirectory = Paths.get(System.getProperty("java.io.tmpdir"),"chat", "backend").toString();
   }
 
-  public enum ServiceType { inmemory }
+  @Getter
+  @Setter
+  public static class KafkaServicesProperties
+  {
+    private String clientIdPrefix = "DEV";
+    private String bootstrapServers = ":9092";
+    private String chatRoomChannelTopic = "message_channel";
+    private int numPartitions = 2;
+  }
+
+  public enum ServiceType { inmemory, kafka }
   public enum StorageStrategyType { none, files, mongodb }
   public enum ShardingStrategyType { none, kafkalike }
 }

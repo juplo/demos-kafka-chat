@@ -80,6 +80,11 @@ public class ChatRoom extends ChatRoomInfo
   }
 
 
+  public ChatRoomService getChatRoomService()
+  {
+    return service;
+  }
+
   public Mono<Message> getMessage(String username, Long messageId)
   {
     Message.MessageKey key = Message.MessageKey.of(username, messageId);

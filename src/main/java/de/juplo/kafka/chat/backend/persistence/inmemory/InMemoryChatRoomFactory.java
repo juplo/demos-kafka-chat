@@ -21,7 +21,7 @@ public class InMemoryChatRoomFactory implements ChatRoomFactory
 
 
   @Override
-  public Mono<ChatRoom> createChatRoom(UUID id, String name)
+  public Mono<ChatRoomInfo> createChatRoom(UUID id, String name)
   {
     log.info("Creating ChatRoom with buffer-size {}", bufferSize);
     int shard = shardingStrategy.selectShard(id);
