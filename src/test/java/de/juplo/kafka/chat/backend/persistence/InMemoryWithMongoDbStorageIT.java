@@ -42,6 +42,8 @@ public class InMemoryWithMongoDbStorageIT extends AbstractStorageStrategyIT
   @Autowired
   MongoDbStorageStrategy storageStrategy;
   @Autowired
+  ChatRoomRepository repository;
+  @Autowired
   Clock clock;
 
 
@@ -116,5 +118,6 @@ public class InMemoryWithMongoDbStorageIT extends AbstractStorageStrategyIT
   {
     Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(log);
     CONTAINER.followOutput(logConsumer);
+    repository.deleteAll();
   }
 }

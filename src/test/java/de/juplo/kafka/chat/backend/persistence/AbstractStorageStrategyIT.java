@@ -63,4 +63,51 @@ public abstract class AbstractStorageStrategyIT
         .getChatRoom(chatroom.getId())
         .flatMapMany(cr -> cr.getMessages())).emitsExactly(m1, m2, m3, m4);
   }
+
+  @Test
+  protected void testStoreAndRecreateParallelChatRooms()
+  {
+    start();
+
+    assertThat(chathome.getChatRooms().toStream()).hasSize(0);
+
+    UUID chatRoomAId = UUID.fromString("5c73531c-6fc4-426c-adcb-afc5c140a0f7");
+    ChatRoom chatroomA = chatRoomFactory.createChatRoom(chatRoomAId, "FOO").block();
+    chathome.putChatRoom(chatroomA);
+    Message ma1 = chatroomA.addMessage(1l,"peter", "Hallo, ich heiße Peter!").block();
+    Message ma2 = chatroomA.addMessage(1l, "ute", "Ich bin Ute...").block();
+    Message ma3 = chatroomA.addMessage(2l, "peter", "Willst du mit mir gehen?").block();
+    Message ma4 = chatroomA.addMessage(1l, "klaus", "Ja? Nein? Vielleicht??").block();
+
+    UUID chatRoomBId = UUID.fromString("8763dfdc-4dda-4a74-bea4-4b389177abea");
+    ChatRoom chatroomB = chatRoomFactory.createChatRoom(chatRoomBId, "BAR").block();
+    chathome.putChatRoom(chatroomB);
+    Message mb1 = chatroomB.addMessage(1l,"peter", "Hallo, ich heiße Uwe!").block();
+    Message mb2 = chatroomB.addMessage(1l, "ute", "Ich bin Ute...").block();
+    Message mb3 = chatroomB.addMessage(1l, "klaus", "Willst du mit mir gehen?").block();
+    Message mb4 = chatroomB.addMessage(2l, "peter", "Hä? Was jetzt?!? Isch glohb isch höb ühn däjah vüh...").block();
+
+    assertThat(chathome.getChatRooms().toStream()).containsExactlyInAnyOrderElementsOf(List.of(chatroomA, chatroomB));
+    assertThat(chathome.getChatRoom(chatroomA.getId())).emitsExactly(chatroomA);
+    assertThat(chathome
+        .getChatRoom(chatroomA.getId())
+        .flatMapMany(cr -> cr.getMessages())).emitsExactly(ma1, ma2, ma3, ma4);
+    assertThat(chathome.getChatRoom(chatroomB.getId())).emitsExactly(chatroomB);
+    assertThat(chathome
+        .getChatRoom(chatroomB.getId())
+        .flatMapMany(cr -> cr.getMessages())).emitsExactly(mb1, mb2, mb3, mb4);
+
+    stop();
+    start();
+
+    assertThat(chathome.getChatRooms().toStream()).containsExactlyInAnyOrderElementsOf(List.of(chatroomA, chatroomB));
+    assertThat(chathome.getChatRoom(chatroomA.getId())).emitsExactly(chatroomA);
+    assertThat(chathome
+        .getChatRoom(chatroomA.getId())
+        .flatMapMany(cr -> cr.getMessages())).emitsExactly(ma1, ma2, ma3, ma4);
+    assertThat(chathome.getChatRoom(chatroomB.getId())).emitsExactly(chatroomB);
+    assertThat(chathome
+        .getChatRoom(chatroomB.getId())
+        .flatMapMany(cr -> cr.getMessages())).emitsExactly(mb1, mb2, mb3, mb4);
+  }
 }
