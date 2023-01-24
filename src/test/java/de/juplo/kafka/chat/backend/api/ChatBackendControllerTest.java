@@ -183,7 +183,7 @@ public class ChatBackendControllerTest
         .thenReturn(Mono.just(existingMessage));
     // Needed for readable error-reports, in case of a bug that leads to according unwanted call
     when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class)))
-        .thenReturn(mock(Message.class));
+        .thenReturn(Mono.just(mock(Message.class)));
 
     // When
     client
@@ -231,7 +231,7 @@ public class ChatBackendControllerTest
         .thenReturn(Mono.empty());
     // Needed for readable error-reports, in case of a bug that leads to according unwanted call
     when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class)))
-        .thenReturn(mock(Message.class));
+        .thenReturn(Mono.just(mock(Message.class)));
 
     // When
     client

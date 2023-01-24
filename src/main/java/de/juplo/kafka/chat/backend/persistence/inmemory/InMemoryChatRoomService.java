@@ -24,14 +24,14 @@ public class InMemoryChatRoomService implements ChatRoomService
   }
 
   @Override
-  public Message persistMessage(
+  public Mono<Message> persistMessage(
       Message.MessageKey key,
       LocalDateTime timestamp,
       String text)
   {
     Message message = new Message(key, (long)messages.size(), timestamp, text);
     messages.put(message.getKey(), message);
-    return message;
+    return Mono.just(message);
   }
 
   @Override

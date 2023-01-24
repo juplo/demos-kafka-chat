@@ -81,7 +81,7 @@ public class ChatRoom
         })
         .switchIfEmpty(
             Mono
-                .fromSupplier(() ->service.persistMessage(key, LocalDateTime.now(clock), text))
+                .defer(() -> service.persistMessage(key, LocalDateTime.now(clock), text))
                 .doOnNext(m ->
                 {
                   Sinks.EmitResult result = sink.tryEmitNext(m);

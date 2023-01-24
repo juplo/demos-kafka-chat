@@ -88,7 +88,7 @@ public class ChatRoomTest
     String messageText = "Bar";
     Message message = new Message(key, 0l, timestamp, messageText);
     when(chatRoomService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.empty());
-    when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(message);
+    when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
 
     // When
     Mono<Message> mono = chatRoom.addMessage(messageId, user, messageText);
@@ -118,7 +118,7 @@ public class ChatRoomTest
     String messageText = "Bar";
     Message message = new Message(key, 0l, timestamp, messageText);
     when(chatRoomService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
-    when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(message);
+    when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
 
     // When
     Mono<Message> mono = chatRoom.addMessage(messageId, user, messageText);
@@ -149,7 +149,7 @@ public class ChatRoomTest
     String mutatedText = "Boom!";
     Message message = new Message(key, 0l, timestamp, messageText);
     when(chatRoomService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
-    when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(message);
+    when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
 
     // When
     Mono<Message> mono = chatRoom.addMessage(messageId, user, mutatedText);
