@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
+import reactor.core.publisher.SynchronousSink;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -67,9 +68,17 @@ public class ChatRoom
     Message.MessageKey key = Message.MessageKey.of(user, id);
     return service
         .getMessage(key)
-        .flatMap(existing -> text.equals(existing.getMessageText())
-            ? Mono.just(existing)
-            : Mono.error(() -> new MessageMutationException(existing, text)))
+        .handle((Message existing, SynchronousSink<Message> sink) ->
+        {
+          if (existing.getMessageText().equals(text))
+          {
+            sink.next(existing);
+          }
+          else
+          {
+            sink.error(new MessageMutationException(existing, text));
+          }
+        })
         .switchIfEmpty(
             Mono
                 .fromSupplier(() ->service.persistMessage(key, LocalDateTime.now(clock), text))
