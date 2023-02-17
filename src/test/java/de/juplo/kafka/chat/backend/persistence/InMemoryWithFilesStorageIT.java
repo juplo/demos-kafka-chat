@@ -3,7 +3,6 @@ package de.juplo.kafka.chat.backend.persistence;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import de.juplo.kafka.chat.backend.domain.ShardingStrategy;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.domain.ChatRoomFactory;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomFactory;
@@ -18,7 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
-import java.util.function.Supplier;
 
 
 @Slf4j
@@ -54,19 +52,32 @@ public class InMemoryWithFilesStorageIT extends AbstractStorageStrategyIT
   }
 
   @Override
-  protected Supplier<ChatHomeService> getChatHomeServiceSupplier()
+  protected StorageStrategyITConfig getConfig()
   {
-    return () -> new InMemoryChatHomeService(
-        1,
-        new int[] { 0 },
-        getStorageStrategy().read());
-  }
+    return new StorageStrategyITConfig()
+    {
+      InMemoryChatHomeService chatHomeService = new InMemoryChatHomeService(
+          1,
+          new int[] { 0 },
+          getStorageStrategy().read());
 
-  @Override
-  protected ChatRoomFactory getChatRoomFactory()
-  {
-    ShardingStrategy strategy = chatRoomId -> 0;
-    return new InMemoryChatRoomFactory(strategy, clock, 8);
+      InMemoryChatRoomFactory chatRoomFactory = new InMemoryChatRoomFactory(
+          chatRoomId -> 0,
+          clock,
+          8);
+
+      @Override
+      public ChatHomeService getChatHomeService()
+      {
+        return chatHomeService;
+      }
+
+      @Override
+      public ChatRoomFactory getChatRoomFactory()
+      {
+        return chatRoomFactory;
+      }
+    };
   }
 
   @BeforeEach

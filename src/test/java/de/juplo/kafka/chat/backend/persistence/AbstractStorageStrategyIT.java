@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 import static pl.rzrz.assertj.reactor.Assertions.*;
 
@@ -19,13 +18,13 @@ public abstract class AbstractStorageStrategyIT
 
 
   protected abstract StorageStrategy getStorageStrategy();
-  protected abstract Supplier<ChatHomeService> getChatHomeServiceSupplier();
-  protected abstract ChatRoomFactory getChatRoomFactory();
+  protected abstract StorageStrategyITConfig getConfig();
 
   protected void start()
   {
-    chathome = new SimpleChatHome(getChatHomeServiceSupplier().get());
-    chatRoomFactory = getChatRoomFactory();
+    StorageStrategyITConfig config = getConfig();
+    chathome = new SimpleChatHome(config.getChatHomeService());
+    chatRoomFactory = config.getChatRoomFactory();
   }
 
   protected void stop()
@@ -109,5 +108,12 @@ public abstract class AbstractStorageStrategyIT
     assertThat(chathome
         .getChatRoom(chatroomB.getId())
         .flatMapMany(cr -> cr.getMessages())).emitsExactly(mb1, mb2, mb3, mb4);
+  }
+
+
+  interface StorageStrategyITConfig
+  {
+    ChatHomeService getChatHomeService();
+    ChatRoomFactory getChatRoomFactory();
   }
 }

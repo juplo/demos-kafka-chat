@@ -1,6 +1,5 @@
 package de.juplo.kafka.chat.backend.persistence;
 
-import de.juplo.kafka.chat.backend.domain.ShardingStrategy;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.domain.ChatRoomFactory;
 import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatHomeService;
@@ -28,7 +27,6 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Clock;
-import java.util.function.Supplier;
 
 
 @Testcontainers
@@ -54,19 +52,32 @@ public class InMemoryWithMongoDbStorageIT extends AbstractStorageStrategyIT
   }
 
   @Override
-  protected Supplier<ChatHomeService> getChatHomeServiceSupplier()
+  protected StorageStrategyITConfig getConfig()
   {
-    return () -> new InMemoryChatHomeService(
-        1,
-        new int[] { 0 },
-        getStorageStrategy().read());
-  }
+    return new StorageStrategyITConfig()
+    {
+      InMemoryChatHomeService chatHomeService = new InMemoryChatHomeService(
+          1,
+          new int[] { 0 },
+          getStorageStrategy().read());
 
-  @Override
-  protected ChatRoomFactory getChatRoomFactory()
-  {
-    ShardingStrategy strategy = chatRoomId -> 0;
-    return new InMemoryChatRoomFactory(strategy, clock, 8);
+      InMemoryChatRoomFactory chatRoomFactory = new InMemoryChatRoomFactory(
+          chatRoomId -> 0,
+          clock,
+          8);
+
+      @Override
+      public ChatHomeService getChatHomeService()
+      {
+        return chatHomeService;
+      }
+
+      @Override
+      public ChatRoomFactory getChatRoomFactory()
+      {
+        return chatRoomFactory;
+      }
+    };
   }
 
   @TestConfiguration
