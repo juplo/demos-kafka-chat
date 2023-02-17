@@ -40,8 +40,9 @@ public abstract class AbstractStorageStrategyIT
     assertThat(chathome.getChatRooms().toStream()).hasSize(0);
 
     UUID chatRoomId = UUID.fromString("5c73531c-6fc4-426c-adcb-afc5c140a0f7");
-    ChatRoom chatroom = chatRoomFactory.createChatRoom(chatRoomId, "FOO").block();
-    chathome.putChatRoom(chatroom);
+    ChatRoomInfo info = chatRoomFactory.createChatRoom(chatRoomId, "FOO").block();
+    log.debug("Created chat-room {}", info);
+    ChatRoom chatroom = chathome.getChatRoom(chatRoomId).block();
     Message m1 = chatroom.addMessage(1l,"peter", "Hallo, ich heiße Peter!").block();
     Message m2 = chatroom.addMessage(1l, "ute", "Ich bin Ute...").block();
     Message m3 = chatroom.addMessage(2l, "peter", "Willst du mit mir gehen?").block();
@@ -71,16 +72,18 @@ public abstract class AbstractStorageStrategyIT
     assertThat(chathome.getChatRooms().toStream()).hasSize(0);
 
     UUID chatRoomAId = UUID.fromString("5c73531c-6fc4-426c-adcb-afc5c140a0f7");
-    ChatRoom chatroomA = chatRoomFactory.createChatRoom(chatRoomAId, "FOO").block();
-    chathome.putChatRoom(chatroomA);
+    ChatRoomInfo infoA = chatRoomFactory.createChatRoom(chatRoomAId, "FOO").block();
+    log.debug("Created chat-room {}", infoA);
+    ChatRoom chatroomA = chathome.getChatRoom(chatRoomAId).block();
     Message ma1 = chatroomA.addMessage(1l,"peter", "Hallo, ich heiße Peter!").block();
     Message ma2 = chatroomA.addMessage(1l, "ute", "Ich bin Ute...").block();
     Message ma3 = chatroomA.addMessage(2l, "peter", "Willst du mit mir gehen?").block();
     Message ma4 = chatroomA.addMessage(1l, "klaus", "Ja? Nein? Vielleicht??").block();
 
     UUID chatRoomBId = UUID.fromString("8763dfdc-4dda-4a74-bea4-4b389177abea");
-    ChatRoom chatroomB = chatRoomFactory.createChatRoom(chatRoomBId, "BAR").block();
-    chathome.putChatRoom(chatroomB);
+    ChatRoomInfo infoB = chatRoomFactory.createChatRoom(chatRoomBId, "BAR").block();
+    log.debug("Created chat-room {}", infoB);
+    ChatRoom chatroomB = chathome.getChatRoom(chatRoomBId).block();
     Message mb1 = chatroomB.addMessage(1l,"peter", "Hallo, ich heiße Uwe!").block();
     Message mb2 = chatroomB.addMessage(1l, "ute", "Ich bin Ute...").block();
     Message mb3 = chatroomB.addMessage(1l, "klaus", "Willst du mit mir gehen?").block();

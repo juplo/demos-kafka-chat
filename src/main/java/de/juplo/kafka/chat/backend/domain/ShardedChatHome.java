@@ -38,12 +38,6 @@ public class ShardedChatHome implements ChatHome
 
 
   @Override
-  public Mono<ChatRoom> putChatRoom(ChatRoom chatRoom)
-  {
-    return chatHomes[selectShard(chatRoom.getId())].putChatRoom(chatRoom);
-  }
-
-  @Override
   public Mono<ChatRoom> getChatRoom(UUID id)
   {
     return chatHomes[selectShard(id)].getChatRoom(id);

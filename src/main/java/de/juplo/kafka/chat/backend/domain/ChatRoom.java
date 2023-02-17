@@ -1,8 +1,5 @@
 package de.juplo.kafka.chat.backend.domain;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,17 +14,9 @@ import java.util.regex.Pattern;
 
 
 @Slf4j
-@EqualsAndHashCode(of = { "id" })
-@ToString(of = { "id", "name" })
-public class ChatRoom
+public class ChatRoom extends ChatRoomInfo
 {
   public final static Pattern VALID_USER = Pattern.compile("^[a-z0-9-]{2,}$");
-  @Getter
-  private final UUID id;
-  @Getter
-  private final String name;
-  @Getter
-  private final int shard;
   private final Clock clock;
   private final ChatRoomService service;
   private final int bufferSize;
@@ -42,10 +31,8 @@ public class ChatRoom
       ChatRoomService service,
       int bufferSize)
   {
+    super(id, name, shard);
     log.info("Created ChatRoom {} with buffer-size {}", id, bufferSize);
-    this.id = id;
-    this.name = name;
-    this.shard = shard;
     this.clock = clock;
     this.service = service;
     this.bufferSize = bufferSize;

@@ -28,12 +28,6 @@ public class SimpleChatHome implements ChatHome
 
 
   @Override
-  public Mono<ChatRoom> putChatRoom(ChatRoom chatRoom)
-  {
-    return service.putChatRoom(chatRoom);
-  }
-
-  @Override
   public Mono<ChatRoom> getChatRoom(UUID id)
   {
     return service

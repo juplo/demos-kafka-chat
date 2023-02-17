@@ -23,21 +23,20 @@ public class ChatBackendController
 
 
   @PostMapping("create")
-  public Mono<ChatRoomTo> create(@RequestBody String name)
+  public Mono<ChatRoomInfoTo> create(@RequestBody String name)
   {
     UUID chatRoomId = UUID.randomUUID();
     return factory
         .createChatRoom(chatRoomId, name)
-        .flatMap(chatRoom -> chatHome.putChatRoom(chatRoom))
-        .map(ChatRoomTo::from);
+        .map(ChatRoomInfoTo::from);
   }
 
   @GetMapping("list")
-  public Flux<ChatRoomTo> list()
+  public Flux<ChatRoomInfoTo> list()
   {
     return chatHome
         .getChatRooms()
-        .map(chatroom -> ChatRoomTo.from(chatroom));
+        .map(chatroom -> ChatRoomInfoTo.from(chatroom));
   }
 
   @GetMapping("{chatroomId}/list")
@@ -51,11 +50,11 @@ public class ChatBackendController
   }
 
   @GetMapping("{chatroomId}")
-  public Mono<ChatRoomTo> get(@PathVariable UUID chatroomId)
+  public Mono<ChatRoomInfoTo> get(@PathVariable UUID chatroomId)
   {
     return chatHome
         .getChatRoom(chatroomId)
-        .map(chatroom -> ChatRoomTo.from(chatroom));
+        .map(chatroom -> ChatRoomInfoTo.from(chatroom));
   }
 
   @PutMapping("{chatroomId}/{username}/{messageId}")

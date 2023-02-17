@@ -8,7 +8,6 @@ import java.util.UUID;
 
 public interface ChatHomeService
 {
-  Mono<ChatRoom> putChatRoom(ChatRoom chatRoom);
   Mono<ChatRoom> getChatRoom(int shard, UUID id);
   Flux<ChatRoom> getChatRooms(int shard);
 }

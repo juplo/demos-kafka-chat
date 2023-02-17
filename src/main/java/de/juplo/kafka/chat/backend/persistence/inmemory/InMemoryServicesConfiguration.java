@@ -79,11 +79,13 @@ public class InMemoryServicesConfiguration
 
   @Bean
   InMemoryChatRoomFactory chatRoomFactory(
+      InMemoryChatHomeService service,
       ShardingStrategy strategy,
       Clock clock,
       ChatBackendProperties properties)
   {
     return new InMemoryChatRoomFactory(
+        service,
         strategy,
         clock,
         properties.getChatroomBufferSize());

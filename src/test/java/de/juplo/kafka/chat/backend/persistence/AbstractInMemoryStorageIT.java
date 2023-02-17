@@ -27,6 +27,7 @@ public abstract class AbstractInMemoryStorageIT extends AbstractStorageStrategyI
           getStorageStrategy().read());
 
       InMemoryChatRoomFactory chatRoomFactory = new InMemoryChatRoomFactory(
+          chatHomeService,
           chatRoomId -> 0,
           clock,
           8);

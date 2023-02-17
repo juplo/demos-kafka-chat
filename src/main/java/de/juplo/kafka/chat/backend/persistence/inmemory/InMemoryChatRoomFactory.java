@@ -1,9 +1,6 @@
 package de.juplo.kafka.chat.backend.persistence.inmemory;
 
-import de.juplo.kafka.chat.backend.domain.ShardingStrategy;
-import de.juplo.kafka.chat.backend.domain.ChatRoom;
-import de.juplo.kafka.chat.backend.domain.ChatRoomFactory;
-import de.juplo.kafka.chat.backend.domain.ChatRoomService;
+import de.juplo.kafka.chat.backend.domain.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -17,17 +14,20 @@ import java.util.UUID;
 @Slf4j
 public class InMemoryChatRoomFactory implements ChatRoomFactory
 {
+  private final InMemoryChatHomeService chatHomeService;
   private final ShardingStrategy shardingStrategy;
   private final Clock clock;
   private final int bufferSize;
 
 
   @Override
-  public Mono<ChatRoom> createChatRoom(UUID id, String name)
+  public Mono<ChatRoomInfo> createChatRoom(UUID id, String name)
   {
     log.info("Creating ChatRoom with buffer-size {}", bufferSize);
     int shard = shardingStrategy.selectShard(id);
     ChatRoomService service = new InMemoryChatRoomService(Flux.empty());
-    return Mono.just(new ChatRoom(id, name, shard, clock, service, bufferSize));
+    ChatRoom chatRoom = new ChatRoom(id, name, shard, clock, service, bufferSize);
+    chatHomeService.putChatRoom(chatRoom);
+    return Mono.just(chatRoom);
   }
 }

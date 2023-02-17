@@ -51,11 +51,9 @@ public class InMemoryChatHomeService implements ChatHomeService
         .forEach(chatroom -> chatrooms[chatroom.getShard()].put(chatroom.getId(), chatroom));
   }
 
-  @Override
-  public Mono<ChatRoom> putChatRoom(ChatRoom chatRoom)
+  public void putChatRoom(ChatRoom chatRoom)
   {
     chatrooms[chatRoom.getShard()].put(chatRoom.getId(), chatRoom);
-    return Mono.just(chatRoom);
   }
 
   @Override
