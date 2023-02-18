@@ -20,8 +20,10 @@ public abstract class AbstractConfigurationIT
 
   @Test
   @DisplayName("The app starts, the data is restored and accessible")
-  void test()
+  void testAppStartsDataIsRestoredAndAccessible()
   {
+    String chatRoomId = "5c73531c-6fc4-426c-adcb-afc5c140a0f7";
+
     Awaitility
         .await()
         .atMost(Duration.ofSeconds(15))
@@ -29,13 +31,17 @@ public abstract class AbstractConfigurationIT
         {
           webTestClient
               .get()
-              .uri("http://localhost:{port}/actuator/health", port)
+              .uri(
+                  "http://localhost:{port}/actuator/health",
+                  port)
               .exchange()
               .expectStatus().isOk()
               .expectBody().jsonPath("$.status").isEqualTo("UP");
           webTestClient
               .get()
-              .uri("http://localhost:{port}/list", port)
+              .uri(
+                  "http://localhost:{port}/list",
+                  port)
               .accept(MediaType.APPLICATION_JSON)
               .exchange()
               .expectStatus().isOk()
@@ -44,21 +50,29 @@ public abstract class AbstractConfigurationIT
                 .jsonPath("$[0].name").isEqualTo("FOO");
           webTestClient
               .get()
-              .uri("http://localhost:{port}/5c73531c-6fc4-426c-adcb-afc5c140a0f7", port)
+              .uri("http://localhost:{port}/{chatRoomId}",
+                  port,
+                  chatRoomId)
               .accept(MediaType.APPLICATION_JSON)
               .exchange()
               .expectStatus().isOk()
               .expectBody().jsonPath("$.name").isEqualTo("FOO");
           webTestClient
               .get()
-              .uri("http://localhost:{port}/5c73531c-6fc4-426c-adcb-afc5c140a0f7/ute/1", port)
+              .uri(
+                  "http://localhost:{port}/{chatRoomId}/ute/1",
+                  port,
+                  chatRoomId)
               .accept(MediaType.APPLICATION_JSON)
               .exchange()
               .expectStatus().isOk()
               .expectBody().jsonPath("$.text").isEqualTo("Ich bin Ute...");
           webTestClient
               .get()
-              .uri("http://localhost:{port}/5c73531c-6fc4-426c-adcb-afc5c140a0f7/peter/1", port)
+              .uri(
+                  "http://localhost:{port}/{chatRoomId}/peter/1",
+                  port,
+                  chatRoomId)
               .accept(MediaType.APPLICATION_JSON)
               .exchange()
               .expectStatus().isOk()

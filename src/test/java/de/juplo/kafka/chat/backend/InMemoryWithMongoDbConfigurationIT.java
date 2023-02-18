@@ -17,7 +17,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 		properties = {
 				"spring.data.mongodb.host=localhost",
 				"spring.data.mongodb.database=test",
-				"chat.backend.inmemory.sharding-strategy=kafkalike",
+				"chat.backend.inmemory.sharding-strategy=none",
 				"chat.backend.inmemory.storage-strategy=mongodb" })
 @Testcontainers
 @Slf4j

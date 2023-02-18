@@ -11,6 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
         "chat.backend.inmemory.sharding-strategy=kafkalike",
         "chat.backend.inmemory.num-shards=10",
         "chat.backend.inmemory.owned-shards=2" })
-class InMemoryWithFilesAndShardingConfigurationIT extends AbstractConfigurationIT
+class InMemoryWithFilesAndShardingConfigurationIT extends AbstractConfigurationWithShardingIT
 {
 }
