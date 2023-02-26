@@ -7,5 +7,5 @@ import java.util.UUID;
 
 public interface ChatRoomFactory
 {
-  Mono<ChatRoomInfo> createChatRoom(UUID id, String name);
+  Mono<ChatRoom> createChatRoom(UUID id, String name);
 }
