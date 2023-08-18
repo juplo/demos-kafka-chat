@@ -70,7 +70,7 @@ public class ChatBackendController
             .flatMap(chatroom -> put(chatroom, username, messageId, text));
   }
 
-  public Mono<MessageTo> put(
+  private Mono<MessageTo> put(
       ChatRoom chatroom,
       String username,
       Long messageId,

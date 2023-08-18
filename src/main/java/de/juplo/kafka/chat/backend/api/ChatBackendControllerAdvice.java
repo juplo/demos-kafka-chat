@@ -2,6 +2,7 @@ package de.juplo.kafka.chat.backend.api;
 
 import de.juplo.kafka.chat.backend.domain.InvalidUsernameException;
 import de.juplo.kafka.chat.backend.domain.MessageMutationException;
+import de.juplo.kafka.chat.backend.domain.ShardNotOwnedException;
 import de.juplo.kafka.chat.backend.domain.UnknownChatroomException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -46,6 +47,36 @@ public class ChatBackendControllerAdvice
     problem.setDetail(stringBuilder.toString());
 
     problem.setProperty("chatroomId", e.getChatroomId());
+
+    return problem;
+  }
+
+  @ExceptionHandler(ShardNotOwnedException.class)
+  public final ProblemDetail handleException(
+      ShardNotOwnedException e,
+      ServerWebExchange exchange,
+      UriComponentsBuilder uriComponentsBuilder)
+  {
+    final HttpStatus status = HttpStatus.NOT_FOUND;
+    ProblemDetail problem = ProblemDetail.forStatus(status);
+
+    problem.setProperty("timestamp", new Date());
+
+    problem.setProperty("requestId", exchange.getRequest().getId());
+
+    problem.setType(uriComponentsBuilder.replacePath(contextPath).path("/problem/shard-not-owned").build().toUri());
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(status.getReasonPhrase());
+    stringBuilder.append(" - ");
+    stringBuilder.append(e.getMessage());
+    problem.setTitle(stringBuilder.toString());
+
+    stringBuilder.setLength(0);
+    stringBuilder.append("Shard not owned: ");
+    stringBuilder.append(e.getShard());
+    problem.setDetail(stringBuilder.toString());
+
+    problem.setProperty("shard", e.getShard());
 
     return problem;
   }
