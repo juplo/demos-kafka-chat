@@ -25,11 +25,11 @@ public class ChatBackendProperties
     private ShardingStrategyType shardingStrategy = ShardingStrategyType.none;
     private int numShards = 1;
     private int[] ownedShards = new int[] { 0 };
-    private StorageStrategyType storageStrategy = StorageStrategyType.files;
+    private StorageStrategyType storageStrategy = StorageStrategyType.none;
     private String storageDirectory = Paths.get(System.getProperty("java.io.tmpdir"),"chat", "backend").toString();
   }
 
   public enum ServiceType { inmemory }
-  public enum StorageStrategyType { files, mongodb }
+  public enum StorageStrategyType { none, files, mongodb }
   public enum ShardingStrategyType { none, kafkalike }
 }

@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.time.Clock;
+import java.util.stream.IntStream;
 
 
 @ConditionalOnProperty(
@@ -41,19 +42,13 @@ public class InMemoryServicesConfiguration
       havingValue = "kafkalike")
   ChatHome kafkalikeShardingChatHome(
       ChatBackendProperties properties,
-      InMemoryChatHomeService chatHomeService,
-      StorageStrategy storageStrategy)
+      InMemoryChatHomeService chatHomeService)
   {
     int numShards = properties.getInmemory().getNumShards();
     SimpleChatHome[] chatHomes = new SimpleChatHome[numShards];
-    storageStrategy
-        .read()
-        .subscribe(chatRoom ->
-        {
-          int shard = chatRoom.getShard();
-          if (chatHomes[shard] == null)
-            chatHomes[shard] = new SimpleChatHome(chatHomeService, shard);
-        });
+    IntStream
+        .of(properties.getInmemory().getOwnedShards())
+        .forEach(shard -> chatHomes[shard] = new SimpleChatHome(chatHomeService, shard));
     ShardingStrategy strategy = new KafkaLikeShardingStrategy(numShards);
     return new ShardedChatHome(chatHomes, strategy);
   }
