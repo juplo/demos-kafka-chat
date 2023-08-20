@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend.domain;
+package de.juplo.kafka.chat.backend.persistence.inmemory;
 
 import java.util.UUID;
 

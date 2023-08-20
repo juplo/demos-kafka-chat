@@ -1,5 +1,9 @@
-package de.juplo.kafka.chat.backend.domain;
+package de.juplo.kafka.chat.backend.persistence.inmemory;
 
+import de.juplo.kafka.chat.backend.domain.ChatRoom;
+import de.juplo.kafka.chat.backend.domain.ChatRoomService;
+import de.juplo.kafka.chat.backend.persistence.inmemory.ChatHomeService;
+import de.juplo.kafka.chat.backend.persistence.inmemory.SimpleChatHome;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;

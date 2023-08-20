@@ -1,5 +1,6 @@
-package de.juplo.kafka.chat.backend.domain;
+package de.juplo.kafka.chat.backend.persistence.inmemory;
 
+import de.juplo.kafka.chat.backend.domain.ChatRoom;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

@@ -1,6 +1,8 @@
 package de.juplo.kafka.chat.backend.persistence;
 
 import de.juplo.kafka.chat.backend.domain.*;
+import de.juplo.kafka.chat.backend.persistence.inmemory.ChatHomeService;
+import de.juplo.kafka.chat.backend.persistence.inmemory.SimpleChatHome;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
