@@ -360,6 +360,14 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
     }
   }
 
+  int[] getOwnedShards()
+  {
+    return IntStream
+        .range(0, numShards)
+        .filter(shard -> isShardOwned[shard])
+        .toArray();
+  }
+
   Mono<ChatRoom> getChatRoom(int shard, UUID id)
   {
     if (loadInProgress)

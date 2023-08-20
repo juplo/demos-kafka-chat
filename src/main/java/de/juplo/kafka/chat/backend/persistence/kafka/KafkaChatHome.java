@@ -2,6 +2,7 @@ package de.juplo.kafka.chat.backend.persistence.kafka;
 
 import de.juplo.kafka.chat.backend.domain.ChatHome;
 import de.juplo.kafka.chat.backend.domain.ChatRoom;
+import de.juplo.kafka.chat.backend.domain.UnknownChatroomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.utils.Utils;
@@ -23,7 +24,9 @@ public class KafkaChatHome implements ChatHome
   public Mono<ChatRoom> getChatRoom(UUID id)
   {
     int shard = selectShard(id);
-    return chatRoomChannel.getChatRoom(shard, id);
+    return chatRoomChannel
+        .getChatRoom(shard, id)
+        .switchIfEmpty(Mono.error(() -> new UnknownChatroomException(id)));
   }
 
   int selectShard(UUID chatRoomId)
