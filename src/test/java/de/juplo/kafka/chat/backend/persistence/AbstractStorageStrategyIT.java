@@ -1,8 +1,6 @@
 package de.juplo.kafka.chat.backend.persistence;
 
 import de.juplo.kafka.chat.backend.domain.*;
-import de.juplo.kafka.chat.backend.persistence.inmemory.ChatHomeService;
-import de.juplo.kafka.chat.backend.persistence.inmemory.SimpleChatHome;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +23,7 @@ public abstract class AbstractStorageStrategyIT
   protected void start()
   {
     StorageStrategyITConfig config = getConfig();
-    chathome = new SimpleChatHome(config.getChatHomeService());
+    chathome = config.getChatHome();
     chatRoomFactory = config.getChatRoomFactory();
   }
 
@@ -118,7 +116,7 @@ public abstract class AbstractStorageStrategyIT
 
   interface StorageStrategyITConfig
   {
-    ChatHomeService getChatHomeService();
+    ChatHome getChatHome();
     ChatRoomFactory getChatRoomFactory();
   }
 }

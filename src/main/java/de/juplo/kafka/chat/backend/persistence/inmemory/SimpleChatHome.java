@@ -13,18 +13,18 @@ import java.util.*;
 @Slf4j
 public class SimpleChatHome implements ChatHome
 {
-  private final ChatHomeService service;
+  private final InMemoryChatHomeService service;
   private final int shard;
 
 
-  public SimpleChatHome(ChatHomeService service, int shard)
+  public SimpleChatHome(InMemoryChatHomeService service, int shard)
   {
     log.info("Created SimpleChatHome for shard {}", shard);
     this.service = service;
     this.shard = shard;
   }
 
-  public SimpleChatHome(ChatHomeService service)
+  public SimpleChatHome(InMemoryChatHomeService service)
   {
     this(service, 0);
   }

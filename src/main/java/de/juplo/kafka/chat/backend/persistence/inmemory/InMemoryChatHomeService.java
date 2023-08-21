@@ -9,7 +9,7 @@ import java.util.*;
 
 
 @Slf4j
-public class InMemoryChatHomeService implements ChatHomeService
+public class InMemoryChatHomeService
 {
   private final Map<UUID, ChatRoom>[] chatrooms;
 
@@ -55,13 +55,11 @@ public class InMemoryChatHomeService implements ChatHomeService
     chatrooms[chatRoom.getShard()].put(chatRoom.getId(), chatRoom);
   }
 
-  @Override
   public Mono<ChatRoom> getChatRoom(int shard, UUID id)
   {
     return Mono.justOrEmpty(chatrooms[shard].get(id));
   }
 
-  @Override
   public Flux<ChatRoom> getChatRooms(int shard)
   {
     return Flux.fromStream(chatrooms[shard].values().stream());

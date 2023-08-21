@@ -2,8 +2,6 @@ package de.juplo.kafka.chat.backend.persistence.inmemory;
 
 import de.juplo.kafka.chat.backend.domain.ChatRoom;
 import de.juplo.kafka.chat.backend.domain.ChatRoomService;
-import de.juplo.kafka.chat.backend.persistence.inmemory.ChatHomeService;
-import de.juplo.kafka.chat.backend.persistence.inmemory.SimpleChatHome;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
@@ -25,7 +23,7 @@ public class SimpleChatHomeTest
   void testGetExistingChatroom()
   {
     // Given
-    ChatHomeService chatHomeService = mock(ChatHomeService.class);
+    InMemoryChatHomeService chatHomeService = mock(InMemoryChatHomeService.class);
     ChatRoom chatRoom = new ChatRoom(
         UUID.randomUUID(),
         "Foo",
@@ -48,7 +46,7 @@ public class SimpleChatHomeTest
   void testGetNonExistentChatroom()
   {
     // Given
-    ChatHomeService chatHomeService = mock(ChatHomeService.class);
+    InMemoryChatHomeService chatHomeService = mock(InMemoryChatHomeService.class);
     when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
     SimpleChatHome chatHome = new SimpleChatHome(chatHomeService);
 
