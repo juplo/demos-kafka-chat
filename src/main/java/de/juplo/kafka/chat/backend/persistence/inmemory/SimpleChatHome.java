@@ -35,7 +35,10 @@ public class SimpleChatHome implements ChatHome
   {
     return service
         .getChatRoom(shard, id)
-        .switchIfEmpty(Mono.error(() -> new UnknownChatroomException(id)));
+        .switchIfEmpty(Mono.error(() -> new UnknownChatroomException(
+            id,
+            shard,
+            service.getOwnedShards())));
   }
 
   @Override

@@ -6,6 +6,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 
 @Slf4j
@@ -58,6 +59,14 @@ public class InMemoryChatHomeService
   public Mono<ChatRoom> getChatRoom(int shard, UUID id)
   {
     return Mono.justOrEmpty(chatrooms[shard].get(id));
+  }
+
+  public int[] getOwnedShards()
+  {
+    return IntStream
+        .range(0, chatrooms.length)
+        .filter(i -> chatrooms[i] != null)
+        .toArray();
   }
 
   public Flux<ChatRoom> getChatRooms(int shard)

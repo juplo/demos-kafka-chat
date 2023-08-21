@@ -53,6 +53,7 @@ public class ChatBackendControllerTest
     // Given
     UUID chatroomId = getRandomIdForOwnedShard();
     when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
+    when(chatHomeService.getOwnedShards()).thenReturn(new int[] { 6 });
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -73,6 +74,7 @@ public class ChatBackendControllerTest
     // Given
     UUID chatroomId = getRandomIdForOwnedShard();
     when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
+    when(chatHomeService.getOwnedShards()).thenReturn(new int[] { 6 });
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -94,6 +96,7 @@ public class ChatBackendControllerTest
     String username = "foo";
     Long messageId = 66l;
     when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
+    when(chatHomeService.getOwnedShards()).thenReturn(new int[] { 6 });
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -120,6 +123,7 @@ public class ChatBackendControllerTest
     String username = "foo";
     Long messageId = 66l;
     when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
+    when(chatHomeService.getOwnedShards()).thenReturn(new int[] { 6 });
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -143,6 +147,7 @@ public class ChatBackendControllerTest
     // Given
     UUID chatroomId = getRandomIdForOwnedShard();
     when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
+    when(chatHomeService.getOwnedShards()).thenReturn(new int[] { 6 });
 
     // When
     WebTestClient.ResponseSpec responseSpec = client

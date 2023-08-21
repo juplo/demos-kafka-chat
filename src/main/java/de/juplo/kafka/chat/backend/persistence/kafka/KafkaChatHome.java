@@ -26,7 +26,10 @@ public class KafkaChatHome implements ChatHome
     int shard = selectShard(id);
     return chatRoomChannel
         .getChatRoom(shard, id)
-        .switchIfEmpty(Mono.error(() -> new UnknownChatroomException(id)));
+        .switchIfEmpty(Mono.error(() -> new UnknownChatroomException(
+            id,
+            shard,
+            chatRoomChannel.getOwnedShards())));
   }
 
   int selectShard(UUID chatRoomId)

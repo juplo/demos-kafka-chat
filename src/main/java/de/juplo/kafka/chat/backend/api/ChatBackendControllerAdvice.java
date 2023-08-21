@@ -47,6 +47,8 @@ public class ChatBackendControllerAdvice
     problem.setDetail(stringBuilder.toString());
 
     problem.setProperty("chatroomId", e.getChatroomId());
+    problem.setProperty("shard", e.getShard());
+    problem.setProperty("ownedShards", e.getOwnedShards());
 
     return problem;
   }
