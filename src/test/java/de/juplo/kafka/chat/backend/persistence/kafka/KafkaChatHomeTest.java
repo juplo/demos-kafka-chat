@@ -1,7 +1,7 @@
-package de.juplo.kafka.chat.backend;
+package de.juplo.kafka.chat.backend.persistence.kafka;
 
-import de.juplo.kafka.chat.backend.persistence.kafka.ChatRoomChannel;
-import de.juplo.kafka.chat.backend.persistence.kafka.KafkaServicesApplicationRunner;
+import de.juplo.kafka.chat.backend.ChatBackendProperties;
+import de.juplo.kafka.chat.backend.domain.ChatHomeTest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -9,39 +9,59 @@ import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
+import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static de.juplo.kafka.chat.backend.KafkaConfigurationIT.TOPIC;
+import static de.juplo.kafka.chat.backend.persistence.kafka.KafkaChatHomeTest.TOPIC;
 
 
 @SpringBootTest(
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = {
+        KafkaChatHomeTest.KafkaChatHomeTestConfiguration.class,
+        KafkaServicesConfiguration.class,
+        KafkaAutoConfiguration.class,
+        TaskExecutionAutoConfiguration.class,
+    },
     properties = {
-        "chat.backend.services=kafka",
-        "chat.backend.kafka.client-id-PREFIX=TEST",
-        "chat.backend.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
-        "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
-        "chat.backend.kafka.chatroom-channel-topic=" + TOPIC,
-        "chat.backend.kafka.num-partitions=10",
-        })
+    "chat.backend.services=kafka",
+    "chat.backend.kafka.client-id-PREFIX=TEST",
+    "chat.backend.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
+    "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
+    "chat.backend.kafka.chatroom-channel-topic=" + TOPIC,
+    "chat.backend.kafka.num-partitions=10",
+})
 @EmbeddedKafka(topics = { TOPIC }, partitions = 10)
 @Slf4j
-class KafkaConfigurationIT extends AbstractConfigurationWithShardingIT
+public class KafkaChatHomeTest extends ChatHomeTest
 {
-  final static String TOPIC = "KAFKA_CONFIGURATION_IT";
+  final static String TOPIC = "KAFKA_CHAT_HOME_TEST";
 
   static CompletableFuture<Void> CONSUMER_JOB;
 
-  @MockBean
-  KafkaServicesApplicationRunner kafkaServicesApplicationRunner;
+
+  @TestConfiguration
+  @EnableConfigurationProperties(ChatBackendProperties.class)
+  static class KafkaChatHomeTestConfiguration
+  {
+    @Bean
+    Clock clock()
+    {
+      return Clock.systemDefaultZone();
+    }
+  }
+
 
   @BeforeAll
   public static void sendAndLoadStoredData(
