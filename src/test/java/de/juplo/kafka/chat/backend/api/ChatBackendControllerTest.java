@@ -2,8 +2,6 @@ package de.juplo.kafka.chat.backend.api;
 
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.*;
-import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatHomeService;
-import de.juplo.kafka.chat.backend.persistence.inmemory.ShardingStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,10 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -28,9 +23,6 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest(properties = {
     "spring.main.allow-bean-definition-overriding=true",
-    "chat.backend.inmemory.sharding-strategy=kafkalike",
-    "chat.backend.inmemory.num-shards=10",
-    "chat.backend.inmemory.owned-shards=6",
     })
 @AutoConfigureWebTestClient
 @Slf4j
@@ -38,11 +30,9 @@ public class ChatBackendControllerTest
 {
   @Autowired
   ChatBackendProperties properties;
-  @Autowired
-  ShardingStrategy shardingStrategy;
 
   @MockBean
-  InMemoryChatHomeService chatHomeService;
+  ChatHome chatHome;
   @MockBean
   ChatRoomService chatRoomService;
 
@@ -51,9 +41,8 @@ public class ChatBackendControllerTest
   void testUnknownChatroomExceptionForListChatroom(@Autowired WebTestClient client)
   {
     // Given
-    UUID chatroomId = getRandomIdForOwnedShard();
-    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
-    when(chatHomeService.getOwnedShards()).thenReturn(new int[] { 6 });
+    UUID chatroomId = UUID.randomUUID();
+    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -72,9 +61,8 @@ public class ChatBackendControllerTest
   void testUnknownChatroomExceptionForGetChatroom(@Autowired WebTestClient client)
   {
     // Given
-    UUID chatroomId = getRandomIdForOwnedShard();
-    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
-    when(chatHomeService.getOwnedShards()).thenReturn(new int[] { 6 });
+    UUID chatroomId = UUID.randomUUID();
+    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -92,11 +80,10 @@ public class ChatBackendControllerTest
   void testUnknownChatroomExceptionForPutMessage(@Autowired WebTestClient client)
   {
     // Given
-    UUID chatroomId = getRandomIdForOwnedShard();
+    UUID chatroomId = UUID.randomUUID();
     String username = "foo";
     Long messageId = 66l;
-    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
-    when(chatHomeService.getOwnedShards()).thenReturn(new int[] { 6 });
+    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -119,11 +106,10 @@ public class ChatBackendControllerTest
   void testUnknownChatroomExceptionForGetMessage(@Autowired WebTestClient client)
   {
     // Given
-    UUID chatroomId = getRandomIdForOwnedShard();
+    UUID chatroomId = UUID.randomUUID();
     String username = "foo";
     Long messageId = 66l;
-    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
-    when(chatHomeService.getOwnedShards()).thenReturn(new int[] { 6 });
+    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -145,9 +131,8 @@ public class ChatBackendControllerTest
   void testUnknownChatroomExceptionForListenChatroom(@Autowired WebTestClient client)
   {
     // Given
-    UUID chatroomId = getRandomIdForOwnedShard();
-    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
-    when(chatHomeService.getOwnedShards()).thenReturn(new int[] { 6 });
+    UUID chatroomId = UUID.randomUUID();
+    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -176,7 +161,7 @@ public class ChatBackendControllerTest
   void testMessageMutationException(@Autowired WebTestClient client)
   {
     // Given
-    UUID chatroomId = getRandomIdForOwnedShard();
+    UUID chatroomId = UUID.randomUUID();
     String user = "foo";
     Long messageId = 66l;
     Message.MessageKey key = Message.MessageKey.of(user, messageId);
@@ -191,7 +176,7 @@ public class ChatBackendControllerTest
         0,
         Clock.systemDefaultZone(),
         chatRoomService, 8);
-    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.just(chatRoom));
+    when(chatHome.getChatRoom(eq(chatroomId))).thenReturn(Mono.just(chatRoom));
     Message existingMessage = new Message(
         key,
         serialNumberExistingMessage,
@@ -232,7 +217,7 @@ public class ChatBackendControllerTest
   void testInvalidUsernameException(@Autowired WebTestClient client)
   {
     // Given
-    UUID chatroomId = getRandomIdForOwnedShard();
+    UUID chatroomId = UUID.randomUUID();
     String user = "Foo";
     Long messageId = 66l;
     Message.MessageKey key = Message.MessageKey.of(user, messageId);
@@ -243,7 +228,7 @@ public class ChatBackendControllerTest
         0,
         Clock.systemDefaultZone(),
         chatRoomService, 8);
-    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class)))
+    when(chatHome.getChatRoom(any(UUID.class)))
         .thenReturn(Mono.just(chatRoom));
     when(chatRoomService.getMessage(any(Message.MessageKey.class)))
         .thenReturn(Mono.empty());
@@ -275,7 +260,9 @@ public class ChatBackendControllerTest
   void testShardNotOwnedExceptionForGetChatroom(@Autowired WebTestClient client)
   {
     // Given
-    UUID chatroomId = getRandomIdForForeignShard();
+    UUID chatroomId = UUID.randomUUID();
+    int shard = 666;
+    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -285,7 +272,7 @@ public class ChatBackendControllerTest
         .exchange();
 
     // Then
-    assertProblemDetailsForShardNotOwnedException(responseSpec, shardingStrategy.selectShard(chatroomId));
+    assertProblemDetailsForShardNotOwnedException(responseSpec, shard);
   }
 
   @Test
@@ -293,7 +280,9 @@ public class ChatBackendControllerTest
   void testShardNotOwnedExceptionForListChatroom(@Autowired WebTestClient client)
   {
     // Given
-    UUID chatroomId = getRandomIdForForeignShard();
+    UUID chatroomId = UUID.randomUUID();
+    int shard = 666;
+    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -303,18 +292,19 @@ public class ChatBackendControllerTest
         .exchange();
 
     // Then
-    assertProblemDetailsForShardNotOwnedException(responseSpec, shardingStrategy.selectShard(chatroomId));
+    assertProblemDetailsForShardNotOwnedException(responseSpec, shard);
   }
 
   @Test
-  @DisplayName("Assert expected problem-details for now owned shard on PUT /put/{chatroomId}/{username}/{messageId}")
+  @DisplayName("Assert expected problem-details for not owned shard on PUT /put/{chatroomId}/{username}/{messageId}")
   void testShardNotOwnedExceptionForPutMessage(@Autowired WebTestClient client)
   {
     // Given
-    UUID chatroomId = getRandomIdForForeignShard();
+    UUID chatroomId = UUID.randomUUID();
     String username = "foo";
     Long messageId = 66l;
-    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
+    int shard = 666;
+    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -329,7 +319,7 @@ public class ChatBackendControllerTest
         .exchange();
 
     // Then
-    assertProblemDetailsForShardNotOwnedException(responseSpec, shardingStrategy.selectShard(chatroomId));
+    assertProblemDetailsForShardNotOwnedException(responseSpec, shard);
   }
 
   @Test
@@ -337,10 +327,11 @@ public class ChatBackendControllerTest
   void testShardNotOwnedExceptionForGetMessage(@Autowired WebTestClient client)
   {
     // Given
-    UUID chatroomId = getRandomIdForForeignShard();
+    UUID chatroomId = UUID.randomUUID();
     String username = "foo";
     Long messageId = 66l;
-    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
+    int shard = 666;
+    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -354,7 +345,7 @@ public class ChatBackendControllerTest
         .exchange();
 
     // Then
-    assertProblemDetailsForShardNotOwnedException(responseSpec, shardingStrategy.selectShard(chatroomId));
+    assertProblemDetailsForShardNotOwnedException(responseSpec, shard);
   }
 
   @Test
@@ -362,8 +353,9 @@ public class ChatBackendControllerTest
   void testShardNotOwnedExceptionForListenChatroom(@Autowired WebTestClient client)
   {
     // Given
-    UUID chatroomId = getRandomIdForForeignShard();
-    when(chatHomeService.getChatRoom(anyInt(), any(UUID.class))).thenReturn(Mono.empty());
+    UUID chatroomId = UUID.randomUUID();
+    int shard = 666;
+    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -373,7 +365,7 @@ public class ChatBackendControllerTest
         .exchange();
 
     // Then
-    assertProblemDetailsForShardNotOwnedException(responseSpec, shardingStrategy.selectShard(chatroomId));
+    assertProblemDetailsForShardNotOwnedException(responseSpec, shard);
   }
 
   private void assertProblemDetailsForShardNotOwnedException(
@@ -385,41 +377,5 @@ public class ChatBackendControllerTest
         .expectBody()
         .jsonPath("$.type").isEqualTo("/problem/shard-not-owned")
         .jsonPath("$.shard").isEqualTo(shard);
-  }
-
-  private UUID getRandomIdForOwnedShard()
-  {
-    Set<Integer> ownedShards = ownedShards();
-    UUID randomId;
-
-    do
-    {
-      randomId = UUID.randomUUID();
-    }
-    while (!ownedShards.contains(shardingStrategy.selectShard(randomId)));
-
-    return randomId;
-  }
-
-  private UUID getRandomIdForForeignShard()
-  {
-    Set<Integer> ownedShards = ownedShards();
-    UUID randomId;
-
-    do
-    {
-      randomId = UUID.randomUUID();
-    }
-    while (ownedShards.contains(shardingStrategy.selectShard(randomId)));
-
-    return randomId;
-  }
-
-  private Set<Integer> ownedShards()
-  {
-    return IntStream
-        .of(properties.getInmemory().getOwnedShards())
-        .mapToObj(shard -> Integer.valueOf(shard))
-        .collect(Collectors.toSet());
   }
 }
