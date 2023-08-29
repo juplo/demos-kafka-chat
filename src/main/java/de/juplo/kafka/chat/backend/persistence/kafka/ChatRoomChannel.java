@@ -369,12 +369,12 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
   {
     if (loadInProgress)
     {
-      throw new LoadInProgressException();
+      return Mono.error(new LoadInProgressException());
     }
 
     if (!isShardOwned[shard])
     {
-      throw new ShardNotOwnedException(shard);
+      return Mono.error(new ShardNotOwnedException(shard));
     }
 
     return Mono.justOrEmpty(chatrooms[shard].get(id));

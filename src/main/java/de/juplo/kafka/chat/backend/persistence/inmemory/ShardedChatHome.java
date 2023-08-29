@@ -44,9 +44,9 @@ public class ShardedChatHome implements ChatHome
   public Mono<ChatRoom> getChatRoom(UUID id)
   {
     int shard = selectShard(id);
-    if (chatHomes[shard] == null)
-      throw new ShardNotOwnedException(shard);
-    return chatHomes[shard].getChatRoom(id);
+    return chatHomes[shard] == null
+        ? Mono.error(new ShardNotOwnedException(shard))
+        : chatHomes[shard].getChatRoom(id);
   }
 
   @Override
