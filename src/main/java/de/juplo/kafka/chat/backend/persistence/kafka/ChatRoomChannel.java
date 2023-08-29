@@ -1,9 +1,6 @@
 package de.juplo.kafka.chat.backend.persistence.kafka;
 
-import de.juplo.kafka.chat.backend.domain.ChatRoom;
-import de.juplo.kafka.chat.backend.domain.ChatRoomInfo;
-import de.juplo.kafka.chat.backend.domain.Message;
-import de.juplo.kafka.chat.backend.domain.ShardNotOwnedException;
+import de.juplo.kafka.chat.backend.domain.*;
 import de.juplo.kafka.chat.backend.persistence.kafka.messages.AbstractMessageTo;
 import de.juplo.kafka.chat.backend.persistence.kafka.messages.CommandCreateChatRoomTo;
 import de.juplo.kafka.chat.backend.persistence.kafka.messages.EventChatMessageReceivedTo;
@@ -372,7 +369,7 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
   {
     if (loadInProgress)
     {
-      throw new LoadInProgressException(shard);
+      throw new LoadInProgressException();
     }
 
     if (!isShardOwned[shard])

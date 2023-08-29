@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend.persistence.kafka;
+package de.juplo.kafka.chat.backend.domain;
 
 
 public class LoadInProgressException extends IllegalStateException
