@@ -2,7 +2,6 @@ package de.juplo.kafka.chat.backend.api;
 
 import de.juplo.kafka.chat.backend.domain.ChatHome;
 import de.juplo.kafka.chat.backend.domain.ChatRoom;
-import de.juplo.kafka.chat.backend.domain.ChatRoomFactory;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.codec.ServerSentEvent;
@@ -18,7 +17,6 @@ import java.util.UUID;
 public class ChatBackendController
 {
   private final ChatHome chatHome;
-  private final ChatRoomFactory factory;
   private final StorageStrategy storageStrategy;
 
 
@@ -26,7 +24,7 @@ public class ChatBackendController
   public Mono<ChatRoomInfoTo> create(@RequestBody String name)
   {
     UUID chatRoomId = UUID.randomUUID();
-    return factory
+    return chatHome
         .createChatRoom(chatRoomId, name)
         .map(ChatRoomInfoTo::from);
   }

@@ -1,8 +1,6 @@
 package de.juplo.kafka.chat.backend.persistence.inmemory;
 
-import de.juplo.kafka.chat.backend.domain.ChatHome;
-import de.juplo.kafka.chat.backend.domain.ChatRoom;
-import de.juplo.kafka.chat.backend.domain.ShardNotOwnedException;
+import de.juplo.kafka.chat.backend.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -41,12 +39,28 @@ public class ShardedChatHome implements ChatHome
 
 
   @Override
+  public Mono<ChatRoomInfo> createChatRoom(UUID id, String name)
+  {
+    int shard = shardingStrategy.selectShard(id);
+    return chatHomes[shard] == null
+        ? Mono.error(new ShardNotOwnedException(shard))
+        : chatHomes[shard].createChatRoom(id, name);
+  }
+
+  @Override
   public Mono<ChatRoom> getChatRoom(UUID id)
   {
     int shard = selectShard(id);
     return chatHomes[shard] == null
         ? Mono.error(new ShardNotOwnedException(shard))
-        : chatHomes[shard].getChatRoom(id);
+        : chatHomes[shard]
+            .getChatRoom(id)
+            .onErrorMap(throwable -> throwable instanceof UnknownChatroomException
+            ? new UnknownChatroomException(
+                id,
+                shard,
+                ownedShards.stream().mapToInt(i -> i.intValue()).toArray())
+            : throwable);
   }
 
   @Override

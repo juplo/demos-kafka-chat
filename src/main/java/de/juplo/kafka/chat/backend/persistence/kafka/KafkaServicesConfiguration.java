@@ -44,12 +44,6 @@ public class KafkaServicesConfiguration
   }
 
   @Bean
-  KafkaChatRoomFactory chatRoomFactory(ChatRoomChannel chatRoomChannel)
-  {
-    return new KafkaChatRoomFactory(chatRoomChannel);
-  }
-
-  @Bean
   ChatRoomChannel chatRoomChannel(
       ChatBackendProperties properties,
       Producer<String, AbstractMessageTo> chatRoomChannelProducer,

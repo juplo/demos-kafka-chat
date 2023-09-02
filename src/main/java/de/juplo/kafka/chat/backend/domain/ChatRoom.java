@@ -26,7 +26,7 @@ public class ChatRoom extends ChatRoomInfo
   public ChatRoom(
       UUID id,
       String name,
-      int shard,
+      Integer shard,
       Clock clock,
       ChatRoomService service,
       int bufferSize)

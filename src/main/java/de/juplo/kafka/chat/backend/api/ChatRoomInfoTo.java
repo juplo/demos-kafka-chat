@@ -10,7 +10,7 @@ public class ChatRoomInfoTo
 {
   private UUID id;
   private String name;
-  private int shard;
+  private Integer shard;
 
 
   public static ChatRoomInfoTo from(ChatRoomInfo info)

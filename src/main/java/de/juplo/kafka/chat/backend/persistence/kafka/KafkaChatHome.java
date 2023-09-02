@@ -2,6 +2,7 @@ package de.juplo.kafka.chat.backend.persistence.kafka;
 
 import de.juplo.kafka.chat.backend.domain.ChatHome;
 import de.juplo.kafka.chat.backend.domain.ChatRoom;
+import de.juplo.kafka.chat.backend.domain.ChatRoomInfo;
 import de.juplo.kafka.chat.backend.domain.UnknownChatroomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,14 @@ public class KafkaChatHome implements ChatHome
   private final int numPartitions;
   private final ChatRoomChannel chatRoomChannel;
 
+
+
+  @Override
+  public Mono<ChatRoomInfo> createChatRoom(UUID id, String name)
+  {
+    log.info("Sending create-command for chat rooom: id={}, name={}");
+    return chatRoomChannel.sendCreateChatRoomRequest(id, name);
+  }
 
   @Override
   public Mono<ChatRoom> getChatRoom(UUID id)

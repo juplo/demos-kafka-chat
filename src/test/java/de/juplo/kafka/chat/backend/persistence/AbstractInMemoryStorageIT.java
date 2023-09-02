@@ -1,9 +1,6 @@
 package de.juplo.kafka.chat.backend.persistence;
 
 import de.juplo.kafka.chat.backend.domain.ChatHome;
-import de.juplo.kafka.chat.backend.domain.ChatRoomFactory;
-import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatHomeService;
-import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomFactory;
 import de.juplo.kafka.chat.backend.persistence.inmemory.SimpleChatHome;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,29 +19,17 @@ public abstract class AbstractInMemoryStorageIT extends AbstractStorageStrategyI
   {
     return new StorageStrategyITConfig()
     {
-      InMemoryChatHomeService inMemoryChatHomeService = new InMemoryChatHomeService(
-          1,
-          new int[] { 0 },
-          getStorageStrategy().read());
+      int bufferSize = 8;
 
-      SimpleChatHome simpleChatHome = new SimpleChatHome(inMemoryChatHomeService);
-
-      InMemoryChatRoomFactory chatRoomFactory = new InMemoryChatRoomFactory(
-          inMemoryChatHomeService,
-          chatRoomId -> 0,
+      SimpleChatHome simpleChatHome = new SimpleChatHome(
+          getStorageStrategy().read(),
           clock,
-          8);
+          bufferSize);
 
       @Override
       public ChatHome getChatHome()
       {
         return simpleChatHome;
-      }
-
-      @Override
-      public ChatRoomFactory getChatRoomFactory()
-      {
-        return chatRoomFactory;
       }
     };
   }

@@ -1,7 +1,6 @@
 package de.juplo.kafka.chat.backend.persistence.inmemory;
 
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
-import de.juplo.kafka.chat.backend.ChatBackendProperties.ShardingStrategyType;
 import de.juplo.kafka.chat.backend.domain.ChatHome;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -26,9 +25,15 @@ public class InMemoryServicesConfiguration
       name = "sharding-strategy",
       havingValue = "none",
       matchIfMissing = true)
-  ChatHome noneShardingChatHome(InMemoryChatHomeService chatHomeService)
+  ChatHome noneShardingChatHome(
+      ChatBackendProperties properties,
+      StorageStrategy storageStrategy,
+      Clock clock)
   {
-    return new SimpleChatHome(chatHomeService);
+    return new SimpleChatHome(
+        storageStrategy.read(),
+        clock,
+        properties.getChatroomBufferSize());
   }
 
   @Bean
@@ -38,48 +43,20 @@ public class InMemoryServicesConfiguration
       havingValue = "kafkalike")
   ChatHome kafkalikeShardingChatHome(
       ChatBackendProperties properties,
-      InMemoryChatHomeService chatHomeService)
+      StorageStrategy storageStrategy,
+      Clock clock)
   {
     int numShards = properties.getInmemory().getNumShards();
     SimpleChatHome[] chatHomes = new SimpleChatHome[numShards];
     IntStream
         .of(properties.getInmemory().getOwnedShards())
-        .forEach(shard -> chatHomes[shard] = new SimpleChatHome(chatHomeService, shard));
+        .forEach(shard -> chatHomes[shard] = new SimpleChatHome(
+            shard,
+            storageStrategy.read(),
+            clock,
+            properties.getChatroomBufferSize()));
     ShardingStrategy strategy = new KafkaLikeShardingStrategy(numShards);
     return new ShardedChatHome(chatHomes, strategy);
-  }
-
-  @Bean
-  InMemoryChatHomeService chatHomeService(
-      ChatBackendProperties properties,
-      StorageStrategy storageStrategy)
-  {
-    ShardingStrategyType sharding =
-        properties.getInmemory().getShardingStrategy();
-    int numShards = sharding == ShardingStrategyType.none
-        ? 1
-        : properties.getInmemory().getNumShards();
-    int[] ownedShards = sharding == ShardingStrategyType.none
-        ? new int[] { 0 }
-        : properties.getInmemory().getOwnedShards();
-    return new InMemoryChatHomeService(
-        numShards,
-        ownedShards,
-        storageStrategy.read());
-  }
-
-  @Bean
-  InMemoryChatRoomFactory chatRoomFactory(
-      InMemoryChatHomeService service,
-      ShardingStrategy strategy,
-      Clock clock,
-      ChatBackendProperties properties)
-  {
-    return new InMemoryChatRoomFactory(
-        service,
-        strategy,
-        clock,
-        properties.getChatroomBufferSize());
   }
 
   @ConditionalOnProperty(

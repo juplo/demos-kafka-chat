@@ -18,5 +18,5 @@ public class ChatRoomInfo
   @Getter
   private final String name;
   @Getter
-  private final int shard;
+  private final Integer shard;
 }

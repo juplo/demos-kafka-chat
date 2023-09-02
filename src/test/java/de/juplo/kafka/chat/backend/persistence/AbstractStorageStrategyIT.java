@@ -14,7 +14,6 @@ import static pl.rzrz.assertj.reactor.Assertions.*;
 public abstract class AbstractStorageStrategyIT
 {
   protected ChatHome chathome;
-  protected ChatRoomFactory chatRoomFactory;
 
 
   protected abstract StorageStrategy getStorageStrategy();
@@ -24,7 +23,6 @@ public abstract class AbstractStorageStrategyIT
   {
     StorageStrategyITConfig config = getConfig();
     chathome = config.getChatHome();
-    chatRoomFactory = config.getChatRoomFactory();
   }
 
   protected void stop()
@@ -40,7 +38,7 @@ public abstract class AbstractStorageStrategyIT
     assertThat(chathome.getChatRooms().toStream()).hasSize(0);
 
     UUID chatRoomId = UUID.fromString("5c73531c-6fc4-426c-adcb-afc5c140a0f7");
-    ChatRoomInfo info = chatRoomFactory.createChatRoom(chatRoomId, "FOO").block();
+    ChatRoomInfo info = chathome.createChatRoom(chatRoomId, "FOO").block();
     log.debug("Created chat-room {}", info);
     ChatRoom chatroom = chathome.getChatRoom(chatRoomId).block();
     Message m1 = chatroom.addMessage(1l,"peter", "Hallo, ich heiße Peter!").block();
@@ -72,7 +70,7 @@ public abstract class AbstractStorageStrategyIT
     assertThat(chathome.getChatRooms().toStream()).hasSize(0);
 
     UUID chatRoomAId = UUID.fromString("5c73531c-6fc4-426c-adcb-afc5c140a0f7");
-    ChatRoomInfo infoA = chatRoomFactory.createChatRoom(chatRoomAId, "FOO").block();
+    ChatRoomInfo infoA = chathome.createChatRoom(chatRoomAId, "FOO").block();
     log.debug("Created chat-room {}", infoA);
     ChatRoom chatroomA = chathome.getChatRoom(chatRoomAId).block();
     Message ma1 = chatroomA.addMessage(1l,"peter", "Hallo, ich heiße Peter!").block();
@@ -81,7 +79,7 @@ public abstract class AbstractStorageStrategyIT
     Message ma4 = chatroomA.addMessage(1l, "klaus", "Ja? Nein? Vielleicht??").block();
 
     UUID chatRoomBId = UUID.fromString("8763dfdc-4dda-4a74-bea4-4b389177abea");
-    ChatRoomInfo infoB = chatRoomFactory.createChatRoom(chatRoomBId, "BAR").block();
+    ChatRoomInfo infoB = chathome.createChatRoom(chatRoomBId, "BAR").block();
     log.debug("Created chat-room {}", infoB);
     ChatRoom chatroomB = chathome.getChatRoom(chatRoomBId).block();
     Message mb1 = chatroomB.addMessage(1l,"peter", "Hallo, ich heiße Uwe!").block();
@@ -117,6 +115,5 @@ public abstract class AbstractStorageStrategyIT
   interface StorageStrategyITConfig
   {
     ChatHome getChatHome();
-    ChatRoomFactory getChatRoomFactory();
   }
 }

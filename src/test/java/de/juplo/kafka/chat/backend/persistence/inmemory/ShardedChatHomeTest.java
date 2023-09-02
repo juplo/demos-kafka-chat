@@ -18,13 +18,18 @@ public class ShardedChatHomeTest extends ChatHomeWithShardsTest
   {
     @Bean
     ShardedChatHome chatHome(
-        InMemoryChatHomeService chatHomeService)
+        StorageStrategy storageStrategy,
+        Clock clock)
     {
       SimpleChatHome[] chatHomes = new SimpleChatHome[NUM_SHARDS];
 
       IntStream
           .of(ownedShards())
-          .forEach(shard -> chatHomes[shard] = new SimpleChatHome(chatHomeService, shard));
+          .forEach(shard -> chatHomes[shard] = new SimpleChatHome(
+              shard,
+              storageStrategy.read(),
+              clock,
+              bufferSize()));
 
       ShardingStrategy strategy = new KafkaLikeShardingStrategy(NUM_SHARDS);
 
@@ -32,30 +37,31 @@ public class ShardedChatHomeTest extends ChatHomeWithShardsTest
     }
 
     @Bean
-    InMemoryChatHomeService chatHomeService(
-        StorageStrategy storageStrategy)
-    {
-      return new InMemoryChatHomeService(
-          NUM_SHARDS,
-          ownedShards(),
-          storageStrategy.read());
-    }
-
-    @Bean
-    public FilesStorageStrategy storageStrategy()
+    public FilesStorageStrategy storageStrategy(Clock clock)
     {
       return new FilesStorageStrategy(
           Paths.get("target", "test-classes", "data", "files"),
-          Clock.systemDefaultZone(),
-          8,
+          clock,
+          bufferSize(),
           new KafkaLikeShardingStrategy(NUM_SHARDS),
           messageFlux -> new InMemoryChatRoomService(messageFlux),
           new ObjectMapper());
     }
 
+    @Bean
+    Clock clock()
+    {
+      return Clock.systemDefaultZone();
+    }
+
     int[] ownedShards()
     {
       return new int[] { OWNED_SHARD };
+    }
+
+    int bufferSize()
+    {
+      return 8;
     }
   }
 }

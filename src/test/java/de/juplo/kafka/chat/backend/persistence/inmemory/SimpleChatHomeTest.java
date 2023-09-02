@@ -17,30 +17,37 @@ public class SimpleChatHomeTest extends ChatHomeTest
   static class Configuration
   {
     @Bean
-    SimpleChatHome chatHome(InMemoryChatHomeService chatHomeService)
+    SimpleChatHome chatHome(
+        StorageStrategy storageStrategy,
+        Clock clock)
     {
-      return new SimpleChatHome(chatHomeService);
+      return new SimpleChatHome(
+          storageStrategy.read(),
+          clock,
+          bufferSize());
     }
 
     @Bean
-    InMemoryChatHomeService chatHomeService(StorageStrategy storageStrategy)
-    {
-      return new InMemoryChatHomeService(
-          1,
-          new int[] { 0 },
-          storageStrategy.read());
-    }
-
-    @Bean
-    public FilesStorageStrategy storageStrategy()
+    public FilesStorageStrategy storageStrategy(Clock clock)
     {
       return new FilesStorageStrategy(
           Paths.get("target", "test-classes", "data", "files"),
-          Clock.systemDefaultZone(),
-          8,
+          clock,
+          bufferSize(),
           chatRoomId -> 0,
           messageFlux -> new InMemoryChatRoomService(messageFlux),
           new ObjectMapper());
+    }
+
+    @Bean
+    Clock clock()
+    {
+      return Clock.systemDefaultZone();
+    }
+
+    int bufferSize()
+    {
+      return 8;
     }
   }
 }
