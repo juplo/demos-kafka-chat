@@ -7,6 +7,8 @@ import org.testcontainers.shaded.org.awaitility.Awaitility;
 
 import java.time.Duration;
 
+import static org.hamcrest.Matchers.endsWith;
+
 
 public abstract class AbstractConfigurationWithShardingIT extends AbstractConfigurationIT
 {
@@ -15,6 +17,7 @@ public abstract class AbstractConfigurationWithShardingIT extends AbstractConfig
   void testNotFoundForPutMessageToAChatRoomInNotOwnedShard()
   {
     String otherChatRoomId = "4e7246a6-29ae-43ea-b56f-669c3481ac19";
+    int shard = 0;
 
     Awaitility
         .await()
@@ -30,6 +33,9 @@ public abstract class AbstractConfigurationWithShardingIT extends AbstractConfig
               .accept(MediaType.APPLICATION_JSON)
               .bodyValue("The devil rules route 66")
               .exchange()
-              .expectStatus().isNotFound());
+              .expectStatus().isNotFound()
+              .expectBody()
+              .jsonPath("$.type").value(endsWith("/problem/shard-not-owned"))
+              .jsonPath("$.shard").isEqualTo(shard));
   }
 }
