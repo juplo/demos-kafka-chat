@@ -8,15 +8,15 @@ import reactor.core.publisher.SynchronousSink;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 @Slf4j
-public class ChatRoom extends ChatRoomInfo
+public class ChatRoom
 {
   public final static Pattern VALID_USER = Pattern.compile("^[a-z0-9-]{2,}$");
+
   private final Clock clock;
   private final ChatRoomService service;
   private final int bufferSize;
@@ -24,15 +24,11 @@ public class ChatRoom extends ChatRoomInfo
 
 
   public ChatRoom(
-      UUID id,
-      String name,
-      Integer shard,
       Clock clock,
       ChatRoomService service,
       int bufferSize)
   {
-    super(id, name, shard);
-    log.info("Created ChatRoom {} with buffer-size {}", id, bufferSize);
+    log.info("Created ChatRoom with buffer-size {}", bufferSize);
     this.clock = clock;
     this.service = service;
     this.bufferSize = bufferSize;
