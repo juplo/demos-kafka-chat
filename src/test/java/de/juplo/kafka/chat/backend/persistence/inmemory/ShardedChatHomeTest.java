@@ -27,7 +27,7 @@ public class ShardedChatHomeTest extends ChatHomeWithShardsTest
           .of(ownedShards())
           .forEach(shard -> chatHomes[shard] = new SimpleChatHome(
               shard,
-              storageStrategy.read(),
+              storageStrategy,
               clock,
               bufferSize()));
 
@@ -41,10 +41,7 @@ public class ShardedChatHomeTest extends ChatHomeWithShardsTest
     {
       return new FilesStorageStrategy(
           Paths.get("target", "test-classes", "data", "files"),
-          clock,
-          bufferSize(),
           new KafkaLikeShardingStrategy(NUM_SHARDS),
-          messageFlux -> new InMemoryChatRoomService(messageFlux),
           new ObjectMapper());
     }
 

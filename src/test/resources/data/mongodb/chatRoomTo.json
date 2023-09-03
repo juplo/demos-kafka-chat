@@ -1,31 +1,6 @@
 {
   "_id": "5c73531c-6fc4-426c-adcb-afc5c140a0f7",
+  "shard": 0,
   "name": "FOO",
-  "messages": [
-    {
-      "_id": "peter--1",
-      "serial": 0,
-      "time": "2023-01-13T20:43:16.803382151",
-      "text": "Hallo, ich heiße Peter!"
-    },
-    {
-      "_id": "ute--1",
-      "serial": 1,
-      "time": "2023-01-13T20:43:16.804049969",
-      "text": "Ich bin Ute..."
-    },
-    {
-      "_id": "peter--2",
-      "serial": 2,
-      "time": "2023-01-13T20:43:16.804092782",
-      "text": "Willst du mit mir gehen?"
-    },
-    {
-      "_id": "klaus--1",
-      "serial": 3,
-      "time": "2023-01-13T20:43:16.804122604",
-      "text": "Ja? Nein? Vielleicht??"
-    }
-  ],
   "_class": "de.juplo.kafka.chat.backend.persistence.storage.mongodb.ChatRoomTo"
 }

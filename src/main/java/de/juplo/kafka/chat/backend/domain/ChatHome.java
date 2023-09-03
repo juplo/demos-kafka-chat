@@ -10,7 +10,9 @@ public interface ChatHome
 {
   Mono<ChatRoomInfo> createChatRoom(UUID id, String name);
 
-  Mono<ChatRoom> getChatRoom(UUID id);
+  Mono<ChatRoomInfo> getChatRoomInfo(UUID id);
 
-  Flux<ChatRoom> getChatRooms();
+  Flux<ChatRoomInfo> getChatRoomInfo();
+
+  Mono<ChatRoomData> getChatRoomData(UUID id);
 }

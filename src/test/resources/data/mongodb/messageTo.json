@@ -1,0 +1,40 @@
+{
+  "_id": "64f7952cecf06d750cad4b9c",
+  "chatRoomId": "5c73531c-6fc4-426c-adcb-afc5c140a0f7",
+  "user": "peter",
+  "id": 1,
+  "serial": 0,
+  "time": "2023-01-13T20:43:16.803382151",
+  "text": "Hallo, ich heiße Peter!",
+  "_class": "de.juplo.kafka.chat.backend.persistence.storage.mongodb.MessageTo"
+}
+{
+  "_id": "64f7952cecf06d750cad4b9d",
+  "chatRoomId": "5c73531c-6fc4-426c-adcb-afc5c140a0f7",
+  "user": "ute",
+  "id": 1,
+  "serial": 1,
+  "time": "2023-01-13T20:43:16.804049969",
+  "text": "Ich bin Ute...",
+  "_class": "de.juplo.kafka.chat.backend.persistence.storage.mongodb.MessageTo"
+}
+{
+  "_id": "64f7952cecf06d750cad4b9e",
+  "chatRoomId": "5c73531c-6fc4-426c-adcb-afc5c140a0f7",
+  "user": "peter",
+  "id": 2,
+  "serial": 2,
+  "time": "2023-01-13T20:43:16.804092782",
+  "text": "Willst du mit mir gehen?",
+  "_class": "de.juplo.kafka.chat.backend.persistence.storage.mongodb.MessageTo"
+}
+{
+  "_id": "64f7953ddf7a9063e0b1f7dc",
+  "chatRoomId": "5c73531c-6fc4-426c-adcb-afc5c140a0f7",
+  "user": "klaus",
+  "id": 1,
+  "serial": 3,
+  "time": "2023-01-13T20:43:16.804122604",
+  "text": "Ja? Nein? Vielleicht??",
+  "_class": "de.juplo.kafka.chat.backend.persistence.storage.mongodb.MessageTo"
+}

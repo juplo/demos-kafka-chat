@@ -29,8 +29,8 @@ public abstract class ChatHomeTest
     UUID chatRoomId = UUID.fromString("5c73531c-6fc4-426c-adcb-afc5c140a0f7");
 
     // When
-    Mono<ChatRoom> mono = Mono
-        .defer(() -> chatHome.getChatRoom(chatRoomId))
+    Mono<ChatRoomData> mono = Mono
+        .defer(() -> chatHome.getChatRoomData(chatRoomId))
         .log("testGetExistingChatroom")
         .retryWhen(Retry
             .backoff(5, Duration.ofSeconds(1))
@@ -48,8 +48,8 @@ public abstract class ChatHomeTest
     UUID chatRoomId = UUID.fromString("7f59ec77-832e-4a17-8d22-55ef46242c17");
 
     // When
-    Mono<ChatRoom> mono = Mono
-        .defer(() -> chatHome.getChatRoom(chatRoomId))
+    Mono<ChatRoomData> mono = Mono
+        .defer(() -> chatHome.getChatRoomData(chatRoomId))
         .log("testGetNonExistentChatroom")
         .retryWhen(Retry
             .backoff(5, Duration.ofSeconds(1))

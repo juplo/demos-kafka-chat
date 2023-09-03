@@ -13,17 +13,17 @@ import java.util.regex.Pattern;
 
 
 @Slf4j
-public class ChatRoom
+public class ChatRoomData
 {
   public final static Pattern VALID_USER = Pattern.compile("^[a-z0-9-]{2,}$");
 
-  private final Clock clock;
   private final ChatRoomService service;
+  private final Clock clock;
   private final int bufferSize;
   private Sinks.Many<Message> sink;
 
 
-  public ChatRoom(
+  public ChatRoomData(
       Clock clock,
       ChatRoomService service,
       int bufferSize)

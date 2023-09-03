@@ -31,7 +31,7 @@ public class InMemoryServicesConfiguration
       Clock clock)
   {
     return new SimpleChatHome(
-        storageStrategy.read(),
+        storageStrategy,
         clock,
         properties.getChatroomBufferSize());
   }
@@ -52,7 +52,7 @@ public class InMemoryServicesConfiguration
         .of(properties.getInmemory().getOwnedShards())
         .forEach(shard -> chatHomes[shard] = new SimpleChatHome(
             shard,
-            storageStrategy.read(),
+            storageStrategy,
             clock,
             properties.getChatroomBufferSize()));
     ShardingStrategy strategy = new KafkaLikeShardingStrategy(numShards);

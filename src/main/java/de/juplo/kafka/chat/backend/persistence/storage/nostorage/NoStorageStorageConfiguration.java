@@ -1,6 +1,7 @@
 package de.juplo.kafka.chat.backend.persistence.storage.nostorage;
 
-import de.juplo.kafka.chat.backend.domain.ChatRoom;
+import de.juplo.kafka.chat.backend.domain.ChatRoomInfo;
+import de.juplo.kafka.chat.backend.domain.Message;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -9,6 +10,8 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Flux;
+
+import java.util.UUID;
 
 
 @ConditionalOnProperty(
@@ -29,10 +32,19 @@ public class NoStorageStorageConfiguration
     return new StorageStrategy()
     {
       @Override
-      public void write(Flux<ChatRoom> chatroomFlux) {}
+      public void writeChatRoomInfo(Flux<ChatRoomInfo> chatRoomInfoFlux) {}
 
       @Override
-      public Flux<ChatRoom> read()
+      public Flux<ChatRoomInfo> readChatRoomInfo()
+      {
+        return Flux.empty();
+      }
+
+      @Override
+      public void writeChatRoomData(UUID chatRoomId, Flux<Message> messageFlux) {}
+
+      @Override
+      public Flux<Message> readChatRoomData(UUID chatRoomId)
       {
         return Flux.empty();
       }

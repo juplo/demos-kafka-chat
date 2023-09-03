@@ -26,8 +26,8 @@ public abstract class ChatHomeWithShardsTest extends ChatHomeTest
     UUID chatRoomId = UUID.fromString("4e7246a6-29ae-43ea-b56f-669c3481ac19");
 
     // When
-    Mono<ChatRoom> mono = Mono
-        .defer(() -> chatHome.getChatRoom(chatRoomId))
+    Mono<ChatRoomData> mono = Mono
+        .defer(() -> chatHome.getChatRoomData(chatRoomId))
         .log("testGetChatroomForNotOwnedShard")
         .retryWhen(Retry
             .backoff(5, Duration.ofSeconds(1))

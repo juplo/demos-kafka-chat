@@ -14,13 +14,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ShardedChatHome implements ChatHome
 {
-  private final ChatHome[] chatHomes;
+  private final SimpleChatHome[] chatHomes;
   private final Set<Integer> ownedShards;
   private final ShardingStrategy shardingStrategy;
 
 
   public  ShardedChatHome(
-      ChatHome[] chatHomes,
+      SimpleChatHome[] chatHomes,
       ShardingStrategy shardingStrategy)
   {
     this.chatHomes = chatHomes;
@@ -48,13 +48,13 @@ public class ShardedChatHome implements ChatHome
   }
 
   @Override
-  public Mono<ChatRoom> getChatRoom(UUID id)
+  public Mono<ChatRoomInfo> getChatRoomInfo(UUID id)
   {
     int shard = selectShard(id);
     return chatHomes[shard] == null
         ? Mono.error(new ShardNotOwnedException(shard))
         : chatHomes[shard]
-            .getChatRoom(id)
+            .getChatRoomInfo(id)
             .onErrorMap(throwable -> throwable instanceof UnknownChatroomException
             ? new UnknownChatroomException(
                 id,
@@ -64,12 +64,36 @@ public class ShardedChatHome implements ChatHome
   }
 
   @Override
-  public Flux<ChatRoom> getChatRooms()
+  public Flux<ChatRoomInfo> getChatRoomInfo()
   {
     return Flux
         .fromIterable(ownedShards)
-        .flatMap(shard -> chatHomes[shard].getChatRooms());
+        .flatMap(shard -> chatHomes[shard].getChatRoomInfo());
   }
+
+  @Override
+  public Mono<ChatRoomData> getChatRoomData(UUID id)
+  {
+    int shard = selectShard(id);
+    return chatHomes[shard] == null
+        ? Mono.error(new ShardNotOwnedException(shard))
+        : chatHomes[shard]
+            .getChatRoomData(id)
+            .onErrorMap(throwable -> throwable instanceof UnknownChatroomException
+                ? new UnknownChatroomException(
+                id,
+                shard,
+                ownedShards.stream().mapToInt(i -> i.intValue()).toArray())
+                : throwable);
+  }
+
+  public Flux<ChatRoomData> getChatRoomData()
+  {
+    return Flux
+        .fromIterable(ownedShards)
+        .flatMap(shard -> chatHomes[shard].getChatRoomData());
+  }
+
 
 
   private int selectShard(UUID chatroomId)

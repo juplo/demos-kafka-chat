@@ -22,7 +22,7 @@ public abstract class AbstractInMemoryStorageIT extends AbstractStorageStrategyI
       int bufferSize = 8;
 
       SimpleChatHome simpleChatHome = new SimpleChatHome(
-          getStorageStrategy().read(),
+          getStorageStrategy(),
           clock,
           bufferSize);
 

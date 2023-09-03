@@ -22,7 +22,7 @@ public class SimpleChatHomeTest extends ChatHomeTest
         Clock clock)
     {
       return new SimpleChatHome(
-          storageStrategy.read(),
+          storageStrategy,
           clock,
           bufferSize());
     }
@@ -32,10 +32,7 @@ public class SimpleChatHomeTest extends ChatHomeTest
     {
       return new FilesStorageStrategy(
           Paths.get("target", "test-classes", "data", "files"),
-          clock,
-          bufferSize(),
           chatRoomId -> 0,
-          messageFlux -> new InMemoryChatRoomService(messageFlux),
           new ObjectMapper());
     }
 

@@ -1,7 +1,7 @@
 package de.juplo.kafka.chat.backend.api;
 
 import de.juplo.kafka.chat.backend.domain.ChatHome;
-import de.juplo.kafka.chat.backend.domain.ChatRoom;
+import de.juplo.kafka.chat.backend.domain.ChatRoomData;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.codec.ServerSentEvent;
@@ -33,49 +33,49 @@ public class ChatBackendController
   public Flux<ChatRoomInfoTo> list()
   {
     return chatHome
-        .getChatRooms()
-        .map(chatroom -> ChatRoomInfoTo.from(chatroom));
+        .getChatRoomInfo()
+        .map(chatroomInfo -> ChatRoomInfoTo.from(chatroomInfo));
   }
 
-  @GetMapping("{chatroomId}/list")
-  public Flux<MessageTo> list(@PathVariable UUID chatroomId)
+  @GetMapping("{chatRoomId}/list")
+  public Flux<MessageTo> list(@PathVariable UUID chatRoomId)
   {
     return chatHome
-        .getChatRoom(chatroomId)
-        .flatMapMany(chatroom -> chatroom
+        .getChatRoomData(chatRoomId)
+        .flatMapMany(chatRoomData -> chatRoomData
             .getMessages()
             .map(MessageTo::from));
   }
 
-  @GetMapping("{chatroomId}")
-  public Mono<ChatRoomInfoTo> get(@PathVariable UUID chatroomId)
+  @GetMapping("{chatRoomId}")
+  public Mono<ChatRoomInfoTo> get(@PathVariable UUID chatRoomId)
   {
     return chatHome
-        .getChatRoom(chatroomId)
-        .map(chatroom -> ChatRoomInfoTo.from(chatroom));
+        .getChatRoomInfo(chatRoomId)
+        .map(chatRoomInfo -> ChatRoomInfoTo.from(chatRoomInfo));
   }
 
-  @PutMapping("{chatroomId}/{username}/{messageId}")
+  @PutMapping("{chatRoomId}/{username}/{messageId}")
   public Mono<MessageTo> put(
-      @PathVariable UUID chatroomId,
+      @PathVariable UUID chatRoomId,
       @PathVariable String username,
       @PathVariable Long messageId,
       @RequestBody String text)
   {
     return
         chatHome
-            .getChatRoom(chatroomId)
-            .flatMap(chatroom -> put(chatroom, username, messageId, text));
+            .getChatRoomData(chatRoomId)
+            .flatMap(chatRoomData -> put(chatRoomData, username, messageId, text));
   }
 
   private Mono<MessageTo> put(
-      ChatRoom chatroom,
+      ChatRoomData chatRoomData,
       String username,
       Long messageId,
       String text)
   {
     return
-        chatroom
+        chatRoomData
             .addMessage(
                 messageId,
                 username,
@@ -83,40 +83,40 @@ public class ChatBackendController
             .map(message -> MessageTo.from(message));
   }
 
-  @GetMapping("{chatroomId}/{username}/{messageId}")
+  @GetMapping("{chatRoomId}/{username}/{messageId}")
   public Mono<MessageTo> get(
-      @PathVariable UUID chatroomId,
+      @PathVariable UUID chatRoomId,
       @PathVariable String username,
       @PathVariable Long messageId)
   {
     return
         chatHome
-            .getChatRoom(chatroomId)
-            .flatMap(chatroom -> get(chatroom, username, messageId));
+            .getChatRoomData(chatRoomId)
+            .flatMap(chatRoomData -> get(chatRoomData, username, messageId));
   }
 
   private Mono<MessageTo> get(
-      ChatRoom chatroom,
+      ChatRoomData chatRoomData,
       String username,
       Long messageId)
   {
     return
-        chatroom
+        chatRoomData
             .getMessage(username, messageId)
             .map(message -> MessageTo.from(message));
   }
 
-  @GetMapping(path = "{chatroomId}/listen")
-  public Flux<ServerSentEvent<MessageTo>> listen(@PathVariable UUID chatroomId)
+  @GetMapping(path = "{chatRoomId}/listen")
+  public Flux<ServerSentEvent<MessageTo>> listen(@PathVariable UUID chatRoomId)
   {
     return chatHome
-        .getChatRoom(chatroomId)
-        .flatMapMany(chatroom -> listen(chatroom));
+        .getChatRoomData(chatRoomId)
+        .flatMapMany(chatRoomData -> listen(chatRoomData));
   }
 
-  private Flux<ServerSentEvent<MessageTo>> listen(ChatRoom chatroom)
+  private Flux<ServerSentEvent<MessageTo>> listen(ChatRoomData chatRoomData)
   {
-    return chatroom
+    return chatRoomData
         .listen()
         .log()
         .map(message -> MessageTo.from(message))
@@ -131,6 +131,6 @@ public class ChatBackendController
   @PostMapping("/store")
   public void store()
   {
-    storageStrategy.write(chatHome.getChatRooms());
+    storageStrategy.write(chatHome);
   }
 }

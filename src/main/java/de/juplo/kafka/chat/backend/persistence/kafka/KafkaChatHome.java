@@ -1,7 +1,7 @@
 package de.juplo.kafka.chat.backend.persistence.kafka;
 
 import de.juplo.kafka.chat.backend.domain.ChatHome;
-import de.juplo.kafka.chat.backend.domain.ChatRoom;
+import de.juplo.kafka.chat.backend.domain.ChatRoomData;
 import de.juplo.kafka.chat.backend.domain.ChatRoomInfo;
 import de.juplo.kafka.chat.backend.domain.UnknownChatroomException;
 import lombok.RequiredArgsConstructor;
@@ -30,26 +30,43 @@ public class KafkaChatHome implements ChatHome
   }
 
   @Override
-  public Mono<ChatRoom> getChatRoom(UUID id)
+  public Mono<ChatRoomInfo> getChatRoomInfo(UUID id)
   {
     int shard = selectShard(id);
     return chatRoomChannel
-        .getChatRoom(shard, id)
+        .getChatRoomInfo(shard, id)
         .switchIfEmpty(Mono.error(() -> new UnknownChatroomException(
             id,
             shard,
             chatRoomChannel.getOwnedShards())));
   }
 
+  @Override
+  public Flux<ChatRoomInfo> getChatRoomInfo()
+  {
+    return chatRoomChannel.getChatRoomInfo();
+  }
+
+  @Override
+  public Mono<ChatRoomData> getChatRoomData(UUID id)
+  {
+    int shard = selectShard(id);
+    return chatRoomChannel
+        .getChatRoomData(shard, id)
+        .switchIfEmpty(Mono.error(() -> new UnknownChatroomException(
+            id,
+            shard,
+            chatRoomChannel.getOwnedShards())));
+  }
+
+  public Flux<ChatRoomData> getChatRoomData()
+  {
+      return chatRoomChannel.getChatRoomData();
+  }
+
   int selectShard(UUID chatRoomId)
   {
     byte[] serializedKey = chatRoomId.toString().getBytes();
     return Utils.toPositive(Utils.murmur2(serializedKey)) % numPartitions;
-  }
-
-  @Override
-  public Flux<ChatRoom> getChatRooms()
-  {
-      return chatRoomChannel.getChatRooms();
   }
 }

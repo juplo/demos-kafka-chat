@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.persistence.inmemory.ShardingStrategy;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
-import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration;
@@ -13,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.nio.file.Paths;
-import java.time.Clock;
 
 
 @ConditionalOnProperty(
@@ -30,16 +28,12 @@ public class FilesStorageConfiguration
   @Bean
   public StorageStrategy storageStrategy(
       ChatBackendProperties properties,
-      Clock clock,
       ShardingStrategy shardingStrategy,
       ObjectMapper mapper)
   {
     return new FilesStorageStrategy(
         Paths.get(properties.getInmemory().getStorageDirectory()),
-        clock,
-        properties.getChatroomBufferSize(),
         shardingStrategy,
-        messageFlux -> new InMemoryChatRoomService(messageFlux),
         mapper);
   }
 }

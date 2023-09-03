@@ -8,13 +8,12 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 import static pl.rzrz.assertj.reactor.Assertions.assertThat;
 
 
-public class ChatRoomTest
+public class ChatRoomDataTest
 {
   @Test
   @DisplayName("Assert, that Mono emits expected message, if it exists")
@@ -24,10 +23,7 @@ public class ChatRoomTest
     String user = "foo";
     Long messageId = 1l;
     ChatRoomService chatRoomService = mock(ChatRoomService.class);
-    ChatRoom chatRoom = new ChatRoom(
-        UUID.randomUUID(),
-        "Foo",
-        0,
+    ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
         chatRoomService,
         8);
@@ -37,7 +33,7 @@ public class ChatRoomTest
     when(chatRoomService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
 
     // When
-    Mono<Message> mono = chatRoom.getMessage(user, messageId);
+    Mono<Message> mono = chatRoomData.getMessage(user, messageId);
 
     // Then
     assertThat(mono).emitsExactly(message);
@@ -51,17 +47,14 @@ public class ChatRoomTest
     String user = "foo";
     Long messageId = 1l;
     ChatRoomService chatRoomService = mock(ChatRoomService.class);
-    ChatRoom chatRoom = new ChatRoom(
-        UUID.randomUUID(),
-        "Foo",
-        0,
+    ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
         chatRoomService,
         8);
     when(chatRoomService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.empty());
 
     // When
-    Mono<Message> mono = chatRoom.getMessage(user, messageId);
+    Mono<Message> mono = chatRoomData.getMessage(user, messageId);
 
     // Then
     assertThat(mono).emitsCount(0);
@@ -75,10 +68,7 @@ public class ChatRoomTest
     String user = "foo";
     Long messageId = 1l;
     ChatRoomService chatRoomService = mock(ChatRoomService.class);
-    ChatRoom chatRoom = new ChatRoom(
-        UUID.randomUUID(),
-        "Foo",
-        0,
+    ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
         chatRoomService,
         8);
@@ -91,7 +81,7 @@ public class ChatRoomTest
     when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
 
     // When
-    Mono<Message> mono = chatRoom.addMessage(messageId, user, messageText);
+    Mono<Message> mono = chatRoomData.addMessage(messageId, user, messageText);
 
     // Then
     assertThat(mono).emitsExactly(message);
@@ -105,10 +95,7 @@ public class ChatRoomTest
     String user = "foo";
     Long messageId = 1l;
     ChatRoomService chatRoomService = mock(ChatRoomService.class);
-    ChatRoom chatRoom = new ChatRoom(
-        UUID.randomUUID(),
-        "Foo",
-        0,
+    ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
         chatRoomService,
         8);
@@ -121,7 +108,7 @@ public class ChatRoomTest
     when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
 
     // When
-    Mono<Message> mono = chatRoom.addMessage(messageId, user, messageText);
+    Mono<Message> mono = chatRoomData.addMessage(messageId, user, messageText);
 
     // Then
     assertThat(mono).emitsExactly(message);
@@ -135,10 +122,7 @@ public class ChatRoomTest
     String user = "foo";
     Long messageId = 1l;
     ChatRoomService chatRoomService = mock(ChatRoomService.class);
-    ChatRoom chatRoom = new ChatRoom(
-        UUID.randomUUID(),
-        "Foo",
-        0,
+    ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
         chatRoomService,
         8);
@@ -152,7 +136,7 @@ public class ChatRoomTest
     when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
 
     // When
-    Mono<Message> mono = chatRoom.addMessage(messageId, user, mutatedText);
+    Mono<Message> mono = chatRoomData.addMessage(messageId, user, mutatedText);
 
     // Then
     assertThat(mono).sendsError();

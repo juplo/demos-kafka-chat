@@ -42,7 +42,7 @@ public class ChatBackendControllerTest
   {
     // Given
     UUID chatroomId = UUID.randomUUID();
-    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
+    when(chatHome.getChatRoomData(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -62,7 +62,7 @@ public class ChatBackendControllerTest
   {
     // Given
     UUID chatroomId = UUID.randomUUID();
-    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
+    when(chatHome.getChatRoomInfo(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -83,7 +83,7 @@ public class ChatBackendControllerTest
     UUID chatroomId = UUID.randomUUID();
     String username = "foo";
     Long messageId = 66l;
-    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
+    when(chatHome.getChatRoomData(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -109,7 +109,7 @@ public class ChatBackendControllerTest
     UUID chatroomId = UUID.randomUUID();
     String username = "foo";
     Long messageId = 66l;
-    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
+    when(chatHome.getChatRoomData(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -132,7 +132,7 @@ public class ChatBackendControllerTest
   {
     // Given
     UUID chatroomId = UUID.randomUUID();
-    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
+    when(chatHome.getChatRoomData(eq(chatroomId))).thenThrow(new UnknownChatroomException(chatroomId));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -170,13 +170,11 @@ public class ChatBackendControllerTest
     LocalDateTime timeExistingMessage = LocalDateTime.parse(timeExistingMessageAsString);
     String textExistingMessage = "Existing";
     String textMutatedMessage = "Mutated!";
-    ChatRoom chatRoom = new ChatRoom(
-        chatroomId,
-        "Test-ChatRoom",
-        0,
+    ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
-        chatRoomService, 8);
-    when(chatHome.getChatRoom(eq(chatroomId))).thenReturn(Mono.just(chatRoom));
+        chatRoomService,
+        8);
+    when(chatHome.getChatRoomData(eq(chatroomId))).thenReturn(Mono.just(chatRoomData));
     Message existingMessage = new Message(
         key,
         serialNumberExistingMessage,
@@ -222,14 +220,12 @@ public class ChatBackendControllerTest
     Long messageId = 66l;
     Message.MessageKey key = Message.MessageKey.of(user, messageId);
     String textMessage = "Hallo Welt";
-    ChatRoom chatRoom = new ChatRoom(
-        chatroomId,
-        "Test-ChatRoom",
-        0,
+    ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
-        chatRoomService, 8);
-    when(chatHome.getChatRoom(any(UUID.class)))
-        .thenReturn(Mono.just(chatRoom));
+        chatRoomService,
+        8);
+    when(chatHome.getChatRoomData(any(UUID.class)))
+        .thenReturn(Mono.just(chatRoomData));
     when(chatRoomService.getMessage(any(Message.MessageKey.class)))
         .thenReturn(Mono.empty());
     // Needed for readable error-reports, in case of a bug that leads to according unwanted call
@@ -262,7 +258,7 @@ public class ChatBackendControllerTest
     // Given
     UUID chatroomId = UUID.randomUUID();
     int shard = 666;
-    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
+    when(chatHome.getChatRoomInfo(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -282,7 +278,7 @@ public class ChatBackendControllerTest
     // Given
     UUID chatroomId = UUID.randomUUID();
     int shard = 666;
-    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
+    when(chatHome.getChatRoomData(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -304,7 +300,7 @@ public class ChatBackendControllerTest
     String username = "foo";
     Long messageId = 66l;
     int shard = 666;
-    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
+    when(chatHome.getChatRoomData(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -331,7 +327,7 @@ public class ChatBackendControllerTest
     String username = "foo";
     Long messageId = 66l;
     int shard = 666;
-    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
+    when(chatHome.getChatRoomData(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client
@@ -355,7 +351,7 @@ public class ChatBackendControllerTest
     // Given
     UUID chatroomId = UUID.randomUUID();
     int shard = 666;
-    when(chatHome.getChatRoom(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
+    when(chatHome.getChatRoomData(eq(chatroomId))).thenThrow(new ShardNotOwnedException(shard));
 
     // When
     WebTestClient.ResponseSpec responseSpec = client

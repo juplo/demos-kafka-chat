@@ -1,8 +1,8 @@
 package de.juplo.kafka.chat.backend.persistence;
 
 import de.juplo.kafka.chat.backend.persistence.InMemoryWithMongoDbStorageIT.DataSourceInitializer;
-import de.juplo.kafka.chat.backend.persistence.inmemory.InMemoryChatRoomService;
 import de.juplo.kafka.chat.backend.persistence.storage.mongodb.ChatRoomRepository;
+import de.juplo.kafka.chat.backend.persistence.storage.mongodb.MessageRepository;
 import de.juplo.kafka.chat.backend.persistence.storage.mongodb.MongoDbStorageStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,9 +36,9 @@ public class InMemoryWithMongoDbStorageIT extends AbstractInMemoryStorageIT
   @Autowired
   MongoDbStorageStrategy storageStrategy;
   @Autowired
-  ChatRoomRepository repository;
+  ChatRoomRepository chatRoomRepository;
   @Autowired
-  Clock clock;
+  MessageRepository messageRepository;
 
 
   public InMemoryWithMongoDbStorageIT()
@@ -59,14 +59,13 @@ public class InMemoryWithMongoDbStorageIT extends AbstractInMemoryStorageIT
     @Bean
     MongoDbStorageStrategy storageStrategy(
         ChatRoomRepository chatRoomRepository,
+        MessageRepository messageRepository,
         Clock clock)
     {
       return new MongoDbStorageStrategy(
           chatRoomRepository,
-          clock,
-          8,
-          chatRoomId -> 0,
-          messageFlux -> new InMemoryChatRoomService(messageFlux));
+          messageRepository,
+          chatRoomId -> 0);
     }
 
     @Bean
@@ -102,6 +101,7 @@ public class InMemoryWithMongoDbStorageIT extends AbstractInMemoryStorageIT
   {
     Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(log);
     CONTAINER.followOutput(logConsumer);
-    repository.deleteAll();
+    chatRoomRepository.deleteAll();
+    messageRepository.deleteAll();
   }
 }
