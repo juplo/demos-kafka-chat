@@ -1,6 +1,6 @@
 package de.juplo.kafka.chat.backend.persistence.kafka;
 
-import de.juplo.kafka.chat.backend.domain.ChatHome;
+import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.domain.ChatRoomData;
 import de.juplo.kafka.chat.backend.domain.ChatRoomInfo;
 import de.juplo.kafka.chat.backend.domain.exceptions.UnknownChatroomException;
@@ -15,7 +15,7 @@ import java.util.*;
 
 @RequiredArgsConstructor
 @Slf4j
-public class KafkaChatHome implements ChatHome
+public class KafkaChatHomeService implements ChatHomeService
 {
   private final int numPartitions;
   private final ChatRoomChannel chatRoomChannel;

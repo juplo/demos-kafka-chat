@@ -13,7 +13,7 @@ import static pl.rzrz.assertj.reactor.Assertions.*;
 @Slf4j
 public abstract class AbstractStorageStrategyIT
 {
-  protected ChatHome chathome;
+  protected ChatHomeService chathome;
 
 
   protected abstract StorageStrategy getStorageStrategy();
@@ -114,6 +114,6 @@ public abstract class AbstractStorageStrategyIT
 
   interface StorageStrategyITConfig
   {
-    ChatHome getChatHome();
+    ChatHomeService getChatHome();
   }
 }

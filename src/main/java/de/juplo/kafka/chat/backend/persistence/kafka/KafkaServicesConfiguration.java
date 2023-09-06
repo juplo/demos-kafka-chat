@@ -1,7 +1,7 @@
 package de.juplo.kafka.chat.backend.persistence.kafka;
 
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
-import de.juplo.kafka.chat.backend.domain.ChatHome;
+import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.persistence.kafka.messages.AbstractMessageTo;
 import de.juplo.kafka.chat.backend.persistence.kafka.messages.CommandCreateChatRoomTo;
 import de.juplo.kafka.chat.backend.persistence.kafka.messages.EventChatMessageReceivedTo;
@@ -34,11 +34,11 @@ import java.util.Properties;
 public class KafkaServicesConfiguration
 {
   @Bean
-  ChatHome kafkaChatHome(
+  ChatHomeService kafkaChatHome(
       ChatBackendProperties properties,
       ChatRoomChannel chatRoomChannel)
   {
-    return new KafkaChatHome(
+    return new KafkaChatHomeService(
         properties.getKafka().getNumPartitions(),
         chatRoomChannel);
   }

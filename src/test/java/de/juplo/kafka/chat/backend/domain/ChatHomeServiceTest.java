@@ -17,10 +17,10 @@ import static pl.rzrz.assertj.reactor.Assertions.assertThat;
 
 
 @ExtendWith(SpringExtension.class)
-public abstract class ChatHomeTest
+public abstract class ChatHomeServiceTest
 {
   @Autowired
-  ChatHome chatHome;
+  ChatHomeService chatHomeService;
 
 
   @Test
@@ -32,7 +32,7 @@ public abstract class ChatHomeTest
 
     // When
     Mono<ChatRoomData> mono = Mono
-        .defer(() -> chatHome.getChatRoomData(chatRoomId))
+        .defer(() -> chatHomeService.getChatRoomData(chatRoomId))
         .log("testGetExistingChatroom")
         .retryWhen(Retry
             .backoff(5, Duration.ofSeconds(1))
@@ -51,7 +51,7 @@ public abstract class ChatHomeTest
 
     // When
     Mono<ChatRoomData> mono = Mono
-        .defer(() -> chatHome.getChatRoomData(chatRoomId))
+        .defer(() -> chatHomeService.getChatRoomData(chatRoomId))
         .log("testGetNonExistentChatroom")
         .retryWhen(Retry
             .backoff(5, Duration.ofSeconds(1))

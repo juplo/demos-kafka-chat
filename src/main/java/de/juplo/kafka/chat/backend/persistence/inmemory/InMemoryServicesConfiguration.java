@@ -1,7 +1,7 @@
 package de.juplo.kafka.chat.backend.persistence.inmemory;
 
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
-import de.juplo.kafka.chat.backend.domain.ChatHome;
+import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.persistence.ShardingStrategy;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -26,12 +26,12 @@ public class InMemoryServicesConfiguration
       name = "sharding-strategy",
       havingValue = "none",
       matchIfMissing = true)
-  ChatHome noneShardingChatHome(
+  ChatHomeService noneShardingChatHome(
       ChatBackendProperties properties,
       StorageStrategy storageStrategy,
       Clock clock)
   {
-    return new SimpleChatHome(
+    return new SimpleChatHomeService(
         storageStrategy,
         clock,
         properties.getChatroomBufferSize());
@@ -42,22 +42,22 @@ public class InMemoryServicesConfiguration
       prefix = "chat.backend.inmemory",
       name = "sharding-strategy",
       havingValue = "kafkalike")
-  ChatHome kafkalikeShardingChatHome(
+  ChatHomeService kafkalikeShardingChatHome(
       ChatBackendProperties properties,
       StorageStrategy storageStrategy,
       Clock clock)
   {
     int numShards = properties.getInmemory().getNumShards();
-    SimpleChatHome[] chatHomes = new SimpleChatHome[numShards];
+    SimpleChatHomeService[] chatHomes = new SimpleChatHomeService[numShards];
     IntStream
         .of(properties.getInmemory().getOwnedShards())
-        .forEach(shard -> chatHomes[shard] = new SimpleChatHome(
+        .forEach(shard -> chatHomes[shard] = new SimpleChatHomeService(
             shard,
             storageStrategy,
             clock,
             properties.getChatroomBufferSize()));
     ShardingStrategy strategy = new KafkaLikeShardingStrategy(numShards);
-    return new ShardedChatHome(chatHomes, strategy);
+    return new ShardedChatHomeService(chatHomes, strategy);
   }
 
   @ConditionalOnProperty(

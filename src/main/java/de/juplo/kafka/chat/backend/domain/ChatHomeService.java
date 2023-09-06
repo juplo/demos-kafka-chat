@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 
-public interface ChatHome
+public interface ChatHomeService
 {
   Mono<ChatRoomInfo> createChatRoom(UUID id, String name);
 

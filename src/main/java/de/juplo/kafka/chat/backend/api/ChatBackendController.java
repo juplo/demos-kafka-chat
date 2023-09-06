@@ -1,6 +1,6 @@
 package de.juplo.kafka.chat.backend.api;
 
-import de.juplo.kafka.chat.backend.domain.ChatHome;
+import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.domain.ChatRoomData;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChatBackendController
 {
-  private final ChatHome chatHome;
+  private final ChatHomeService chatHomeService;
   private final StorageStrategy storageStrategy;
 
 
@@ -24,7 +24,7 @@ public class ChatBackendController
   public Mono<ChatRoomInfoTo> create(@RequestBody String name)
   {
     UUID chatRoomId = UUID.randomUUID();
-    return chatHome
+    return chatHomeService
         .createChatRoom(chatRoomId, name)
         .map(ChatRoomInfoTo::from);
   }
@@ -32,7 +32,7 @@ public class ChatBackendController
   @GetMapping("list")
   public Flux<ChatRoomInfoTo> list()
   {
-    return chatHome
+    return chatHomeService
         .getChatRoomInfo()
         .map(chatroomInfo -> ChatRoomInfoTo.from(chatroomInfo));
   }
@@ -40,7 +40,7 @@ public class ChatBackendController
   @GetMapping("{chatRoomId}/list")
   public Flux<MessageTo> list(@PathVariable UUID chatRoomId)
   {
-    return chatHome
+    return chatHomeService
         .getChatRoomData(chatRoomId)
         .flatMapMany(chatRoomData -> chatRoomData
             .getMessages()
@@ -50,7 +50,7 @@ public class ChatBackendController
   @GetMapping("{chatRoomId}")
   public Mono<ChatRoomInfoTo> get(@PathVariable UUID chatRoomId)
   {
-    return chatHome
+    return chatHomeService
         .getChatRoomInfo(chatRoomId)
         .map(chatRoomInfo -> ChatRoomInfoTo.from(chatRoomInfo));
   }
@@ -63,7 +63,7 @@ public class ChatBackendController
       @RequestBody String text)
   {
     return
-        chatHome
+        chatHomeService
             .getChatRoomData(chatRoomId)
             .flatMap(chatRoomData -> put(chatRoomData, username, messageId, text));
   }
@@ -90,7 +90,7 @@ public class ChatBackendController
       @PathVariable Long messageId)
   {
     return
-        chatHome
+        chatHomeService
             .getChatRoomData(chatRoomId)
             .flatMap(chatRoomData -> get(chatRoomData, username, messageId));
   }
@@ -109,7 +109,7 @@ public class ChatBackendController
   @GetMapping(path = "{chatRoomId}/listen")
   public Flux<ServerSentEvent<MessageTo>> listen(@PathVariable UUID chatRoomId)
   {
-    return chatHome
+    return chatHomeService
         .getChatRoomData(chatRoomId)
         .flatMapMany(chatRoomData -> listen(chatRoomData));
   }
@@ -131,6 +131,6 @@ public class ChatBackendController
   @PostMapping("/store")
   public void store()
   {
-    storageStrategy.write(chatHome);
+    storageStrategy.write(chatHomeService);
   }
 }

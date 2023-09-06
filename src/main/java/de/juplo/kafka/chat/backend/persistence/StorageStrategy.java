@@ -1,6 +1,6 @@
 package de.juplo.kafka.chat.backend.persistence;
 
-import de.juplo.kafka.chat.backend.domain.ChatHome;
+import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.domain.ChatRoomInfo;
 import de.juplo.kafka.chat.backend.domain.Message;
 import reactor.core.publisher.Flux;
@@ -10,14 +10,14 @@ import java.util.UUID;
 
 public interface StorageStrategy
 {
-  default void write(ChatHome chatHome)
+  default void write(ChatHomeService chatHomeService)
   {
     writeChatRoomInfo(
-        chatHome
+        chatHomeService
             .getChatRoomInfo()
             .doOnNext(chatRoomInfo -> writeChatRoomData(
                 chatRoomInfo.getId(),
-                chatHome
+                chatHomeService
                     .getChatRoomData(chatRoomInfo.getId())
                     .flatMapMany(chatRoomData -> chatRoomData.getMessages()))));
   }

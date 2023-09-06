@@ -1,6 +1,6 @@
 package de.juplo.kafka.chat.backend;
 
-import de.juplo.kafka.chat.backend.domain.ChatHome;
+import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import jakarta.annotation.PreDestroy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ public class ChatBackendApplication implements WebFluxConfigurer
 	@Autowired
 	ChatBackendProperties properties;
 	@Autowired
-	ChatHome chatHome;
+	ChatHomeService chatHomeService;
 	@Autowired
 	StorageStrategy storageStrategy;
 
@@ -32,7 +32,7 @@ public class ChatBackendApplication implements WebFluxConfigurer
 	@PreDestroy
 	public void onExit()
 	{
-		storageStrategy.write(chatHome);
+		storageStrategy.write(chatHomeService);
 	}
 
 	public static void main(String[] args)

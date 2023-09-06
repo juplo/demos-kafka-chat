@@ -12,7 +12,7 @@ import java.util.*;
 
 
 @Slf4j
-public class SimpleChatHome implements ChatHome
+public class SimpleChatHomeService implements ChatHomeService
 {
   private final Integer shard;
   private final Map<UUID, ChatRoomInfo> chatRoomInfo;
@@ -22,7 +22,7 @@ public class SimpleChatHome implements ChatHome
 
 
 
-  public SimpleChatHome(
+  public SimpleChatHomeService(
       StorageStrategy storageStrategy,
       Clock clock,
       int bufferSize)
@@ -34,7 +34,7 @@ public class SimpleChatHome implements ChatHome
         bufferSize);
   }
 
-  public SimpleChatHome(
+  public SimpleChatHomeService(
       Integer shard,
       StorageStrategy storageStrategy,
       Clock clock,

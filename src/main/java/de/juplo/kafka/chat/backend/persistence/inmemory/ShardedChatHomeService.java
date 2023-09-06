@@ -15,15 +15,15 @@ import java.util.stream.Collectors;
 
 
 @Slf4j
-public class ShardedChatHome implements ChatHome
+public class ShardedChatHomeService implements ChatHomeService
 {
-  private final SimpleChatHome[] chatHomes;
+  private final SimpleChatHomeService[] chatHomes;
   private final Set<Integer> ownedShards;
   private final ShardingStrategy shardingStrategy;
 
 
-  public  ShardedChatHome(
-      SimpleChatHome[] chatHomes,
+  public ShardedChatHomeService(
+      SimpleChatHomeService[] chatHomes,
       ShardingStrategy shardingStrategy)
   {
     this.chatHomes = chatHomes;

@@ -1,7 +1,7 @@
 package de.juplo.kafka.chat.backend.persistence.inmemory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.juplo.kafka.chat.backend.domain.ChatHomeWithShardsTest;
+import de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest;
 import de.juplo.kafka.chat.backend.persistence.ShardingStrategy;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import de.juplo.kafka.chat.backend.persistence.storage.files.FilesStorageStrategy;
@@ -12,21 +12,21 @@ import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.stream.IntStream;
 
-public class ShardedChatHomeTest extends ChatHomeWithShardsTest
+public class ShardedChatHomeServiceTest extends ChatHomeServiceWithShardsTest
 {
   @TestConfiguration
   static class Configuration
   {
     @Bean
-    ShardedChatHome chatHome(
+    ShardedChatHomeService chatHome(
         StorageStrategy storageStrategy,
         Clock clock)
     {
-      SimpleChatHome[] chatHomes = new SimpleChatHome[NUM_SHARDS];
+      SimpleChatHomeService[] chatHomes = new SimpleChatHomeService[NUM_SHARDS];
 
       IntStream
           .of(ownedShards())
-          .forEach(shard -> chatHomes[shard] = new SimpleChatHome(
+          .forEach(shard -> chatHomes[shard] = new SimpleChatHomeService(
               shard,
               storageStrategy,
               clock,
@@ -34,7 +34,7 @@ public class ShardedChatHomeTest extends ChatHomeWithShardsTest
 
       ShardingStrategy strategy = new KafkaLikeShardingStrategy(NUM_SHARDS);
 
-      return new ShardedChatHome(chatHomes, strategy);
+      return new ShardedChatHomeService(chatHomes, strategy);
     }
 
     @Bean

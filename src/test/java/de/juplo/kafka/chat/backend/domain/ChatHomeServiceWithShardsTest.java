@@ -13,7 +13,7 @@ import java.util.UUID;
 import static pl.rzrz.assertj.reactor.Assertions.assertThat;
 
 
-public abstract class ChatHomeWithShardsTest extends ChatHomeTest
+public abstract class ChatHomeServiceWithShardsTest extends ChatHomeServiceTest
 {
   public static final int NUM_SHARDS = 10;
   public static final int OWNED_SHARD = 2;
@@ -29,7 +29,7 @@ public abstract class ChatHomeWithShardsTest extends ChatHomeTest
 
     // When
     Mono<ChatRoomData> mono = Mono
-        .defer(() -> chatHome.getChatRoomData(chatRoomId))
+        .defer(() -> chatHomeService.getChatRoomData(chatRoomId))
         .log("testGetChatroomForNotOwnedShard")
         .retryWhen(Retry
             .backoff(5, Duration.ofSeconds(1))

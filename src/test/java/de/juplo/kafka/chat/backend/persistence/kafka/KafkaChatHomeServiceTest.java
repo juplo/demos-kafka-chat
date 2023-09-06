@@ -1,7 +1,7 @@
 package de.juplo.kafka.chat.backend.persistence.kafka;
 
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
-import de.juplo.kafka.chat.backend.domain.ChatHomeWithShardsTest;
+import de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -24,13 +24,13 @@ import java.time.Clock;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static de.juplo.kafka.chat.backend.domain.ChatHomeWithShardsTest.NUM_SHARDS;
-import static de.juplo.kafka.chat.backend.persistence.kafka.KafkaChatHomeTest.TOPIC;
+import static de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest.NUM_SHARDS;
+import static de.juplo.kafka.chat.backend.persistence.kafka.KafkaChatHomeServiceTest.TOPIC;
 
 
 @SpringBootTest(
     classes = {
-        KafkaChatHomeTest.KafkaChatHomeTestConfiguration.class,
+        KafkaChatHomeServiceTest.KafkaChatHomeTestConfiguration.class,
         KafkaServicesConfiguration.class,
         KafkaAutoConfiguration.class,
         TaskExecutionAutoConfiguration.class,
@@ -45,7 +45,7 @@ import static de.juplo.kafka.chat.backend.persistence.kafka.KafkaChatHomeTest.TO
 })
 @EmbeddedKafka(topics = { TOPIC }, partitions = 10)
 @Slf4j
-public class KafkaChatHomeTest extends ChatHomeWithShardsTest
+public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
 {
   final static String TOPIC = "KAFKA_CHAT_HOME_TEST";
 

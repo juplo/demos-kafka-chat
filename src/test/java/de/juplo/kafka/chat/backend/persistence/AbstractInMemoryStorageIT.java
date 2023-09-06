@@ -1,7 +1,7 @@
 package de.juplo.kafka.chat.backend.persistence;
 
-import de.juplo.kafka.chat.backend.domain.ChatHome;
-import de.juplo.kafka.chat.backend.persistence.inmemory.SimpleChatHome;
+import de.juplo.kafka.chat.backend.domain.ChatHomeService;
+import de.juplo.kafka.chat.backend.persistence.inmemory.SimpleChatHomeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,13 +21,13 @@ public abstract class AbstractInMemoryStorageIT extends AbstractStorageStrategyI
     {
       int bufferSize = 8;
 
-      SimpleChatHome simpleChatHome = new SimpleChatHome(
+      SimpleChatHomeService simpleChatHome = new SimpleChatHomeService(
           getStorageStrategy(),
           clock,
           bufferSize);
 
       @Override
-      public ChatHome getChatHome()
+      public ChatHomeService getChatHome()
       {
         return simpleChatHome;
       }
