@@ -1,9 +1,9 @@
 package de.juplo.kafka.chat.backend.api;
 
-import de.juplo.kafka.chat.backend.domain.InvalidUsernameException;
-import de.juplo.kafka.chat.backend.domain.MessageMutationException;
-import de.juplo.kafka.chat.backend.domain.ShardNotOwnedException;
-import de.juplo.kafka.chat.backend.domain.UnknownChatroomException;
+import de.juplo.kafka.chat.backend.domain.exceptions.InvalidUsernameException;
+import de.juplo.kafka.chat.backend.domain.exceptions.MessageMutationException;
+import de.juplo.kafka.chat.backend.domain.exceptions.ShardNotOwnedException;
+import de.juplo.kafka.chat.backend.domain.exceptions.UnknownChatroomException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;

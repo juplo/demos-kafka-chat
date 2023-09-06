@@ -1,5 +1,6 @@
-package de.juplo.kafka.chat.backend.domain;
+package de.juplo.kafka.chat.backend.domain.exceptions;
 
+import de.juplo.kafka.chat.backend.domain.Message;
 import lombok.Getter;
 
 
