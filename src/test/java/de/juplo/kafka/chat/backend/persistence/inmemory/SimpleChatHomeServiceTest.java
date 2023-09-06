@@ -3,7 +3,7 @@ package de.juplo.kafka.chat.backend.persistence.inmemory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.juplo.kafka.chat.backend.domain.ChatHomeServiceTest;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
-import de.juplo.kafka.chat.backend.persistence.storage.files.FilesStorageStrategy;
+import de.juplo.kafka.chat.backend.storage.files.FilesStorageStrategy;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 

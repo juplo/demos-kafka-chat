@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend.persistence.storage.nostorage;
+package de.juplo.kafka.chat.backend.storage.nostorage;
 
 import de.juplo.kafka.chat.backend.domain.ChatRoomInfo;
 import de.juplo.kafka.chat.backend.domain.Message;

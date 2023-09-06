@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend.persistence.storage.mongodb;
+package de.juplo.kafka.chat.backend.storage.mongodb;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 

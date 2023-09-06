@@ -2,5 +2,5 @@
   "_id": "5c73531c-6fc4-426c-adcb-afc5c140a0f7",
   "shard": 0,
   "name": "FOO",
-  "_class": "de.juplo.kafka.chat.backend.persistence.storage.mongodb.ChatRoomTo"
+  "_class": "de.juplo.kafka.chat.backend.storage.mongodb.ChatRoomTo"
 }

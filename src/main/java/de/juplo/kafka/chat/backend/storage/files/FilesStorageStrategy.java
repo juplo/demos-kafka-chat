@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend.persistence.storage.files;
+package de.juplo.kafka.chat.backend.storage.files;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;

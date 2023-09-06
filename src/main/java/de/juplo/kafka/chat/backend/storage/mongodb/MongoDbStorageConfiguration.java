@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend.persistence.storage.mongodb;
+package de.juplo.kafka.chat.backend.storage.mongodb;
 
 import de.juplo.kafka.chat.backend.persistence.ShardingStrategy;
 import de.juplo.kafka.chat.backend.persistence.StorageStrategy;

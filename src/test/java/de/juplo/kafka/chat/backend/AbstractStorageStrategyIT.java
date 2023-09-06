@@ -1,6 +1,7 @@
-package de.juplo.kafka.chat.backend.persistence;
+package de.juplo.kafka.chat.backend;
 
 import de.juplo.kafka.chat.backend.domain.*;
+import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
