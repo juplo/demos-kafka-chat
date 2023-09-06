@@ -1,7 +1,7 @@
 package de.juplo.kafka.chat.backend;
 
 import de.juplo.kafka.chat.backend.InMemoryWithMongoDbStorageIT.DataSourceInitializer;
-import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
+import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
 import de.juplo.kafka.chat.backend.storage.mongodb.ChatRoomRepository;
 import de.juplo.kafka.chat.backend.storage.mongodb.MessageRepository;
 import de.juplo.kafka.chat.backend.storage.mongodb.MongoDbStorageStrategy;

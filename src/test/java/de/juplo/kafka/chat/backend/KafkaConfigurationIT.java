@@ -1,7 +1,7 @@
 package de.juplo.kafka.chat.backend;
 
-import de.juplo.kafka.chat.backend.persistence.kafka.ChatRoomChannel;
-import de.juplo.kafka.chat.backend.persistence.kafka.KafkaServicesApplicationRunner;
+import de.juplo.kafka.chat.backend.implementation.kafka.ChatRoomChannel;
+import de.juplo.kafka.chat.backend.implementation.kafka.KafkaServicesApplicationRunner;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.ProducerRecord;

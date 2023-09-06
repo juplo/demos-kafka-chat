@@ -1,9 +1,9 @@
-package de.juplo.kafka.chat.backend.persistence.inmemory;
+package de.juplo.kafka.chat.backend.implementation.inmemory;
 
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
-import de.juplo.kafka.chat.backend.persistence.ShardingStrategy;
-import de.juplo.kafka.chat.backend.persistence.StorageStrategy;
+import de.juplo.kafka.chat.backend.implementation.ShardingStrategy;
+import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

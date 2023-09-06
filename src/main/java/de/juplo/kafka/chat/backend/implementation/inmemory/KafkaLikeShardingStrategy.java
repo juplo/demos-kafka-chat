@@ -1,6 +1,6 @@
-package de.juplo.kafka.chat.backend.persistence.inmemory;
+package de.juplo.kafka.chat.backend.implementation.inmemory;
 
-import de.juplo.kafka.chat.backend.persistence.ShardingStrategy;
+import de.juplo.kafka.chat.backend.implementation.ShardingStrategy;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.utils.Utils;
 
