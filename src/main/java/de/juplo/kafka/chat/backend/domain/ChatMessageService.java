@@ -6,7 +6,7 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDateTime;
 
 
-public interface ChatRoomService
+public interface ChatMessageService
 {
   Mono<Message> persistMessage(
       Message.MessageKey key,

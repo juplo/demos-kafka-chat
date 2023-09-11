@@ -19,7 +19,7 @@ public class ChatRoomData
 {
   public final static Pattern VALID_USER = Pattern.compile("^[a-z0-9-]{2,}$");
 
-  private final ChatRoomService service;
+  private final ChatMessageService service;
   private final Clock clock;
   private final int bufferSize;
   private Sinks.Many<Message> sink;
@@ -27,7 +27,7 @@ public class ChatRoomData
 
   public ChatRoomData(
       Clock clock,
-      ChatRoomService service,
+      ChatMessageService service,
       int bufferSize)
   {
     log.info("Created ChatRoom with buffer-size {}", bufferSize);
@@ -78,7 +78,7 @@ public class ChatRoomData
   }
 
 
-  public ChatRoomService getChatRoomService()
+  public ChatMessageService getChatRoomService()
   {
     return service;
   }

@@ -22,15 +22,15 @@ public class ChatRoomDataTest
     // Given
     String user = "foo";
     Long messageId = 1l;
-    ChatRoomService chatRoomService = mock(ChatRoomService.class);
+    ChatMessageService chatMessageService = mock(ChatMessageService.class);
     ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
-        chatRoomService,
+        chatMessageService,
         8);
     Message.MessageKey key = Message.MessageKey.of(user, messageId);
     LocalDateTime timestamp = LocalDateTime.now();
     Message message = new Message(key, 0l, timestamp, "Bar");
-    when(chatRoomService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
+    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
 
     // When
     Mono<Message> mono = chatRoomData.getMessage(user, messageId);
@@ -46,12 +46,12 @@ public class ChatRoomDataTest
     // Given
     String user = "foo";
     Long messageId = 1l;
-    ChatRoomService chatRoomService = mock(ChatRoomService.class);
+    ChatMessageService chatMessageService = mock(ChatMessageService.class);
     ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
-        chatRoomService,
+        chatMessageService,
         8);
-    when(chatRoomService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.empty());
+    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.empty());
 
     // When
     Mono<Message> mono = chatRoomData.getMessage(user, messageId);
@@ -67,18 +67,18 @@ public class ChatRoomDataTest
     // Given
     String user = "foo";
     Long messageId = 1l;
-    ChatRoomService chatRoomService = mock(ChatRoomService.class);
+    ChatMessageService chatMessageService = mock(ChatMessageService.class);
     ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
-        chatRoomService,
+        chatMessageService,
         8);
     Message.MessageKey key = Message.MessageKey.of(user, messageId);
     Clock now = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     LocalDateTime timestamp = LocalDateTime.now(now);
     String messageText = "Bar";
     Message message = new Message(key, 0l, timestamp, messageText);
-    when(chatRoomService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.empty());
-    when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
+    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.empty());
+    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
 
     // When
     Mono<Message> mono = chatRoomData.addMessage(messageId, user, messageText);
@@ -94,18 +94,18 @@ public class ChatRoomDataTest
     // Given
     String user = "foo";
     Long messageId = 1l;
-    ChatRoomService chatRoomService = mock(ChatRoomService.class);
+    ChatMessageService chatMessageService = mock(ChatMessageService.class);
     ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
-        chatRoomService,
+        chatMessageService,
         8);
     Message.MessageKey key = Message.MessageKey.of(user, messageId);
     Clock now = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     LocalDateTime timestamp = LocalDateTime.now(now);
     String messageText = "Bar";
     Message message = new Message(key, 0l, timestamp, messageText);
-    when(chatRoomService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
-    when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
+    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
+    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
 
     // When
     Mono<Message> mono = chatRoomData.addMessage(messageId, user, messageText);
@@ -121,10 +121,10 @@ public class ChatRoomDataTest
     // Given
     String user = "foo";
     Long messageId = 1l;
-    ChatRoomService chatRoomService = mock(ChatRoomService.class);
+    ChatMessageService chatMessageService = mock(ChatMessageService.class);
     ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
-        chatRoomService,
+        chatMessageService,
         8);
     Message.MessageKey key = Message.MessageKey.of(user, messageId);
     Clock now = Clock.fixed(Instant.now(), ZoneId.systemDefault());
@@ -132,8 +132,8 @@ public class ChatRoomDataTest
     String messageText = "Bar";
     String mutatedText = "Boom!";
     Message message = new Message(key, 0l, timestamp, messageText);
-    when(chatRoomService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
-    when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
+    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
+    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
 
     // When
     Mono<Message> mono = chatRoomData.addMessage(messageId, user, mutatedText);

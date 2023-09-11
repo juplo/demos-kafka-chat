@@ -292,7 +292,7 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
         chatRoomId,
         partition,
         bufferSize);
-    KafkaChatRoomService service = new KafkaChatRoomService(this, chatRoomId);
+    KafkaChatMessageService service = new KafkaChatMessageService(this, chatRoomId);
     ChatRoomData chatRoomData = new ChatRoomData(
         clock,
         service,
@@ -309,7 +309,7 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
   {
     UUID id = chatRoomInfo.getId();
     log.info("Creating ChatRoom {} with buffer-size {}", id, bufferSize);
-    KafkaChatRoomService service = new KafkaChatRoomService(this, id);
+    KafkaChatMessageService service = new KafkaChatMessageService(this, id);
     ChatRoomData chatRoomData = new ChatRoomData(clock, service, bufferSize);
     putChatRoom(
         chatRoomInfo.getId(),
@@ -329,8 +329,8 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
     Message message = new Message(key, offset, timestamp, chatMessageTo.getText());
 
     ChatRoomData chatRoomData = this.chatRoomData[partition].get(chatRoomId);
-    KafkaChatRoomService kafkaChatRoomService =
-        (KafkaChatRoomService) chatRoomData.getChatRoomService();
+    KafkaChatMessageService kafkaChatRoomService =
+        (KafkaChatMessageService) chatRoomData.getChatRoomService();
 
     kafkaChatRoomService.persistMessage(message);
   }

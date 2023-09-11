@@ -73,7 +73,7 @@ public class SimpleChatHomeService implements ChatHomeService
               info.getId(),
               new ChatRoomData(
                   clock,
-                  new InMemoryChatRoomService(messageFlux),
+                  new InMemoryChatMessageService(messageFlux),
                   bufferSize));
         });
     this.clock = clock;
@@ -85,7 +85,7 @@ public class SimpleChatHomeService implements ChatHomeService
   public Mono<ChatRoomInfo> createChatRoom(UUID id, String name)
   {
     log.info("Creating ChatRoom with buffer-size {}", bufferSize);
-    ChatRoomService service = new InMemoryChatRoomService(Flux.empty());
+    ChatMessageService service = new InMemoryChatMessageService(Flux.empty());
     ChatRoomInfo chatRoomInfo = new ChatRoomInfo(id, name, shard);
     this.chatRoomInfo.put(id, chatRoomInfo);
     ChatRoomData chatRoomData = new ChatRoomData(clock, service, bufferSize);

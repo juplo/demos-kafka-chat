@@ -36,7 +36,7 @@ public class ChatBackendControllerTest
   @MockBean
   ChatHomeService chatHomeService;
   @MockBean
-  ChatRoomService chatRoomService;
+  ChatMessageService chatMessageService;
 
   @Test
   @DisplayName("Assert expected problem-details for unknown chatroom on GET /list/{chatroomId}")
@@ -174,7 +174,7 @@ public class ChatBackendControllerTest
     String textMutatedMessage = "Mutated!";
     ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
-        chatRoomService,
+        chatMessageService,
         8);
     when(chatHomeService.getChatRoomData(eq(chatroomId))).thenReturn(Mono.just(chatRoomData));
     Message existingMessage = new Message(
@@ -182,10 +182,10 @@ public class ChatBackendControllerTest
         serialNumberExistingMessage,
         timeExistingMessage,
         textExistingMessage);
-    when(chatRoomService.getMessage(any(Message.MessageKey.class)))
+    when(chatMessageService.getMessage(any(Message.MessageKey.class)))
         .thenReturn(Mono.just(existingMessage));
     // Needed for readable error-reports, in case of a bug that leads to according unwanted call
-    when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class)))
+    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class)))
         .thenReturn(Mono.just(mock(Message.class)));
 
     // When
@@ -209,7 +209,7 @@ public class ChatBackendControllerTest
         .jsonPath("$.existingMessage.user").isEqualTo(user)
         .jsonPath("$.existingMessage.text").isEqualTo(textExistingMessage)
         .jsonPath("$.mutatedText").isEqualTo(textMutatedMessage);
-    verify(chatRoomService, never()).persistMessage(eq(key), any(LocalDateTime.class), any(String.class));
+    verify(chatMessageService, never()).persistMessage(eq(key), any(LocalDateTime.class), any(String.class));
   }
 
   @Test
@@ -224,14 +224,14 @@ public class ChatBackendControllerTest
     String textMessage = "Hallo Welt";
     ChatRoomData chatRoomData = new ChatRoomData(
         Clock.systemDefaultZone(),
-        chatRoomService,
+        chatMessageService,
         8);
     when(chatHomeService.getChatRoomData(any(UUID.class)))
         .thenReturn(Mono.just(chatRoomData));
-    when(chatRoomService.getMessage(any(Message.MessageKey.class)))
+    when(chatMessageService.getMessage(any(Message.MessageKey.class)))
         .thenReturn(Mono.empty());
     // Needed for readable error-reports, in case of a bug that leads to according unwanted call
-    when(chatRoomService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class)))
+    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class)))
         .thenReturn(Mono.just(mock(Message.class)));
 
     // When
@@ -250,7 +250,7 @@ public class ChatBackendControllerTest
         .expectBody()
         .jsonPath("$.type").isEqualTo("/problem/invalid-username")
         .jsonPath("$.username").isEqualTo(user);
-    verify(chatRoomService, never()).persistMessage(eq(key), any(LocalDateTime.class), any(String.class));
+    verify(chatMessageService, never()).persistMessage(eq(key), any(LocalDateTime.class), any(String.class));
   }
 
   @Test

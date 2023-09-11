@@ -1,6 +1,6 @@
 package de.juplo.kafka.chat.backend.implementation.kafka;
 
-import de.juplo.kafka.chat.backend.domain.ChatRoomService;
+import de.juplo.kafka.chat.backend.domain.ChatMessageService;
 import de.juplo.kafka.chat.backend.domain.Message;import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @Slf4j
-public class KafkaChatRoomService implements ChatRoomService
+public class KafkaChatMessageService implements ChatMessageService
 {
   private final ChatRoomChannel chatRoomChannel;
   private final UUID chatRoomId;
