@@ -1,9 +1,6 @@
 package de.juplo.kafka.chat.backend.implementation.kafka.messages;
 
-import de.juplo.kafka.chat.backend.domain.Message;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 
 @Getter
@@ -20,20 +17,6 @@ public class EventChatMessageReceivedTo extends AbstractMessageTo
   public EventChatMessageReceivedTo()
   {
     super(ToType.EVENT_CHATMESSAGE_RECEIVED);
-  }
-
-
-  public Message toMessage(long offset, LocalDateTime timestamp)
-  {
-    return new Message(Message.MessageKey.of(user, id), offset, timestamp, text);
-  }
-
-  public static EventChatMessageReceivedTo from(Message message)
-  {
-    return EventChatMessageReceivedTo.of(
-        message.getUsername(),
-        message.getId(),
-        message.getMessageText());
   }
 
 

@@ -114,9 +114,4 @@ public class SimpleChatHomeService implements ChatHomeService
         .justOrEmpty(chatRoomData.get(id))
         .switchIfEmpty(Mono.error(() -> new UnknownChatroomException(id)));
   }
-
-  public Flux<ChatRoomData> getChatRoomData()
-  {
-    return Flux.fromIterable(chatRoomData.values());
-  }
 }

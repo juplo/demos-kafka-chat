@@ -59,11 +59,6 @@ public class KafkaChatHomeService implements ChatHomeService
             chatRoomChannel.getOwnedShards())));
   }
 
-  public Flux<ChatRoomData> getChatRoomData()
-  {
-      return chatRoomChannel.getChatRoomData();
-  }
-
   int selectShard(UUID chatRoomId)
   {
     byte[] serializedKey = chatRoomId.toString().getBytes();

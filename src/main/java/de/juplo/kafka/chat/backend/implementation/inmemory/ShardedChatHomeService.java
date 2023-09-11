@@ -90,15 +90,6 @@ public class ShardedChatHomeService implements ChatHomeService
                 : throwable);
   }
 
-  public Flux<ChatRoomData> getChatRoomData()
-  {
-    return Flux
-        .fromIterable(ownedShards)
-        .flatMap(shard -> chatHomes[shard].getChatRoomData());
-  }
-
-
-
   private int selectShard(UUID chatroomId)
   {
     return shardingStrategy.selectShard(chatroomId);
