@@ -11,6 +11,7 @@ public class AbstractMessageTo
   public enum ToType {
     COMMAND_CREATE_CHATROOM,
     EVENT_CHATMESSAGE_RECEIVED,
+    EVENT_CHATROOM_CREATED,
   }
 
   @Getter

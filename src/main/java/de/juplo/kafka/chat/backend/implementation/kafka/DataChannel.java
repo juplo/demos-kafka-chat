@@ -4,8 +4,7 @@ import de.juplo.kafka.chat.backend.domain.*;
 import de.juplo.kafka.chat.backend.domain.exceptions.LoadInProgressException;
 import de.juplo.kafka.chat.backend.domain.exceptions.ShardNotOwnedException;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.AbstractMessageTo;
-import de.juplo.kafka.chat.backend.implementation.kafka.messages.CommandCreateChatRoomTo;
-import de.juplo.kafka.chat.backend.implementation.kafka.messages.EventChatMessageReceivedTo;
+import de.juplo.kafka.chat.backend.implementation.kafka.messages.data.EventChatMessageReceivedTo;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
@@ -16,7 +15,6 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.*;
@@ -25,7 +23,7 @@ import java.util.stream.IntStream;
 
 
 @Slf4j
-public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
+public class DataChannel implements Runnable, ConsumerRebalanceListener
 {
   private final String topic;
   private final Producer<String, AbstractMessageTo> producer;
@@ -37,7 +35,6 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
   private final boolean[] isShardOwned;
   private final long[] currentOffset;
   private final long[] nextOffset;
-  private final Map<UUID, ChatRoomInfo>[] chatRoomInfo;
   private final Map<UUID, ChatRoomData>[] chatRoomData;
 
   private boolean running;
@@ -45,21 +42,21 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
   private volatile boolean loadInProgress;
 
 
-  public ChatRoomChannel(
+  public DataChannel(
     String topic,
     Producer<String, AbstractMessageTo> producer,
-    Consumer<String, AbstractMessageTo> consumer,
+    Consumer<String, AbstractMessageTo> dataChannelConsumer,
     ZoneId zoneId,
     int numShards,
     int bufferSize,
     Clock clock)
   {
     log.debug(
-        "Creating ChatRoomChannel for topic {} with {} partitions",
+        "Creating DataChannel for topic {} with {} partitions",
         topic,
         numShards);
     this.topic = topic;
-    this.consumer = consumer;
+    this.consumer = dataChannelConsumer;
     this.producer = producer;
     this.zoneId = zoneId;
     this.numShards = numShards;
@@ -68,54 +65,16 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
     this.isShardOwned = new boolean[numShards];
     this.currentOffset = new long[numShards];
     this.nextOffset = new long[numShards];
-    this.chatRoomInfo = new Map[numShards];
     this.chatRoomData = new Map[numShards];
     IntStream
         .range(0, numShards)
         .forEach(shard ->
         {
-          this.chatRoomInfo[shard] = new HashMap<>();
           this.chatRoomData[shard] = new HashMap<>();
         });
   }
 
 
-
-  Mono<ChatRoomInfo> sendCreateChatRoomRequest(
-      UUID chatRoomId,
-      String name)
-  {
-    CommandCreateChatRoomTo createChatRoomRequestTo = CommandCreateChatRoomTo.of(name);
-    return Mono.create(sink ->
-    {
-      ProducerRecord<String, AbstractMessageTo> record =
-          new ProducerRecord<>(
-              topic,
-              chatRoomId.toString(),
-              createChatRoomRequestTo);
-
-      producer.send(record, ((metadata, exception) ->
-      {
-        if (metadata != null)
-        {
-          log.info("Successfully send chreate-request for chat room: {}", createChatRoomRequestTo);
-          ChatRoomInfo chatRoomInfo = new ChatRoomInfo(chatRoomId, name, record.partition());
-          createChatRoom(chatRoomInfo);
-          sink.success(chatRoomInfo);
-        }
-        else
-        {
-          // On send-failure
-          log.error(
-              "Could not send create-request for chat room (id={}, name={}): {}",
-              chatRoomId,
-              name,
-              exception);
-          sink.error(exception);
-        }
-      }));
-    });
-  }
 
   Mono<Message> sendChatMessage(
       UUID chatRoomId,
@@ -211,12 +170,12 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
     {
       try
       {
-        ConsumerRecords<String, AbstractMessageTo> records = consumer.poll(Duration.ofMinutes(5));
+        ConsumerRecords<String, AbstractMessageTo> records = consumer.poll(Duration.ofMinutes(1));
         log.info("Fetched {} messages", records.count());
 
         if (loadInProgress)
         {
-          loadChatRoom(records);
+          loadChatRoomData(records);
 
           if (isLoadingCompleted())
           {
@@ -244,7 +203,7 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
     log.info("Exiting normally");
   }
 
-  private void loadChatRoom(ConsumerRecords<String, AbstractMessageTo> records)
+  private void loadChatRoomData(ConsumerRecords<String, AbstractMessageTo> records)
   {
     for (ConsumerRecord<String, AbstractMessageTo> record : records)
     {
@@ -252,13 +211,6 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
 
       switch (record.value().getType())
       {
-        case COMMAND_CREATE_CHATROOM:
-          createChatRoom(
-              chatRoomId,
-              (CommandCreateChatRoomTo) record.value(),
-              record.partition());
-          break;
-
         case EVENT_CHATMESSAGE_RECEIVED:
           Instant instant = Instant.ofEpochSecond(record.timestamp());
           LocalDateTime timestamp = LocalDateTime.ofInstant(instant, zoneId);
@@ -282,42 +234,6 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
     }
   }
 
-  private void createChatRoom(
-      UUID chatRoomId,
-      CommandCreateChatRoomTo createChatRoomRequestTo,
-      Integer partition)
-  {
-    log.info(
-        "Loading ChatRoom {} for shard {} with buffer-size {}",
-        chatRoomId,
-        partition,
-        bufferSize);
-    KafkaChatMessageService service = new KafkaChatMessageService(this, chatRoomId);
-    ChatRoomData chatRoomData = new ChatRoomData(
-        clock,
-        service,
-        bufferSize);
-    putChatRoom(
-        chatRoomId,
-        createChatRoomRequestTo.getName(),
-        partition,
-        chatRoomData);
-  }
-
-
-  private void createChatRoom(ChatRoomInfo chatRoomInfo)
-  {
-    UUID id = chatRoomInfo.getId();
-    log.info("Creating ChatRoom {} with buffer-size {}", id, bufferSize);
-    KafkaChatMessageService service = new KafkaChatMessageService(this, id);
-    ChatRoomData chatRoomData = new ChatRoomData(clock, service, bufferSize);
-    putChatRoom(
-        chatRoomInfo.getId(),
-        chatRoomInfo.getName(),
-        chatRoomInfo.getShard(),
-        chatRoomData);
-  }
-
   private void loadChatMessage(
       UUID chatRoomId,
       LocalDateTime timestamp,
@@ -328,7 +244,14 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
     Message.MessageKey key = Message.MessageKey.of(chatMessageTo.getUser(), chatMessageTo.getId());
     Message message = new Message(key, offset, timestamp, chatMessageTo.getText());
 
-    ChatRoomData chatRoomData = this.chatRoomData[partition].get(chatRoomId);
+    ChatRoomData chatRoomData = this.chatRoomData[partition].computeIfAbsent(
+        chatRoomId,
+        (id) ->
+        {
+          log.info("Creating ChatRoom {} with buffer-size {}", id, bufferSize);
+          KafkaChatMessageService service = new KafkaChatMessageService(this, id);
+          return new ChatRoomData(clock, service, bufferSize);
+        });
     KafkaChatMessageService kafkaChatRoomService =
         (KafkaChatMessageService) chatRoomData.getChatRoomService();
 
@@ -353,33 +276,6 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
   }
 
 
-  private void putChatRoom(
-      UUID chatRoomId,
-      String name,
-      Integer partition,
-      ChatRoomData chatRoomData)
-  {
-    if (this.chatRoomInfo[partition].containsKey(chatRoomId))
-    {
-      log.warn(
-          "Ignoring existing chat-room for {}: {}",
-          partition,
-          chatRoomId);
-    }
-    else
-    {
-      log.info(
-          "Adding new chat-room to partition {}: {}",
-          partition,
-          chatRoomData);
-
-      this.chatRoomInfo[partition].put(
-          chatRoomId,
-          new ChatRoomInfo(chatRoomId, name, partition));
-      this.chatRoomData[partition].put(chatRoomId, chatRoomData);
-    }
-  }
-
   int[] getOwnedShards()
   {
     return IntStream
@@ -401,28 +297,5 @@ public class ChatRoomChannel implements Runnable, ConsumerRebalanceListener
     }
 
     return Mono.justOrEmpty(chatRoomData[shard].get(id));
-  }
-
-  Flux<ChatRoomInfo> getChatRoomInfo()
-  {
-    return Flux
-        .fromStream(IntStream.range(0, numShards).mapToObj(i -> Integer.valueOf(i)))
-        .filter(shard -> isShardOwned[shard])
-        .flatMap(shard -> Flux.fromIterable(chatRoomInfo[shard].values()));
-  }
-
-  Mono<ChatRoomInfo> getChatRoomInfo(int shard, UUID id)
-  {
-    if (loadInProgress)
-    {
-      return Mono.error(new LoadInProgressException());
-    }
-
-    if (!isShardOwned[shard])
-    {
-      return Mono.error(new ShardNotOwnedException(shard));
-    }
-
-    return Mono.justOrEmpty(chatRoomInfo[shard].get(id));
   }
 }

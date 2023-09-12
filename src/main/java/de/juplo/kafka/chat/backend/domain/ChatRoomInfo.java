@@ -19,4 +19,10 @@ public class ChatRoomInfo
   private final String name;
   @Getter
   private final Integer shard;
+
+
+  public ChatRoomInfo(UUID id, String name)
+  {
+    this(id, name, null);
+  }
 }

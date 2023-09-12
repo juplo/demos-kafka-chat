@@ -36,18 +36,7 @@ public class MongoDbStorageStrategy implements StorageStrategy
         .map(chatRoomTo ->
         {
           UUID chatRoomId = UUID.fromString(chatRoomTo.getId());
-          int shard = shardingStrategy.selectShard(chatRoomId);
-
-          log.info(
-              "{} - old shard: {}, new shard:  {}",
-              chatRoomId,
-              chatRoomTo.getShard(),
-              shard);
-
-          return new ChatRoomInfo(
-              chatRoomId,
-              chatRoomTo.getName(),
-              shard);
+          return new ChatRoomInfo(chatRoomId, chatRoomTo.getName());
         });
   }
 

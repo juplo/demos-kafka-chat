@@ -1,5 +1,6 @@
 package de.juplo.kafka.chat.backend.implementation.kafka;
 
+import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -17,12 +18,18 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class KafkaServicesApplicationRunner implements ApplicationRunner
 {
-  private final ConsumerTaskExecutor chatRoomChannelTaskExecutor;
+  private final ConsumerTaskRunner consumerTaskRunner;
 
 
   @Override
   public void run(ApplicationArguments args) throws Exception
   {
-    chatRoomChannelTaskExecutor.executeConsumerTask();
+    consumerTaskRunner.executeConsumerTasks();
+  }
+
+  @PreDestroy
+  public void joinConsumerTasks()
+  {
+    consumerTaskRunner.joinConsumerTasks();
   }
 }

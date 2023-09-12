@@ -36,7 +36,8 @@ public class ChatBackendProperties
   {
     private String clientIdPrefix = "DEV";
     private String bootstrapServers = ":9092";
-    private String chatRoomChannelTopic = "message_channel";
+    private String infoChannelTopic = "info_channel";
+    private String dataChannelTopic = "data_channel";
     private int numPartitions = 2;
   }
 

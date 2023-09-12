@@ -3,14 +3,15 @@ package de.juplo.kafka.chat.backend.implementation.kafka;
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.AbstractMessageTo;
-import de.juplo.kafka.chat.backend.implementation.kafka.messages.CommandCreateChatRoomTo;
-import de.juplo.kafka.chat.backend.implementation.kafka.messages.EventChatMessageReceivedTo;
+import de.juplo.kafka.chat.backend.implementation.kafka.messages.data.EventChatMessageReceivedTo;
+import de.juplo.kafka.chat.backend.implementation.kafka.messages.info.EventChatRoomCreated;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -36,54 +37,109 @@ import java.util.Properties;
 public class KafkaServicesConfiguration
 {
   @Bean
-  ConsumerTaskExecutor chatRoomChannelTaskExecutor(
-      ThreadPoolTaskExecutor taskExecutor,
-      ChatRoomChannel chatRoomChannel,
-      Consumer<String, AbstractMessageTo> chatRoomChannelConsumer,
-      ConsumerTaskExecutor.WorkAssignor workAssignor)
+  ConsumerTaskRunner consumerTaskRunner(
+      ConsumerTaskExecutor infoChannelConsumerTaskExecutor,
+      ConsumerTaskExecutor dataChannelConsumerTaskExecutor)
   {
-    return new ConsumerTaskExecutor(
-        taskExecutor,
-        chatRoomChannel,
-        chatRoomChannelConsumer,
-        workAssignor);
+    return new ConsumerTaskRunner(
+        infoChannelConsumerTaskExecutor,
+        dataChannelConsumerTaskExecutor);
   }
 
   @Bean
-  ConsumerTaskExecutor.WorkAssignor workAssignor(
+  ConsumerTaskExecutor infoChannelConsumerTaskExecutor(
+      ThreadPoolTaskExecutor taskExecutor,
+      InfoChannel infoChannel,
+      Consumer<String, AbstractMessageTo> infoChannelConsumer,
+      ConsumerTaskExecutor.WorkAssignor infoChannelWorkAssignor)
+  {
+    return new ConsumerTaskExecutor(
+        taskExecutor,
+        infoChannel,
+        infoChannelConsumer,
+        infoChannelWorkAssignor);
+  }
+
+  @Bean
+  ConsumerTaskExecutor.WorkAssignor infoChannelWorkAssignor(
+      ChatBackendProperties properties)
+  {
+    return consumer ->
+    {
+      String topic = properties.getKafka().getInfoChannelTopic();
+      List<TopicPartition> partitions = consumer
+          .partitionsFor(topic)
+          .stream()
+          .map(partitionInfo ->
+              new TopicPartition(topic, partitionInfo.partition()))
+          .toList();
+      consumer.assign(partitions);
+    };
+  }
+
+  @Bean
+  ConsumerTaskExecutor dataChannelConsumerTaskExecutor(
+      ThreadPoolTaskExecutor taskExecutor,
+      DataChannel dataChannel,
+      Consumer<String, AbstractMessageTo> dataChannelConsumer,
+      ConsumerTaskExecutor.WorkAssignor dataChannelWorkAssignor)
+  {
+    return new ConsumerTaskExecutor(
+        taskExecutor,
+        dataChannel,
+        dataChannelConsumer,
+        dataChannelWorkAssignor);
+  }
+
+  @Bean
+  ConsumerTaskExecutor.WorkAssignor dataChannelWorkAssignor(
       ChatBackendProperties properties,
-      ChatRoomChannel chatRoomChannel)
+      DataChannel dataChannel)
   {
     return consumer ->
     {
       List<String> topics =
-          List.of(properties.getKafka().getChatRoomChannelTopic());
-      consumer.subscribe(topics, chatRoomChannel);
+          List.of(properties.getKafka().getDataChannelTopic());
+      consumer.subscribe(topics, dataChannel);
     };
   }
 
   @Bean
     ChatHomeService kafkaChatHome(
       ChatBackendProperties properties,
-      ChatRoomChannel chatRoomChannel)
+      InfoChannel infoChannel,
+      DataChannel dataChannel)
   {
     return new KafkaChatHomeService(
         properties.getKafka().getNumPartitions(),
-        chatRoomChannel);
+        infoChannel,
+        dataChannel);
   }
 
   @Bean
-  ChatRoomChannel chatRoomChannel(
+  InfoChannel infoChannel(
       ChatBackendProperties properties,
-      Producer<String, AbstractMessageTo> chatRoomChannelProducer,
-      Consumer<String, AbstractMessageTo> chatRoomChannelConsumer,
+      Producer<String, AbstractMessageTo> producer,
+      Consumer<String, AbstractMessageTo> infoChannelConsumer)
+  {
+    return new InfoChannel(
+        properties.getKafka().getInfoChannelTopic(),
+        producer,
+        infoChannelConsumer);
+  }
+
+  @Bean
+  DataChannel dataChannel(
+      ChatBackendProperties properties,
+      Producer<String, AbstractMessageTo> producer,
+      Consumer<String, AbstractMessageTo> dataChannelConsumer,
       ZoneId zoneId,
       Clock clock)
   {
-    return new ChatRoomChannel(
-        properties.getKafka().getChatRoomChannelTopic(),
-        chatRoomChannelProducer,
-        chatRoomChannelConsumer,
+    return new DataChannel(
+        properties.getKafka().getDataChannelTopic(),
+        producer,
+        dataChannelConsumer,
         zoneId,
         properties.getKafka().getNumPartitions(),
         properties.getChatroomBufferSize(),
@@ -91,7 +147,7 @@ public class KafkaServicesConfiguration
   }
 
   @Bean
-  Producer<String, AbstractMessageTo>  chatRoomChannelProducer(
+  Producer<String, AbstractMessageTo>  producer(
       Properties defaultProducerProperties,
       ChatBackendProperties chatBackendProperties,
       StringSerializer stringSerializer,
@@ -101,7 +157,7 @@ public class KafkaServicesConfiguration
     defaultProducerProperties.forEach((key, value) -> properties.put(key.toString(), value));
     properties.put(
         ProducerConfig.CLIENT_ID_CONFIG,
-        chatBackendProperties.getKafka().getClientIdPrefix() + "_CHATROOM_CHANNEL_PRODUCER");
+        chatBackendProperties.getKafka().getClientIdPrefix() + "_PRODUCER");
     return new KafkaProducer<>(
         properties,
         stringSerializer,
@@ -126,7 +182,7 @@ public class KafkaServicesConfiguration
   }
 
   @Bean
-  Consumer<String, AbstractMessageTo>  chatRoomChannelConsumer(
+  Consumer<String, AbstractMessageTo>  infoChannelConsumer(
       Properties defaultConsumerProperties,
       ChatBackendProperties chatBackendProperties,
       StringDeserializer stringDeserializer,
@@ -136,10 +192,31 @@ public class KafkaServicesConfiguration
     defaultConsumerProperties.forEach((key, value) -> properties.put(key.toString(), value));
     properties.put(
         ConsumerConfig.CLIENT_ID_CONFIG,
-        chatBackendProperties.getKafka().getClientIdPrefix() + "_CHATROOM_CHANNEL_CONSUMER");
+        chatBackendProperties.getKafka().getClientIdPrefix() + "_INFO_CHANNEL_CONSUMER");
     properties.put(
         ConsumerConfig.GROUP_ID_CONFIG,
-        "chatroom_channel");
+        "info_channel");
+    return new KafkaConsumer<>(
+        properties,
+        stringDeserializer,
+        messageDeserializer);
+  }
+
+  @Bean
+  Consumer<String, AbstractMessageTo>  dataChannelConsumer(
+      Properties defaultConsumerProperties,
+      ChatBackendProperties chatBackendProperties,
+      StringDeserializer stringDeserializer,
+      JsonDeserializer<AbstractMessageTo> messageDeserializer)
+  {
+    Map<String, Object> properties = new HashMap<>();
+    defaultConsumerProperties.forEach((key, value) -> properties.put(key.toString(), value));
+    properties.put(
+        ConsumerConfig.CLIENT_ID_CONFIG,
+        chatBackendProperties.getKafka().getClientIdPrefix() + "_DATA_CHANNEL_CONSUMER");
+    properties.put(
+        ConsumerConfig.GROUP_ID_CONFIG,
+        "data_channel");
     return new KafkaConsumer<>(
         properties,
         stringDeserializer,
@@ -168,7 +245,7 @@ public class KafkaServicesConfiguration
   String typeMappings ()
   {
     return
-        "command_create_chatroom:" +  CommandCreateChatRoomTo.class.getCanonicalName() + "," +
+        "event_chatroom_created:" +  EventChatRoomCreated.class.getCanonicalName() + "," +
         "event_chatmessage_received:" + EventChatMessageReceivedTo.class.getCanonicalName();
   }
 

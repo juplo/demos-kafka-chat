@@ -23,7 +23,8 @@ import java.time.Clock;
 import java.util.List;
 
 import static de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest.NUM_SHARDS;
-import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServiceTest.TOPIC;
+import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServiceTest.DATA_TOPIC;
+import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServiceTest.INFO_TOPIC;
 
 
 @SpringBootTest(
@@ -38,14 +39,18 @@ import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServ
     "chat.backend.kafka.client-id-PREFIX=TEST",
     "chat.backend.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
     "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
-    "chat.backend.kafka.chatroom-channel-topic=" + TOPIC,
+    "chat.backend.kafka.info-channel-topic=" + INFO_TOPIC,
+    "chat.backend.kafka.data-channel-topic=" + DATA_TOPIC,
     "chat.backend.kafka.num-partitions=" + NUM_SHARDS,
 })
-@EmbeddedKafka(topics = { TOPIC }, partitions = 10)
+@EmbeddedKafka(
+    topics = { INFO_TOPIC, DATA_TOPIC },
+    partitions = 10)
 @Slf4j
 public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
 {
-  final static String TOPIC = "KAFKA_CHAT_HOME_TEST";
+  final static String INFO_TOPIC = "KAFKA_CHAT_HOME_TEST_INFO";
+  final static String DATA_TOPIC = "KAFKA_CHAT_HOME_TEST_DATA";
 
 
   @TestConfiguration
@@ -54,15 +59,15 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
   static class KafkaChatHomeTestConfiguration
   {
     @Bean
-    ConsumerTaskExecutor.WorkAssignor workAssignor(
-        ChatRoomChannel chatRoomChannel)
+    ConsumerTaskExecutor.WorkAssignor dataChannelWorkAssignor(
+        DataChannel dataChannel)
     {
       return consumer ->
       {
         List<TopicPartition> assignedPartitions =
-            List.of(new TopicPartition(TOPIC, 2));
+            List.of(new TopicPartition(DATA_TOPIC, 2));
         consumer.assign(assignedPartitions);
-        chatRoomChannel.onPartitionsAssigned(assignedPartitions);
+        dataChannel.onPartitionsAssigned(assignedPartitions);
       };
     }
 
@@ -76,21 +81,26 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
 
   @BeforeAll
   public static void sendAndLoadStoredData(
-      @Autowired ConsumerTaskExecutor consumerTaskExecutor,
-      @Autowired KafkaTemplate<String, String> messageTemplate)
+      @Autowired ConsumerTaskRunner consumerTaskRunner,
+      @Autowired KafkaTemplate<String, String> messageTemplate) throws InterruptedException
   {
-    send(messageTemplate, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\": \"5c73531c-6fc4-426c-adcb-afc5c140a0f7\", \"shard\": 2, \"name\": \"FOO\" }", "command_create_chatroom");
-    send(messageTemplate,"5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"peter\", \"text\" : \"Hallo, ich heiße Peter!\" }", "event_chatmessage_received");
-    send(messageTemplate,"5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"ute\", \"text\" : \"Ich bin Ute...\" }", "event_chatmessage_received");
-    send(messageTemplate,"5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 2, \"user\" : \"peter\", \"text\" : \"Willst du mit mir gehen?\" }", "event_chatmessage_received");
-    send(messageTemplate,"5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"klaus\", \"text\" : \"Ja? Nein? Vielleicht??\" }", "event_chatmessage_received");
+    send(messageTemplate, INFO_TOPIC, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\": \"5c73531c-6fc4-426c-adcb-afc5c140a0f7\", \"shard\": 2, \"name\": \"FOO\" }", "event_chatroom_created");
+    send(messageTemplate, DATA_TOPIC, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"peter\", \"text\" : \"Hallo, ich heiße Peter!\" }", "event_chatmessage_received");
+    send(messageTemplate, DATA_TOPIC, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"ute\", \"text\" : \"Ich bin Ute...\" }", "event_chatmessage_received");
+    send(messageTemplate, DATA_TOPIC, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 2, \"user\" : \"peter\", \"text\" : \"Willst du mit mir gehen?\" }", "event_chatmessage_received");
+    send(messageTemplate, DATA_TOPIC, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"klaus\", \"text\" : \"Ja? Nein? Vielleicht??\" }", "event_chatmessage_received");
 
-    consumerTaskExecutor.executeConsumerTask();
+    consumerTaskRunner.executeConsumerTasks();
   }
 
-  static void send(KafkaTemplate<String, String> kafkaTemplate, String key, String value, String typeId)
+  static void send(
+      KafkaTemplate<String, String> kafkaTemplate,
+      String topic,
+      String key,
+      String value,
+      String typeId)
   {
-    ProducerRecord<String, String> record = new ProducerRecord<>(TOPIC, key, value);
+    ProducerRecord<String, String> record = new ProducerRecord<>(topic, key, value);
     record.headers().add("__TypeId__", typeId.getBytes());
     SendResult<String, String> result = kafkaTemplate.send(record).join();
     log.info(
@@ -101,8 +111,8 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
   }
 
   @AfterAll
-  static void joinConsumerJob(@Autowired ConsumerTaskExecutor consumerTaskExecutor)
+  static void joinConsumerTasks(@Autowired ConsumerTaskRunner consumerTaskRunner)
   {
-    consumerTaskExecutor.joinConsumerTaskJob();
+    consumerTaskRunner.joinConsumerTasks();
   }
 }

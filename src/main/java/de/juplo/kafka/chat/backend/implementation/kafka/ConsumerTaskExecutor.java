@@ -46,7 +46,7 @@ public class ConsumerTaskExecutor
   }
 
 
-  interface WorkAssignor
+  public interface WorkAssignor
   {
     void assignWork(Consumer<?, ?> consumer);
   }

@@ -15,7 +15,7 @@ import java.util.UUID;
 @Slf4j
 public class KafkaChatMessageService implements ChatMessageService
 {
-  private final ChatRoomChannel chatRoomChannel;
+  private final DataChannel dataChannel;
   private final UUID chatRoomId;
 
   private final LinkedHashMap<Message.MessageKey, Message> messages = new LinkedHashMap<>();
@@ -27,7 +27,7 @@ public class KafkaChatMessageService implements ChatMessageService
     LocalDateTime timestamp,
     String text)
   {
-    return chatRoomChannel
+    return dataChannel
         .sendChatMessage(chatRoomId, key, timestamp, text)
         .doOnSuccess(message -> persistMessage(message));
   }
