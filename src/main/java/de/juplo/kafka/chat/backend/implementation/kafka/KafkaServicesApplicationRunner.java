@@ -3,13 +3,13 @@ package de.juplo.kafka.chat.backend.implementation.kafka;
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.AbstractMessageTo;
 import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
 
@@ -22,21 +22,14 @@ import java.util.concurrent.CompletableFuture;
     name = "services",
     havingValue = "kafka")
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class KafkaServicesApplicationRunner implements ApplicationRunner
 {
-  @Autowired
-  ChatBackendProperties properties;
-
-  @Autowired
-  ThreadPoolTaskExecutor taskExecutor;
-  @Autowired
-  ConfigurableApplicationContext context;
-
-  @Autowired
-  ChatRoomChannel chatRoomChannel;
-  @Autowired
-  Consumer<String, AbstractMessageTo> chatRoomChannelConsumer;
+  private final ChatBackendProperties properties;
+  private final ThreadPoolTaskExecutor taskExecutor;
+  private final ChatRoomChannel chatRoomChannel;
+  private final Consumer<String, AbstractMessageTo> chatRoomChannelConsumer;
 
   CompletableFuture<Void> chatRoomChannelConsumerJob;
 
