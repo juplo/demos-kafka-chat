@@ -36,13 +36,13 @@ import java.util.Properties;
 public class KafkaServicesConfiguration
 {
   @Bean
-  KafkaServicesApplicationRunner kafkaServicesApplicationRunner(
+  ConsumerTaskExecutor chatRoomChannelTaskExecutor(
       ThreadPoolTaskExecutor taskExecutor,
       ChatRoomChannel chatRoomChannel,
       Consumer<String, AbstractMessageTo> chatRoomChannelConsumer,
-      KafkaServicesApplicationRunner.WorkAssignor workAssignor)
+      ConsumerTaskExecutor.WorkAssignor workAssignor)
   {
-    return new KafkaServicesApplicationRunner(
+    return new ConsumerTaskExecutor(
         taskExecutor,
         chatRoomChannel,
         chatRoomChannelConsumer,
@@ -50,7 +50,7 @@ public class KafkaServicesConfiguration
   }
 
   @Bean
-  KafkaServicesApplicationRunner.WorkAssignor workAssignor(
+  ConsumerTaskExecutor.WorkAssignor workAssignor(
       ChatBackendProperties properties,
       ChatRoomChannel chatRoomChannel)
   {

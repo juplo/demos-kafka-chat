@@ -8,7 +8,6 @@ import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -55,7 +54,7 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
   static class KafkaChatHomeTestConfiguration
   {
     @Bean
-    KafkaServicesApplicationRunner.WorkAssignor workAssignor(
+    ConsumerTaskExecutor.WorkAssignor workAssignor(
         ChatRoomChannel chatRoomChannel)
     {
       return consumer ->
@@ -76,13 +75,17 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
 
 
   @BeforeAll
-  public static void sendAndLoadStoredData(@Autowired KafkaTemplate<String, String> messageTemplate)
+  public static void sendAndLoadStoredData(
+      @Autowired ConsumerTaskExecutor consumerTaskExecutor,
+      @Autowired KafkaTemplate<String, String> messageTemplate)
   {
     send(messageTemplate, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\": \"5c73531c-6fc4-426c-adcb-afc5c140a0f7\", \"shard\": 2, \"name\": \"FOO\" }", "command_create_chatroom");
     send(messageTemplate,"5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"peter\", \"text\" : \"Hallo, ich heiße Peter!\" }", "event_chatmessage_received");
     send(messageTemplate,"5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"ute\", \"text\" : \"Ich bin Ute...\" }", "event_chatmessage_received");
     send(messageTemplate,"5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 2, \"user\" : \"peter\", \"text\" : \"Willst du mit mir gehen?\" }", "event_chatmessage_received");
     send(messageTemplate,"5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"klaus\", \"text\" : \"Ja? Nein? Vielleicht??\" }", "event_chatmessage_received");
+
+    consumerTaskExecutor.executeConsumerTask();
   }
 
   static void send(KafkaTemplate<String, String> kafkaTemplate, String key, String value, String typeId)
@@ -98,8 +101,8 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
   }
 
   @AfterAll
-  static void joinConsumerJob(@Autowired KafkaServicesApplicationRunner applicationRunner)
+  static void joinConsumerJob(@Autowired ConsumerTaskExecutor consumerTaskExecutor)
   {
-    applicationRunner.joinChatRoomChannelConsumerJob();
+    consumerTaskExecutor.joinConsumerTaskJob();
   }
 }
