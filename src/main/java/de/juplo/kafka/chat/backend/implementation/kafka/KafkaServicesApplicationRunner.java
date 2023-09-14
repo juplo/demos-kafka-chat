@@ -1,17 +1,14 @@
 package de.juplo.kafka.chat.backend.implementation.kafka;
 
-import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.AbstractMessageTo;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -21,15 +18,14 @@ import java.util.concurrent.CompletableFuture;
     prefix = "chat.backend",
     name = "services",
     havingValue = "kafka")
-@Component
 @RequiredArgsConstructor
 @Slf4j
 public class KafkaServicesApplicationRunner implements ApplicationRunner
 {
-  private final ChatBackendProperties properties;
   private final ThreadPoolTaskExecutor taskExecutor;
   private final ChatRoomChannel chatRoomChannel;
   private final Consumer<String, AbstractMessageTo> chatRoomChannelConsumer;
+  private final WorkAssignor workAssignor;
 
   CompletableFuture<Void> chatRoomChannelConsumerJob;
 
@@ -37,8 +33,7 @@ public class KafkaServicesApplicationRunner implements ApplicationRunner
   @Override
   public void run(ApplicationArguments args) throws Exception
   {
-    List<String> topics = List.of(properties.getKafka().getChatRoomChannelTopic());
-    chatRoomChannelConsumer.subscribe(topics, chatRoomChannel);
+    workAssignor.assignWork(chatRoomChannelConsumer);
     log.info("Starting the consumer for the ChatRoomChannel");
     chatRoomChannelConsumerJob = taskExecutor
         .submitCompletable(chatRoomChannel)
@@ -57,5 +52,11 @@ public class KafkaServicesApplicationRunner implements ApplicationRunner
     log.info("Waiting for the consumer of the ChatRoomChannel to finish its work");
     chatRoomChannelConsumerJob.join();
     log.info("Joined the consumer of the ChatRoomChannel");
+  }
+
+
+  interface WorkAssignor
+  {
+    void assignWork(Consumer<?, ?> consumer);
   }
 }

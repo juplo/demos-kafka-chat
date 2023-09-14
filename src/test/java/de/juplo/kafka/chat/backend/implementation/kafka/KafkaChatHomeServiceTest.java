@@ -3,26 +3,25 @@ package de.juplo.kafka.chat.backend.implementation.kafka;
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.kafka.test.context.EmbeddedKafka;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.time.Clock;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import static de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest.NUM_SHARDS;
 import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServiceTest.TOPIC;
@@ -31,11 +30,11 @@ import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServ
 @SpringBootTest(
     classes = {
         KafkaChatHomeServiceTest.KafkaChatHomeTestConfiguration.class,
-        KafkaServicesConfiguration.class,
         KafkaAutoConfiguration.class,
         TaskExecutionAutoConfiguration.class,
     },
     properties = {
+    "spring.main.allow-bean-definition-overriding=true",
     "chat.backend.services=kafka",
     "chat.backend.kafka.client-id-PREFIX=TEST",
     "chat.backend.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
@@ -49,13 +48,25 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
 {
   final static String TOPIC = "KAFKA_CHAT_HOME_TEST";
 
-  static CompletableFuture<Void> CONSUMER_JOB;
-
 
   @TestConfiguration
   @EnableConfigurationProperties(ChatBackendProperties.class)
+  @Import(KafkaServicesConfiguration.class)
   static class KafkaChatHomeTestConfiguration
   {
+    @Bean
+    KafkaServicesApplicationRunner.WorkAssignor workAssignor(
+        ChatRoomChannel chatRoomChannel)
+    {
+      return consumer ->
+      {
+        List<TopicPartition> assignedPartitions =
+            List.of(new TopicPartition(TOPIC, 2));
+        consumer.assign(assignedPartitions);
+        chatRoomChannel.onPartitionsAssigned(assignedPartitions);
+      };
+    }
+
     @Bean
     Clock clock()
     {
@@ -65,28 +76,13 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
 
 
   @BeforeAll
-  public static void sendAndLoadStoredData(
-      @Autowired KafkaTemplate<String, String> messageTemplate,
-      @Autowired Consumer chatRoomChannelConsumer,
-      @Autowired ThreadPoolTaskExecutor taskExecutor,
-      @Autowired ChatRoomChannel chatRoomChannel)
+  public static void sendAndLoadStoredData(@Autowired KafkaTemplate<String, String> messageTemplate)
   {
     send(messageTemplate, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\": \"5c73531c-6fc4-426c-adcb-afc5c140a0f7\", \"shard\": 2, \"name\": \"FOO\" }", "command_create_chatroom");
     send(messageTemplate,"5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"peter\", \"text\" : \"Hallo, ich heiße Peter!\" }", "event_chatmessage_received");
     send(messageTemplate,"5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"ute\", \"text\" : \"Ich bin Ute...\" }", "event_chatmessage_received");
     send(messageTemplate,"5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 2, \"user\" : \"peter\", \"text\" : \"Willst du mit mir gehen?\" }", "event_chatmessage_received");
     send(messageTemplate,"5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"klaus\", \"text\" : \"Ja? Nein? Vielleicht??\" }", "event_chatmessage_received");
-
-    List<TopicPartition> assignedPartitions = List.of(new TopicPartition(TOPIC, 2));
-    chatRoomChannelConsumer.assign(assignedPartitions);
-    chatRoomChannel.onPartitionsAssigned(assignedPartitions);
-    CONSUMER_JOB = taskExecutor
-        .submitCompletable(chatRoomChannel)
-        .exceptionally(e ->
-        {
-          log.error("The consumer for the ChatRoomChannel exited abnormally!", e);
-          return null;
-        });
   }
 
   static void send(KafkaTemplate<String, String> kafkaTemplate, String key, String value, String typeId)
@@ -102,12 +98,8 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
   }
 
   @AfterAll
-  static void joinConsumerJob(@Autowired Consumer chatRoomChannelConsumer)
+  static void joinConsumerJob(@Autowired KafkaServicesApplicationRunner applicationRunner)
   {
-    log.info("Signaling the consumer of the CahtRoomChannel to quit its work");
-    chatRoomChannelConsumer.wakeup();
-    log.info("Waiting for the consumer of the ChatRoomChannel to finish its work");
-    CONSUMER_JOB.join();
-    log.info("Joined the consumer of the ChatRoomChannel");
+    applicationRunner.joinChatRoomChannelConsumerJob();
   }
 }
