@@ -133,7 +133,8 @@ public class KafkaServicesConfiguration
       Producer<String, AbstractMessageTo> producer,
       Consumer<String, AbstractMessageTo> dataChannelConsumer,
       ZoneId zoneId,
-      Clock clock)
+      Clock clock,
+      InfoChannel infoChannel)
   {
     return new DataChannel(
         properties.getKafka().getDataChannelTopic(),
@@ -142,7 +143,8 @@ public class KafkaServicesConfiguration
         zoneId,
         properties.getKafka().getNumPartitions(),
         properties.getChatroomBufferSize(),
-        clock);
+        clock,
+        infoChannel);
   }
 
   @Bean

@@ -84,7 +84,7 @@ public class InfoChannel implements Runnable
         if (metadata != null)
         {
           log.info("Successfully sent chreate-request for chat room: {}", to);
-          ChatRoomInfo chatRoomInfo = new ChatRoomInfo(chatRoomId, name, record.partition());
+          ChatRoomInfo chatRoomInfo = new ChatRoomInfo(chatRoomId, name, shard);
           sink.success(chatRoomInfo);
         }
         else
