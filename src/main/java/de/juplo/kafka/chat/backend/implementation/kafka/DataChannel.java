@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.*;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 
@@ -244,14 +245,9 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
     Message.MessageKey key = Message.MessageKey.of(chatMessageTo.getUser(), chatMessageTo.getId());
     Message message = new Message(key, offset, timestamp, chatMessageTo.getText());
 
-    ChatRoomData chatRoomData = this.chatRoomData[partition].computeIfAbsent(
-        chatRoomId,
-        (id) ->
-        {
-          log.info("Creating ChatRoom {} with buffer-size {}", id, bufferSize);
-          KafkaChatMessageService service = new KafkaChatMessageService(this, id);
-          return new ChatRoomData(clock, service, bufferSize);
-        });
+    ChatRoomData chatRoomData = this
+        .chatRoomData[partition]
+        .computeIfAbsent(chatRoomId, this::computeChatRoomData);
     KafkaChatMessageService kafkaChatRoomService =
         (KafkaChatMessageService) chatRoomData.getChatRoomService();
 
@@ -298,13 +294,14 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
 
     return infoChannel
         .getChatRoomInfo(id)
-        .map(chatRoomInfo -> chatRoomData[shard].computeIfAbsent(
-            id,
-            (chatRoomId) ->
-            {
-              log.info("Creating ChatRoom {} with buffer-size {}", chatRoomId, bufferSize);
-              KafkaChatMessageService service = new KafkaChatMessageService(this, chatRoomId);
-              return new ChatRoomData(clock, service, bufferSize);
-            }));
+        .map(chatRoomInfo ->
+            chatRoomData[shard].computeIfAbsent(id, this::computeChatRoomData));
+  }
+
+  private ChatRoomData computeChatRoomData(UUID chatRoomId)
+  {
+    log.info("Creating ChatRoom {} with buffer-size {}", chatRoomId, bufferSize);
+    KafkaChatMessageService service = new KafkaChatMessageService(this, chatRoomId);
+    return new ChatRoomData(clock, service, bufferSize);
   }
 }
