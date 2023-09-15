@@ -1,98 +1,66 @@
 package de.juplo.kafka.chat.backend.implementation.kafka;
 
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
-import de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
-import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.kafka.test.context.EmbeddedKafka;
 
 import java.time.Clock;
 import java.util.List;
 
-import static de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest.NUM_SHARDS;
-import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServiceTest.DATA_TOPIC;
-import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServiceTest.INFO_TOPIC;
 
-
-@SpringBootTest(
-    classes = {
-        KafkaChatHomeServiceTest.KafkaChatHomeTestConfiguration.class,
-        KafkaAutoConfiguration.class,
-        TaskExecutionAutoConfiguration.class,
-    },
-    properties = {
-    "spring.main.allow-bean-definition-overriding=true",
-    "chat.backend.services=kafka",
-    "chat.backend.kafka.client-id-PREFIX=TEST",
-    "chat.backend.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
-    "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
-    "chat.backend.kafka.info-channel-topic=" + INFO_TOPIC,
-    "chat.backend.kafka.data-channel-topic=" + DATA_TOPIC,
-    "chat.backend.kafka.num-partitions=" + NUM_SHARDS,
-})
-@EmbeddedKafka(
-    topics = { INFO_TOPIC, DATA_TOPIC },
-    partitions = 10)
 @Slf4j
-public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
+public class KafkaTestUtils
 {
-  final static String INFO_TOPIC = "KAFKA_CHAT_HOME_TEST_INFO";
-  final static String DATA_TOPIC = "KAFKA_CHAT_HOME_TEST_DATA";
-
-
   @TestConfiguration
   @EnableConfigurationProperties(ChatBackendProperties.class)
   @Import(KafkaServicesConfiguration.class)
-  static class KafkaChatHomeTestConfiguration
+  public static class KafkaTestConfiguration
   {
     @Bean
-    WorkAssignor dataChannelWorkAssignor(DataChannel dataChannel)
+    public WorkAssignor dataChannelWorkAssignor(
+        ChatBackendProperties properties,
+        DataChannel dataChannel)
     {
       return consumer ->
       {
         List<TopicPartition> assignedPartitions =
-            List.of(new TopicPartition(DATA_TOPIC, 2));
+            List.of(new TopicPartition(properties.getKafka().getDataChannelTopic(), 2));
         consumer.assign(assignedPartitions);
         dataChannel.onPartitionsAssigned(assignedPartitions);
       };
     }
 
     @Bean
-    Clock clock()
+    public Clock clock()
     {
       return Clock.systemDefaultZone();
     }
   }
 
 
-  @BeforeAll
   public static void sendAndLoadStoredData(
-      @Autowired ConsumerTaskRunner consumerTaskRunner,
-      @Autowired KafkaTemplate<String, String> messageTemplate) throws InterruptedException
+      KafkaTemplate<String, String> messageTemplate,
+      String infoTopic,
+      String dataTopic,
+      ConsumerTaskRunner consumerTaskRunner)
   {
-    send(messageTemplate, INFO_TOPIC, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\": \"5c73531c-6fc4-426c-adcb-afc5c140a0f7\", \"shard\": 2, \"name\": \"FOO\" }", "event_chatroom_created");
-    send(messageTemplate, DATA_TOPIC, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"peter\", \"text\" : \"Hallo, ich heiße Peter!\" }", "event_chatmessage_received");
-    send(messageTemplate, DATA_TOPIC, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"ute\", \"text\" : \"Ich bin Ute...\" }", "event_chatmessage_received");
-    send(messageTemplate, DATA_TOPIC, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 2, \"user\" : \"peter\", \"text\" : \"Willst du mit mir gehen?\" }", "event_chatmessage_received");
-    send(messageTemplate, DATA_TOPIC, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"klaus\", \"text\" : \"Ja? Nein? Vielleicht??\" }", "event_chatmessage_received");
+    send(messageTemplate, infoTopic, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\": \"5c73531c-6fc4-426c-adcb-afc5c140a0f7\", \"shard\": 2, \"name\": \"FOO\" }", "event_chatroom_created");
+    send(messageTemplate, dataTopic, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"peter\", \"text\" : \"Hallo, ich heiße Peter!\" }", "event_chatmessage_received");
+    send(messageTemplate, dataTopic, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"ute\", \"text\" : \"Ich bin Ute...\" }", "event_chatmessage_received");
+    send(messageTemplate, dataTopic, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 2, \"user\" : \"peter\", \"text\" : \"Willst du mit mir gehen?\" }", "event_chatmessage_received");
+    send(messageTemplate, dataTopic, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"klaus\", \"text\" : \"Ja? Nein? Vielleicht??\" }", "event_chatmessage_received");
 
     consumerTaskRunner.executeConsumerTasks();
   }
 
-  static void send(
+  private static void send(
       KafkaTemplate<String, String> kafkaTemplate,
       String topic,
       String key,
@@ -109,8 +77,7 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
         new TopicPartition(result.getRecordMetadata().topic(), result.getRecordMetadata().partition()));
   }
 
-  @AfterAll
-  static void joinConsumerTasks(@Autowired ConsumerTaskRunner consumerTaskRunner)
+  public static void joinConsumerTasks(ConsumerTaskRunner consumerTaskRunner)
   {
     consumerTaskRunner.joinConsumerTasks();
   }
