@@ -1,5 +1,6 @@
 package de.juplo.kafka.chat.backend;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,18 +16,18 @@ import static org.hamcrest.Matchers.endsWith;
 
 public abstract class AbstractConfigurationIT
 {
+  final static String EXISTING_CHATROOM = "5c73531c-6fc4-426c-adcb-afc5c140a0f7";
+
+
   @LocalServerPort
   int port;
   @Autowired
   WebTestClient webTestClient;
 
 
-  @Test
-  @DisplayName("The app starts, the data is restored and accessible")
-  void testAppStartsDataIsRestoredAndAccessible()
+  @BeforeEach
+  void waitForApp()
   {
-    String chatRoomId = "5c73531c-6fc4-426c-adcb-afc5c140a0f7";
-
     Awaitility
         .await()
         .atMost(Duration.ofSeconds(15))
@@ -40,6 +41,18 @@ public abstract class AbstractConfigurationIT
               .exchange()
               .expectStatus().isOk()
               .expectBody().jsonPath("$.status").isEqualTo("UP");
+        });
+  }
+
+  @Test
+  @DisplayName("Restored chat-rooms can be listed")
+  void testRestoredChatRoomsCanBeListed()
+  {
+    Awaitility
+        .await()
+        .atMost(Duration.ofSeconds(15))
+        .untilAsserted(() ->
+        {
           webTestClient
               .get()
               .uri(
@@ -51,32 +64,68 @@ public abstract class AbstractConfigurationIT
               .expectBody()
                 .jsonPath("$.length()").isEqualTo(1)
                 .jsonPath("$[0].name").isEqualTo("FOO");
+        });
+  }
+
+  @Test
+  @DisplayName("Details as expected for restored chat-room")
+  void testRestoredChatRoomHasExpectedDetails()
+  {
+    Awaitility
+        .await()
+        .atMost(Duration.ofSeconds(15))
+        .untilAsserted(() ->
+        {
           webTestClient
               .get()
               .uri(
                   "http://localhost:{port}/{chatRoomId}",
                   port,
-                  chatRoomId)
+                  EXISTING_CHATROOM)
               .accept(MediaType.APPLICATION_JSON)
               .exchange()
               .expectStatus().isOk()
               .expectBody().jsonPath("$.name").isEqualTo("FOO");
+        });
+  }
+
+  @Test
+  @DisplayName("Restored message from Ute has expected Text")
+  void testRestoredMessageForUteHasExpectedText()
+  {
+    Awaitility
+        .await()
+        .atMost(Duration.ofSeconds(15))
+        .untilAsserted(() ->
+        {
           webTestClient
               .get()
               .uri(
                   "http://localhost:{port}/{chatRoomId}/ute/1",
                   port,
-                  chatRoomId)
+                  EXISTING_CHATROOM)
               .accept(MediaType.APPLICATION_JSON)
               .exchange()
               .expectStatus().isOk()
               .expectBody().jsonPath("$.text").isEqualTo("Ich bin Ute...");
+        });
+  }
+
+  @Test
+  @DisplayName("Restored message from Peter has expected Text")
+  void testRestoredMessageForPeterHasExpectedText()
+  {
+    Awaitility
+        .await()
+        .atMost(Duration.ofSeconds(15))
+        .untilAsserted(() ->
+        {
           webTestClient
               .get()
               .uri(
                   "http://localhost:{port}/{chatRoomId}/peter/1",
                   port,
-                  chatRoomId)
+                  EXISTING_CHATROOM)
               .accept(MediaType.APPLICATION_JSON)
               .exchange()
               .expectStatus().isOk()
