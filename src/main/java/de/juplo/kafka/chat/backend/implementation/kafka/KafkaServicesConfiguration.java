@@ -51,7 +51,7 @@ public class KafkaServicesConfiguration
       ThreadPoolTaskExecutor taskExecutor,
       InfoChannel infoChannel,
       Consumer<String, AbstractMessageTo> infoChannelConsumer,
-      ConsumerTaskExecutor.WorkAssignor infoChannelWorkAssignor)
+      WorkAssignor infoChannelWorkAssignor)
   {
     return new ConsumerTaskExecutor(
         taskExecutor,
@@ -61,8 +61,7 @@ public class KafkaServicesConfiguration
   }
 
   @Bean
-  ConsumerTaskExecutor.WorkAssignor infoChannelWorkAssignor(
-      ChatBackendProperties properties)
+  WorkAssignor infoChannelWorkAssignor(ChatBackendProperties properties)
   {
     return consumer ->
     {
@@ -82,7 +81,7 @@ public class KafkaServicesConfiguration
       ThreadPoolTaskExecutor taskExecutor,
       DataChannel dataChannel,
       Consumer<String, AbstractMessageTo> dataChannelConsumer,
-      ConsumerTaskExecutor.WorkAssignor dataChannelWorkAssignor)
+      WorkAssignor dataChannelWorkAssignor)
   {
     return new ConsumerTaskExecutor(
         taskExecutor,
@@ -92,7 +91,7 @@ public class KafkaServicesConfiguration
   }
 
   @Bean
-  ConsumerTaskExecutor.WorkAssignor dataChannelWorkAssignor(
+  WorkAssignor dataChannelWorkAssignor(
       ChatBackendProperties properties,
       DataChannel dataChannel)
   {

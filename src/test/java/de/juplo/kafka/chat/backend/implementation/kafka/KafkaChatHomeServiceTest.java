@@ -59,8 +59,7 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
   static class KafkaChatHomeTestConfiguration
   {
     @Bean
-    ConsumerTaskExecutor.WorkAssignor dataChannelWorkAssignor(
-        DataChannel dataChannel)
+    WorkAssignor dataChannelWorkAssignor(DataChannel dataChannel)
     {
       return consumer ->
       {

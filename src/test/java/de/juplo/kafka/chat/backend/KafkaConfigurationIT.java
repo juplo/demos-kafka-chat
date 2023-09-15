@@ -90,7 +90,7 @@ class KafkaConfigurationIT extends AbstractConfigurationWithShardingIT
   static class KafkaConfigurationITConfiguration
   {
     @Bean
-    ConsumerTaskExecutor.WorkAssignor dataChannelWorkAssignor(
+    WorkAssignor dataChannelWorkAssignor(
         DataChannel dataChannel)
     {
       return consumer ->

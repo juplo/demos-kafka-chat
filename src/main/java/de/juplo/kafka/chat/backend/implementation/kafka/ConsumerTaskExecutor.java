@@ -44,10 +44,4 @@ public class ConsumerTaskExecutor
     consumerTaskJob.join();
     log.info("Joined the consumer-task for {}", consumerTask);
   }
-
-
-  public interface WorkAssignor
-  {
-    void assignWork(Consumer<?, ?> consumer);
-  }
 }
