@@ -15,4 +15,6 @@ public interface ChatHomeService
   Flux<ChatRoomInfo> getChatRoomInfo();
 
   Mono<ChatRoomData> getChatRoomData(UUID id);
+
+  Mono<String[]> getShardOwners();
 }

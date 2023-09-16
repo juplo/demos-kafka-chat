@@ -61,6 +61,12 @@ public class KafkaChatHomeService implements ChatHomeService
             dataChannel.getOwnedShards())));
   }
 
+  @Override
+  public Mono<String[]> getShardOwners()
+  {
+    return infoChannel.getShardOwners();
+  }
+
   int selectShard(UUID chatRoomId)
   {
     byte[] serializedKey = chatRoomId.toString().getBytes();

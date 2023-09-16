@@ -114,4 +114,10 @@ public class SimpleChatHomeService implements ChatHomeService
         .justOrEmpty(chatRoomData.get(id))
         .switchIfEmpty(Mono.error(() -> new UnknownChatroomException(id)));
   }
+
+  @Override
+  public Mono<String[]> getShardOwners()
+  {
+    return Mono.empty();
+  }
 }

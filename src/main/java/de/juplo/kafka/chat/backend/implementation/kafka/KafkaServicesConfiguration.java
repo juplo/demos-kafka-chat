@@ -124,7 +124,8 @@ public class KafkaServicesConfiguration
     return new InfoChannel(
         properties.getKafka().getInfoChannelTopic(),
         producer,
-        infoChannelConsumer);
+        infoChannelConsumer,
+        properties.getKafka().getInstanceUri());
   }
 
   @Bean

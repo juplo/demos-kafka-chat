@@ -128,6 +128,12 @@ public class ChatBackendController
                 .build());
   }
 
+  @GetMapping("/shards")
+  public Mono<String[]> getShardOwners()
+  {
+    return chatHomeService.getShardOwners();
+  }
+
   @PostMapping("/store")
   public void store()
   {

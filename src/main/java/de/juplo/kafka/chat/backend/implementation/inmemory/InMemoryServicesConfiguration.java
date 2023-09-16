@@ -57,7 +57,10 @@ public class InMemoryServicesConfiguration
             clock,
             properties.getChatroomBufferSize()));
     ShardingStrategy strategy = new KafkaLikeShardingStrategy(numShards);
-    return new ShardedChatHomeService(chatHomes, strategy);
+    return new ShardedChatHomeService(
+        chatHomes,
+        properties.getInmemory().getShardOwners(),
+        strategy);
   }
 
   @ConditionalOnProperty(

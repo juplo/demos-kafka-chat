@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.net.URI;
 import java.nio.file.Paths;
 
 
@@ -25,7 +26,8 @@ public class ChatBackendProperties
   {
     private ShardingStrategyType shardingStrategy = ShardingStrategyType.none;
     private int numShards = 1;
-    private int[] ownedShards = new int[] { 0 };
+    private int[] ownedShards = new int[0];
+    private URI[] shardOwners = new URI[0];
     private StorageStrategyType storageStrategy = StorageStrategyType.none;
     private String storageDirectory = Paths.get(System.getProperty("java.io.tmpdir"),"chat", "backend").toString();
   }
@@ -34,6 +36,7 @@ public class ChatBackendProperties
   @Setter
   public static class KafkaServicesProperties
   {
+    private URI instanceUri = URI.create("http://localhost:8080");
     private String clientIdPrefix = "DEV";
     private String bootstrapServers = ":9092";
     private String infoChannelTopic = "info_channel";

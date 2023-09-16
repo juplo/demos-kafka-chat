@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -19,14 +21,20 @@ public class ShardedChatHomeService implements ChatHomeService
 {
   private final SimpleChatHomeService[] chatHomes;
   private final Set<Integer> ownedShards;
+  private final String[] shardOwners;
   private final ShardingStrategy shardingStrategy;
 
 
   public ShardedChatHomeService(
       SimpleChatHomeService[] chatHomes,
+      URI[] shardOwners,
       ShardingStrategy shardingStrategy)
   {
     this.chatHomes = chatHomes;
+    this.shardOwners = Arrays
+        .stream(shardOwners)
+        .map(uri -> uri.toASCIIString())
+        .toArray(size -> new String[size]);
     this.shardingStrategy = shardingStrategy;
     this.ownedShards = new HashSet<>();
     for (int shard = 0; shard < chatHomes.length; shard++)
@@ -88,6 +96,12 @@ public class ShardedChatHomeService implements ChatHomeService
                 shard,
                 ownedShards.stream().mapToInt(i -> i.intValue()).toArray())
                 : throwable);
+  }
+
+  @Override
+  public Mono<String[]> getShardOwners()
+  {
+    return Mono.just(shardOwners);
   }
 
   private int selectShard(UUID chatroomId)

@@ -8,6 +8,7 @@ import de.juplo.kafka.chat.backend.storage.files.FilesStorageStrategy;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
+import java.net.URI;
 import java.nio.file.Paths;
 import java.time.Clock;
 import java.util.stream.IntStream;
@@ -34,7 +35,14 @@ public class ShardedChatHomeServiceTest extends ChatHomeServiceWithShardsTest
 
       ShardingStrategy strategy = new KafkaLikeShardingStrategy(NUM_SHARDS);
 
-      return new ShardedChatHomeService(chatHomes, strategy);
+      return new ShardedChatHomeService(
+          chatHomes,
+          IntStream
+              .range(0, NUM_SHARDS)
+              .mapToObj(shard -> "http://instance-0")
+              .map(uriString -> URI.create(uriString))
+              .toArray(size -> new URI[size]),
+          strategy);
     }
 
     @Bean
