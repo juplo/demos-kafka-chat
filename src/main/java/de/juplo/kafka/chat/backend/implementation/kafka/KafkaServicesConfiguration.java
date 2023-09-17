@@ -3,6 +3,7 @@ package de.juplo.kafka.chat.backend.implementation.kafka;
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.domain.ShardingPublisherStrategy;
+import de.juplo.kafka.chat.backend.implementation.haproxy.HaproxyShardingPublisherStrategy;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.AbstractMessageTo;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.data.EventChatMessageReceivedTo;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.info.EventChatRoomCreated;
@@ -21,8 +22,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import reactor.core.publisher.Mono;
 
+import java.net.InetSocketAddress;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -285,15 +286,15 @@ public class KafkaServicesConfiguration
   }
 
   @Bean
-  ShardingPublisherStrategy shardingPublisherStrategy()
+  ShardingPublisherStrategy shardingPublisherStrategy(
+      ChatBackendProperties properties)
   {
-    return new ShardingPublisherStrategy() {
-      @Override
-      public Mono<String> publishOwnership(int shard)
-      {
-        return Mono.just(Integer.toString(shard));
-      }
-    };
+    String[] parts = properties.getKafka().getHaproxyRuntimeApi().split(":");
+    InetSocketAddress haproxyAddress = new InetSocketAddress(parts[0], Integer.valueOf(parts[1]));
+    return new HaproxyShardingPublisherStrategy(
+        haproxyAddress,
+        properties.getKafka().getHaproxyMap(),
+        properties.getInstanceId());
   }
 
   @Bean

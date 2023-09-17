@@ -43,6 +43,8 @@ public class ChatBackendProperties
     private String infoChannelTopic = "info_channel";
     private String dataChannelTopic = "data_channel";
     private int numPartitions = 2;
+    private String haproxyRuntimeApi = "haproxy:8401";
+    private String haproxyMap = "/usr/local/etc/haproxy/sharding.map";
   }
 
   public enum ServiceType { inmemory, kafka }
