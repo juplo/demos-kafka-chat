@@ -28,7 +28,7 @@ public class KafkaServicesApplicationRunner implements ApplicationRunner
   }
 
   @PreDestroy
-  public void joinConsumerTasks()
+  public void joinConsumerTasks() throws InterruptedException
   {
     consumerTaskRunner.joinConsumerTasks();
   }

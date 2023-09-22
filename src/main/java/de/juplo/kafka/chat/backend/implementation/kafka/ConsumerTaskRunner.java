@@ -10,6 +10,7 @@ public class ConsumerTaskRunner
 {
   private final ConsumerTaskExecutor infoChannelConsumerTaskExecutor;
   private final ConsumerTaskExecutor dataChannelConsumerTaskExecutor;
+  private final InfoChannel infoChannel;
 
   public void executeConsumerTasks()
   {
@@ -17,9 +18,14 @@ public class ConsumerTaskRunner
     dataChannelConsumerTaskExecutor.executeConsumerTask();
   }
 
-  public void joinConsumerTasks()
+  public void joinConsumerTasks() throws InterruptedException
   {
     dataChannelConsumerTaskExecutor.joinConsumerTaskJob();
+    while (infoChannel.loadInProgress())
+    {
+      log.info("Waiting for {} to finish loading...", infoChannel);
+      Thread.sleep(1000);
+    }
     infoChannelConsumerTaskExecutor.joinConsumerTaskJob();
   }
 }

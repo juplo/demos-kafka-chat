@@ -55,7 +55,9 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
   }
 
   @AfterAll
-  static void joinConsumerTasks(@Autowired ConsumerTaskRunner consumerTaskRunner)
+  static void joinConsumerTasks(
+      @Autowired ConsumerTaskRunner consumerTaskRunner)
+      throws InterruptedException
   {
     KafkaTestUtils.joinConsumerTasks(consumerTaskRunner);
   }
