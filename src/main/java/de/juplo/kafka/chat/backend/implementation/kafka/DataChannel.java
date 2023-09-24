@@ -169,6 +169,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
     {
       int partition = topicPartition.partition();
       isShardOwned[partition] = false;
+      nextOffset[partition] = consumer.position(topicPartition);
       log.info("Partition revoked: {} - next={}", partition, nextOffset[partition]);
       infoChannel.sendShardRevokedEvent(partition);
     });
