@@ -284,7 +284,12 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
     return IntStream
         .range(0, numShards)
         .filter(shard -> isShardOwned[shard])
-        .allMatch(shard -> nextOffset[shard] >= currentOffset[shard]);
+        .allMatch(shard ->
+        {
+          TopicPartition partition = new TopicPartition(topic, shard);
+          long position = consumer.position(partition);
+          return position >= currentOffset[shard];
+        });
   }
 
   private void pauseAllOwnedPartions()
