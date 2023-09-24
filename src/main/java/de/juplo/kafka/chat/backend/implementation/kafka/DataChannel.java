@@ -271,6 +271,11 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
     KafkaChatMessageService kafkaChatRoomService =
         (KafkaChatMessageService) chatRoomData.getChatRoomService();
 
+    log.debug(
+        "Loaded message from partition={} at offset={}: {}",
+        partition,
+        offset,
+        message);
     kafkaChatRoomService.persistMessage(message);
   }
 
