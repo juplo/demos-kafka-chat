@@ -81,7 +81,7 @@ public class InfoChannel implements Runnable
 
       producer.send(record, ((metadata, exception) ->
       {
-        if (metadata != null)
+        if (exception == null)
         {
           log.info("Successfully sent chreate-request for chat room: {}", to);
           ChatRoomInfo chatRoomInfo = new ChatRoomInfo(chatRoomId, name, shard);

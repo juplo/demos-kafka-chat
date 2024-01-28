@@ -96,7 +96,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
 
       producer.send(record, ((metadata, exception) ->
       {
-        if (metadata != null)
+        if (exception == null)
         {
           // On successful send
           Message message = new Message(key, metadata.offset(), timestamp, text);
