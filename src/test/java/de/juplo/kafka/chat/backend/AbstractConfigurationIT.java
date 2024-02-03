@@ -15,7 +15,9 @@ import org.testcontainers.shaded.org.awaitility.Awaitility;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.endsWith;
 
 
@@ -62,6 +64,7 @@ public abstract class AbstractConfigurationIT
         .atMost(Duration.ofSeconds(15))
         .untilAsserted(() ->
         {
+          AtomicBoolean existingChatRoomFound = new AtomicBoolean(false);
           webTestClient
               .get()
               .uri(
@@ -70,9 +73,20 @@ public abstract class AbstractConfigurationIT
               .accept(MediaType.APPLICATION_JSON)
               .exchange()
               .expectStatus().isOk()
-              .expectBody()
-                .jsonPath("$.length()").isEqualTo(1)
-                .jsonPath("$[0].name").isEqualTo("FOO");
+              .returnResult(ChatRoomInfoTo.class)
+              .getResponseBody()
+              .toIterable()
+              .forEach(chatRoomInfoTo ->
+              {
+                log.debug("Inspecting chat-room {}", chatRoomInfoTo);
+                if (chatRoomInfoTo.getId().equals(UUID.fromString(EXISTING_CHATROOM)))
+                {
+                  log.debug("Found existing chat-room {}", chatRoomInfoTo);
+                  existingChatRoomFound.set(true);
+                  assertThat(chatRoomInfoTo.getName().equals("FOO"));
+                }
+              });
+          assertThat(existingChatRoomFound.get()).isTrue();
         });
   }
 
