@@ -5,6 +5,7 @@ import de.juplo.kafka.chat.backend.implementation.kafka.messages.AbstractMessage
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.info.EventChatRoomCreated;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.info.EventShardAssigned;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.info.EventShardRevoked;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -38,6 +39,8 @@ public class InfoChannel implements Runnable
   private final String instanceUri;
 
   private boolean running;
+  @Getter
+  private volatile boolean loadInProgress = true;
 
 
   public InfoChannel(
@@ -67,13 +70,6 @@ public class InfoChannel implements Runnable
     this.instanceUri = instanceUri.toASCIIString();
   }
 
-
-  boolean isLoadInProgress()
-  {
-    return IntStream
-        .range(0, numShards)
-        .anyMatch(partition -> nextOffset[partition] < currentOffset[partition]);
-  }
 
   Mono<ChatRoomInfo> sendChatRoomCreatedEvent(
       UUID chatRoomId,
@@ -189,6 +185,7 @@ public class InfoChannel implements Runnable
     IntStream
         .range(0, numShards)
         .forEach(partition -> this.nextOffset[partition] = 0l);
+    loadInProgress = true;
 
     while (running)
     {
@@ -215,6 +212,11 @@ public class InfoChannel implements Runnable
   private void updateNextOffset(int partition, long nextOffset)
   {
     this.nextOffset[partition] = nextOffset;
+    if (loadInProgress) {
+      loadInProgress = IntStream
+          .range(0, numShards)
+          .anyMatch(shard -> this.nextOffset[shard] < currentOffset[partition]);
+    }
   }
 
   private void handleMessage(ConsumerRecord<String, AbstractMessageTo> record)
