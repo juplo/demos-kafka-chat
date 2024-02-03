@@ -36,33 +36,33 @@ public class ChatRoomRepositoryIT
   @BeforeEach
   public void setUp()
   {
-    repository.deleteAll();
+    repository.deleteAll().block();
 
-    a = repository.save(new ChatRoomTo("a", "foo"));
-    b = repository.save(new ChatRoomTo("b", "bar"));
-    c = repository.save(new ChatRoomTo("c", "bar"));
+    a = repository.save(new ChatRoomTo("a", "foo")).block();
+    b = repository.save(new ChatRoomTo("b", "bar")).block();
+    c = repository.save(new ChatRoomTo("c", "bar")).block();
   }
 
   @Test
   public void findsAll()
   {
-    assertThat(repository.findAll()).containsExactly(a, b, c);
+    assertThat(repository.findAll()).emitsExactly(a, b, c);
   }
 
   @Test
   public void findsById()
   {
-    assertThat(repository.findById("a")).contains(a);
-    assertThat(repository.findById("b")).contains(b);
-    assertThat(repository.findById("c")).contains(c);
-    assertThat(repository.findById("666")).isEmpty();
+    assertThat(repository.findById("a")).emitsExactly(a);
+    assertThat(repository.findById("b")).emitsExactly(b);
+    assertThat(repository.findById("c")).emitsExactly(c);
+    assertThat(repository.findById("666")).emitsExactly();
   }
 
   @Test
   public void findsByExample()
   {
-    assertThat(repository.findAll(Example.of(new ChatRoomTo(null, "foo")))).containsExactly(a);
-    assertThat(repository.findAll(Example.of(new ChatRoomTo(null, "bar")))).containsExactly(b, c);
-    assertThat(repository.findAll(Example.of(new ChatRoomTo(null, "foobar")))).isEmpty();
+    assertThat(repository.findAll(Example.of(new ChatRoomTo(null, "foo")))).emitsExactly(a);
+    assertThat(repository.findAll(Example.of(new ChatRoomTo(null, "bar")))).emitsExactly(b, c);
+    assertThat(repository.findAll(Example.of(new ChatRoomTo(null, "foobar")))).emitsExactly();
   }
 }

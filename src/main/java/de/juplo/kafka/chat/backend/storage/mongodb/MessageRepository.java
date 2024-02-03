@@ -1,11 +1,10 @@
 package de.juplo.kafka.chat.backend.storage.mongodb;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import reactor.core.publisher.Flux;
 
-import java.util.List;
 
-
-public interface MessageRepository extends MongoRepository<MessageTo, String>
+public interface MessageRepository extends ReactiveMongoRepository<MessageTo, String>
 {
-  List<MessageTo> findByChatRoomIdOrderBySerialAsc(String chatRoomId);
+  Flux<MessageTo> findByChatRoomIdOrderBySerialAsc(String chatRoomId);
 }

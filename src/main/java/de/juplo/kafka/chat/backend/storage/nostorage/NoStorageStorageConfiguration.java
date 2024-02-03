@@ -3,7 +3,8 @@ package de.juplo.kafka.chat.backend.storage.nostorage;
 import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +18,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableAutoConfiguration(
     exclude = {
-        MongoRepositoriesAutoConfiguration.class,
+        MongoReactiveDataAutoConfiguration.class,
+        MongoReactiveRepositoriesAutoConfiguration.class,
         MongoAutoConfiguration.class })
 public class NoStorageStorageConfiguration
 {

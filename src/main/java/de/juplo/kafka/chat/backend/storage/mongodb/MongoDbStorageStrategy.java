@@ -31,15 +31,15 @@ public class MongoDbStorageStrategy implements StorageStrategy
             loggingLevel,
             showOperatorLine)
         .map(ChatRoomTo::from)
-        .map(chatRoomRepository::save)
+        .flatMap(chatRoomRepository::save)
         .map(ChatRoomTo::toChatRoomInfo);
   }
 
   @Override
   public Flux<ChatRoomInfo> readChatRoomInfo()
   {
-    return Flux
-        .fromIterable(chatRoomRepository.findAll())
+    return chatRoomRepository
+        .findAll()
         .log(
             loggingCategory,
             loggingLevel,
@@ -56,15 +56,15 @@ public class MongoDbStorageStrategy implements StorageStrategy
             loggingLevel,
             showOperatorLine)
         .map(message -> MessageTo.from(chatRoomId, message))
-        .map(messageRepository::save)
+        .flatMap(messageRepository::save)
         .map(MessageTo::toMessage);
   }
 
   @Override
   public Flux<Message> readChatRoomData(UUID chatRoomId)
   {
-    return Flux
-        .fromIterable(messageRepository.findByChatRoomIdOrderBySerialAsc(chatRoomId.toString()))
+    return messageRepository
+        .findByChatRoomIdOrderBySerialAsc(chatRoomId.toString())
         .log(
             loggingCategory,
             loggingLevel,

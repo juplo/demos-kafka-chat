@@ -1,8 +1,8 @@
 package de.juplo.kafka.chat.backend.storage.mongodb;
 
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
 
-public interface ChatRoomRepository extends MongoRepository<ChatRoomTo, String>
+public interface ChatRoomRepository extends ReactiveMongoRepository<ChatRoomTo, String>
 {
 }

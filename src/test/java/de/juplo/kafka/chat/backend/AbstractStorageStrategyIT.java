@@ -40,7 +40,7 @@ public abstract class AbstractStorageStrategyIT
   {
     storageStrategy
         .write(chathome)
-        .subscribe();
+        .block();
   }
 
   @Test

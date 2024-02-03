@@ -32,8 +32,8 @@ public class InMemoryWithMongoDbStorageIT extends AbstractInMemoryStorageIT
       @Autowired ChatRoomRepository chatRoomRepository,
       @Autowired MessageRepository messageRepository)
   {
-    chatRoomRepository.deleteAll();
-    messageRepository.deleteAll();
+    chatRoomRepository.deleteAll().block();
+    messageRepository.deleteAll().block();
   }
 
   @BeforeEach
