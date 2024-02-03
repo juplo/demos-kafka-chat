@@ -21,7 +21,7 @@ public class ConsumerTaskRunner
   public void joinConsumerTasks() throws InterruptedException
   {
     dataChannelConsumerTaskExecutor.joinConsumerTaskJob();
-    while (infoChannel.loadInProgress())
+    while (infoChannel.isLoadInProgress())
     {
       log.info("Waiting for {} to finish loading...", infoChannel);
       Thread.sleep(1000);

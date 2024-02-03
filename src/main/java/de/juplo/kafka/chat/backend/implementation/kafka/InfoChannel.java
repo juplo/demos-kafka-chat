@@ -68,7 +68,7 @@ public class InfoChannel implements Runnable
   }
 
 
-  boolean loadInProgress()
+  boolean isLoadInProgress()
   {
     return IntStream
         .range(0, numShards)
