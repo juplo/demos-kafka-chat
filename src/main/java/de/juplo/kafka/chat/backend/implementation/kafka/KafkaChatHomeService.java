@@ -67,7 +67,7 @@ public class KafkaChatHomeService implements ChatHomeService
     return infoChannel.getShardOwners();
   }
 
-  int selectShard(UUID chatRoomId)
+  private int selectShard(UUID chatRoomId)
   {
     byte[] serializedKey = chatRoomId.toString().getBytes();
     return Utils.toPositive(Utils.murmur2(serializedKey)) % numPartitions;
