@@ -25,7 +25,8 @@ public class MongoDbStorageStrategy implements StorageStrategy
   {
     chatRoomInfoFlux
         .map(ChatRoomTo::from)
-        .subscribe(chatroomTo -> chatRoomRepository.save(chatroomTo));
+        .map(chatroomTo -> chatRoomRepository.save(chatroomTo))
+        .subscribe();
   }
 
   @Override
@@ -45,7 +46,8 @@ public class MongoDbStorageStrategy implements StorageStrategy
   {
     messageFlux
         .map(message -> MessageTo.from(chatRoomId, message))
-        .subscribe(messageTo -> messageRepository.save(messageTo));
+        .map(messageTo -> messageRepository.save(messageTo))
+        .subscribe();
   }
 
   @Override

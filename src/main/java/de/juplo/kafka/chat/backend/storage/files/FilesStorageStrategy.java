@@ -74,18 +74,20 @@ public class FilesStorageStrategy implements StorageStrategy
               throw new RuntimeException(e);
             }
           })
-          .subscribe(chatRoomInfo ->
+          .map(chatRoomInfo ->
           {
             try
             {
               ChatRoomInfoTo chatRoomInfoTo = ChatRoomInfoTo.from(chatRoomInfo);
               generator.writeObject(chatRoomInfoTo);
+              return chatRoomInfo;
             }
             catch (IOException e)
             {
               throw new RuntimeException(e);
             }
-          });
+          })
+          .subscribe();
     }
     catch (IOException e)
     {
@@ -160,18 +162,20 @@ public class FilesStorageStrategy implements StorageStrategy
               throw new RuntimeException(e);
             }
           })
-          .subscribe(message ->
+          .map(message ->
           {
             try
             {
               MessageTo messageTo = MessageTo.from(message);
               generator.writeObject(messageTo);
+              return message;
             }
             catch (IOException e)
             {
               throw new RuntimeException(e);
             }
-          });
+          })
+          .subscribe();
     }
     catch (IOException e)
     {
