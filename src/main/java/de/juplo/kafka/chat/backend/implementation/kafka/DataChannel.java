@@ -7,10 +7,7 @@ import de.juplo.kafka.chat.backend.implementation.kafka.messages.AbstractMessage
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.data.EventChatMessageReceivedTo;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.Consumer;
-import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
@@ -334,5 +331,10 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
     log.info("Creating ChatRoom {} with buffer-size {}", chatRoomId, bufferSize);
     KafkaChatMessageService service = new KafkaChatMessageService(this, chatRoomId);
     return new ChatRoomData(clock, service, bufferSize);
+  }
+
+  ConsumerGroupMetadata getConsumerGroupMetadata()
+  {
+    return consumer.groupMetadata();
   }
 }

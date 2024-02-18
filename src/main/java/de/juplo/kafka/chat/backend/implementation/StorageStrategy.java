@@ -18,9 +18,22 @@ public interface StorageStrategy
 
   default void write(ChatHomeService chatHomeService)
   {
+    write(
+        chatHomeService,
+        this::logSuccessChatHomeService,
+        this::logFailureChatHomeService);
+  }
+
+  default void write(
+      ChatHomeService chatHomeService,
+      ChatHomeServiceWrittenSuccessCallback successCallback,
+      ChatHomeServiceWrittenFailureCallback failureCallback)
+  {
     writeChatRoomInfo(
         chatHomeService
             .getChatRoomInfo()
+            .doOnComplete(() -> successCallback.accept(chatHomeService))
+            .doOnError(throwable -> failureCallback.accept(chatHomeService, throwable))
             .doOnNext(chatRoomInfo -> writeChatRoomData(
                 chatRoomInfo.getId(),
                 chatHomeService
@@ -46,6 +59,19 @@ public interface StorageStrategy
   }
   void writeChatRoomData(UUID chatRoomId, Flux<Message> messageFlux);
   Flux<Message> readChatRoomData(UUID chatRoomId);
+
+  interface ChatHomeServiceWrittenSuccessCallback extends Consumer<ChatHomeService> {}
+  interface ChatHomeServiceWrittenFailureCallback extends BiConsumer<ChatHomeService, Throwable> {}
+
+  default void logSuccessChatHomeService(ChatHomeService chatHomeService)
+  {
+    log.info("Successfully stored {}", chatHomeService);
+  }
+
+  default void logFailureChatHomeService(ChatHomeService chatHomeService, Throwable throwable)
+  {
+    log.error("Could not store {}: {}", chatHomeService, throwable);
+  }
 
   interface ChatRoomWrittenSuccessCallback extends Consumer<UUID> {}
   interface ChatRoomWrittenFailureCallback extends BiConsumer<UUID, Throwable> {}

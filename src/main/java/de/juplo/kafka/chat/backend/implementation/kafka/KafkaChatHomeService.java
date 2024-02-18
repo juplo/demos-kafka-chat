@@ -72,4 +72,13 @@ public class KafkaChatHomeService implements ChatHomeService
     byte[] serializedKey = chatRoomId.toString().getBytes();
     return Utils.toPositive(Utils.murmur2(serializedKey)) % numPartitions;
   }
+
+  @Override
+  public String toString()
+  {
+    StringBuffer stringBuffer = new StringBuffer(KafkaChatHomeService.class.getSimpleName());
+    stringBuffer.append(", ");
+    stringBuffer.append(dataChannel.getConsumerGroupMetadata());
+    return stringBuffer.toString();
+  }
 }

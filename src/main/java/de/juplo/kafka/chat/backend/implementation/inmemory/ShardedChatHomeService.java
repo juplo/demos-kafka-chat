@@ -43,12 +43,7 @@ public class ShardedChatHomeService implements ChatHomeService
     for (int shard = 0; shard < chatHomes.length; shard++)
       if(chatHomes[shard] != null)
         this.ownedShards.add(shard);
-    log.info(
-        "Created ShardedChatHome for shards: {}",
-        ownedShards
-            .stream()
-            .map(String::valueOf)
-            .collect(Collectors.joining(", ")));
+    log.info("Created {}", this);
   }
 
 
@@ -110,5 +105,19 @@ public class ShardedChatHomeService implements ChatHomeService
   private int selectShard(UUID chatroomId)
   {
     return shardingStrategy.selectShard(chatroomId);
+  }
+
+  @Override
+  public String toString()
+  {
+    StringBuffer stringBuffer = new StringBuffer(ShardedChatHomeService.class.getSimpleName());
+    stringBuffer.append(", shards=[");
+    stringBuffer.append(ownedShards
+        .stream()
+        .sorted()
+        .map(String::valueOf)
+        .collect(Collectors.joining(",")));
+    stringBuffer.append("]");
+    return stringBuffer.toString();
   }
 }

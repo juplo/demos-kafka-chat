@@ -40,9 +40,10 @@ public class SimpleChatHomeService implements ChatHomeService
       Clock clock,
       int bufferSize)
   {
-    log.info("Created SimpleChatHome for shard {}", shard);
 ;
     this.shard = shard;
+    log.info("Created {}", this);
+
     this.chatRoomInfo = new HashMap<>();
     this.chatRoomData = new HashMap<>();
     storageStrategy
@@ -119,5 +120,11 @@ public class SimpleChatHomeService implements ChatHomeService
   public Mono<String[]> getShardOwners()
   {
     return Mono.empty();
+  }
+
+  @Override
+  public String toString()
+  {
+    return SimpleChatHomeService.class.getSimpleName() + ", shard=" + shard;
   }
 }
