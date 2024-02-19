@@ -1,6 +1,7 @@
 package de.juplo.kafka.chat.backend.implementation.inmemory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest;
 import de.juplo.kafka.chat.backend.implementation.ShardingStrategy;
 import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
@@ -47,12 +48,22 @@ public class ShardedChatHomeServiceTest extends ChatHomeServiceWithShardsTest
     }
 
     @Bean
-    public FilesStorageStrategy storageStrategy(Clock clock)
+    FilesStorageStrategy storageStrategy(
+        Clock clock,
+        ObjectMapper objectMapper)
     {
       return new FilesStorageStrategy(
           Paths.get("target", "test-classes", "data", "files"),
           new KafkaLikeShardingStrategy(NUM_SHARDS),
-          new ObjectMapper());
+          objectMapper);
+    }
+
+    @Bean
+    ObjectMapper objectMapper()
+    {
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.registerModule(new JavaTimeModule());
+      return objectMapper;
     }
 
     @Bean
