@@ -13,14 +13,18 @@ import java.util.UUID;
 @Slf4j
 public class NoStorageStorageStrategy implements StorageStrategy
 {
-  @Override
-  public void write(ChatHomeService chatHomeService)
+  public Flux<ChatRoomInfo> write(ChatHomeService chatHomeService)
   {
-    log.info("Storage is disabled: Not storing {}", chatHomeService);
+    return Flux
+        .<ChatRoomInfo>empty()
+        .doOnComplete(() -> log.info("Storage is disabled: Not storing {}", chatHomeService));
+
   }
 
-  @Override
-  public void writeChatRoomInfo(Flux<ChatRoomInfo> chatRoomInfoFlux) {}
+  public Flux<ChatRoomInfo> writeChatRoomInfo(Flux<ChatRoomInfo> chatRoomInfoFlux)
+  {
+    return chatRoomInfoFlux;
+  }
 
   @Override
   public Flux<ChatRoomInfo> readChatRoomInfo()
@@ -29,7 +33,10 @@ public class NoStorageStorageStrategy implements StorageStrategy
   }
 
   @Override
-  public void writeChatRoomData(UUID chatRoomId, Flux<Message> messageFlux) {}
+  public Flux<Message> writeChatRoomData(UUID chatRoomId, Flux<Message> messageFlux)
+  {
+    return messageFlux;
+  }
 
   @Override
   public Flux<Message> readChatRoomData(UUID chatRoomId)

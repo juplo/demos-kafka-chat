@@ -21,12 +21,12 @@ public class MongoDbStorageStrategy implements StorageStrategy
 
 
   @Override
-  public void writeChatRoomInfo(Flux<ChatRoomInfo> chatRoomInfoFlux)
+  public Flux<ChatRoomInfo> writeChatRoomInfo(Flux<ChatRoomInfo> chatRoomInfoFlux)
   {
-    chatRoomInfoFlux
+    return chatRoomInfoFlux
         .map(ChatRoomTo::from)
         .map(chatroomTo -> chatRoomRepository.save(chatroomTo))
-        .subscribe();
+        .map(ChatRoomTo::toChatRoomInfo);
   }
 
   @Override
@@ -42,12 +42,12 @@ public class MongoDbStorageStrategy implements StorageStrategy
   }
 
   @Override
-  public void writeChatRoomData(UUID chatRoomId, Flux<Message> messageFlux)
+  public Flux<Message> writeChatRoomData(UUID chatRoomId, Flux<Message> messageFlux)
   {
-    messageFlux
+    return messageFlux
         .map(message -> MessageTo.from(chatRoomId, message))
         .map(messageTo -> messageRepository.save(messageTo))
-        .subscribe();
+        .map(MessageTo::toMessage);
   }
 
   @Override

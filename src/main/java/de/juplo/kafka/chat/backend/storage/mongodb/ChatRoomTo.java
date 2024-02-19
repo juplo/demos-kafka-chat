@@ -5,6 +5,8 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.UUID;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,6 +20,13 @@ public class ChatRoomTo
   @Id
   private String id;
   private String name;
+
+  public ChatRoomInfo toChatRoomInfo()
+  {
+    return new ChatRoomInfo(
+        UUID.fromString(id),
+        name);
+  }
 
   public static ChatRoomTo from(ChatRoomInfo chatRoomInfo)
   {

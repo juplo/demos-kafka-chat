@@ -137,6 +137,8 @@ public class ChatBackendController
   @PostMapping("/store")
   public void store()
   {
-    storageStrategy.write(chatHomeService);
+    storageStrategy
+        .write(chatHomeService)
+        .subscribe();
   }
 }

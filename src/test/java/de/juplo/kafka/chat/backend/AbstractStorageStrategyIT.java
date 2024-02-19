@@ -28,7 +28,9 @@ public abstract class AbstractStorageStrategyIT
 
   protected void stop()
   {
-    getStorageStrategy().write(chathome);
+    getStorageStrategy()
+        .write(chathome)
+        .subscribe();
   }
 
   @Test
