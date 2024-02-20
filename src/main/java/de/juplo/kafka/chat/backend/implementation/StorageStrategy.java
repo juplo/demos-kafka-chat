@@ -6,6 +6,7 @@ import de.juplo.kafka.chat.backend.domain.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
@@ -19,15 +20,15 @@ public interface StorageStrategy
     return writeChatRoomInfo(
         chatHomeService
             .getChatRoomInfo()
-            .doOnNext(chatRoomInfo -> writeChatRoomData(
+            .flatMap(chatRoomInfo -> writeChatRoomData(
                 chatRoomInfo.getId(),
                 chatHomeService
                     .getChatRoomData(chatRoomInfo.getId())
                     .flatMapMany(chatRoomData -> chatRoomData.getMessages())
                 )
-                .doOnComplete(() -> log.info("Stored {}", chatRoomInfo))
-                .doOnError(throwable -> log.error("Could not store {}: {}", chatRoomInfo, throwable))
-                .subscribe())
+                .then(Mono.just(chatRoomInfo))
+                .doOnSuccess(emittedChatRoomInfo -> log.info("Stored {}", chatRoomInfo))
+                .doOnError(throwable -> log.error("Could not store {}: {}", chatRoomInfo, throwable)))
         )
         .doOnComplete(() -> log.info("Stored {}", chatHomeService))
         .doOnError(throwable -> log.error("Could not store {}: {}", chatHomeService, throwable));
