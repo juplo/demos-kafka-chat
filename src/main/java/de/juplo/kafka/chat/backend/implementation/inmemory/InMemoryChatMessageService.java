@@ -33,9 +33,10 @@ public class InMemoryChatMessageService implements ChatMessageService
 
     return messageFlux
         .doOnNext(message -> messages.put(message.getKey(), message))
-        .then()
-        .doOnSuccess(empty -> log.info("Restored InMemoryChatMessageService"))
-        .doOnError(throwable -> log.error("Could not restore InMemoryChatMessageService"));
+        .count()
+        .doOnSuccess(count -> log.info("Restored InMemoryChatMessageService with {} messages", count))
+        .doOnError(throwable -> log.error("Could not restore InMemoryChatMessageService"))
+        .then();
   }
 
   @Override

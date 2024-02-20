@@ -85,9 +85,10 @@ public class SimpleChatHomeService implements ChatHomeService
 
           return chatMessageService.restore(storageStrategy);
         })
-        .then()
-        .doOnSuccess(empty -> log.info("Restored {}", this))
-        .doOnError(throwable -> log.error("Could not restore {}", this));
+        .count()
+        .doOnSuccess(count -> log.info("Restored {} with {} chat-rooms", this, count))
+        .doOnError(throwable -> log.error("Could not restore {}", this))
+        .then();
   }
 
 
