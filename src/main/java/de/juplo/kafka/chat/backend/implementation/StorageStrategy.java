@@ -19,17 +19,18 @@ public interface StorageStrategy
     return writeChatRoomInfo(
         chatHomeService
             .getChatRoomInfo()
-            .doOnComplete(() -> log.info("Stored {}", chatHomeService))
-            .doOnError(throwable -> log.error("Could not store {}: {}", chatHomeService, throwable))
             .doOnNext(chatRoomInfo -> writeChatRoomData(
                 chatRoomInfo.getId(),
                 chatHomeService
                     .getChatRoomData(chatRoomInfo.getId())
                     .flatMapMany(chatRoomData -> chatRoomData.getMessages())
-                    .doOnComplete(() -> log.info("Stored {}", chatRoomInfo))
-                    .doOnError(throwable -> log.error("Could not store {}: {}", chatRoomInfo, throwable))
                 )
-                .subscribe()));
+                .doOnComplete(() -> log.info("Stored {}", chatRoomInfo))
+                .doOnError(throwable -> log.error("Could not store {}: {}", chatRoomInfo, throwable))
+                .subscribe())
+        )
+        .doOnComplete(() -> log.info("Stored {}", chatHomeService))
+        .doOnError(throwable -> log.error("Could not store {}: {}", chatHomeService, throwable));
   }
 
   Flux<ChatRoomInfo> writeChatRoomInfo(Flux<ChatRoomInfo> chatRoomInfoFlux);
