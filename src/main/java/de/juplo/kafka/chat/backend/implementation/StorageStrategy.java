@@ -17,19 +17,16 @@ public interface StorageStrategy
 
   default Mono<Void> write(ChatHomeService chatHomeService)
   {
-    return writeChatRoomInfo(
-        chatHomeService
-            .getChatRoomInfo()
-            .flatMap(chatRoomInfo -> writeChatRoomData(
-                chatRoomInfo.getId(),
-                chatHomeService
-                    .getChatRoomData(chatRoomInfo.getId())
-                    .flatMapMany(chatRoomData -> chatRoomData.getMessages())
-                )
-                .then(Mono.just(chatRoomInfo))
-                .doOnSuccess(emittedChatRoomInfo -> log.info("Stored {}", chatRoomInfo))
-                .doOnError(throwable -> log.error("Could not store {}: {}", chatRoomInfo, throwable)))
-        )
+    return writeChatRoomInfo(chatHomeService.getChatRoomInfo())
+        .flatMap(chatRoomInfo -> writeChatRoomData(
+            chatRoomInfo.getId(),
+            chatHomeService
+                .getChatRoomData(chatRoomInfo.getId())
+                .flatMapMany(chatRoomData -> chatRoomData.getMessages())
+            )
+            .then()
+            .doOnSuccess(empty -> log.info("Stored {}", chatRoomInfo))
+            .doOnError(throwable -> log.error("Could not store {}: {}", chatRoomInfo, throwable)))
         .then()
         .doOnSuccess(empty -> log.info("Stored {}", chatHomeService))
         .doOnError(throwable -> log.error("Could not store {}: {}", chatHomeService, throwable));
