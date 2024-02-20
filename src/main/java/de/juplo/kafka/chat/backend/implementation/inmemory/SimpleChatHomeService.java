@@ -40,7 +40,6 @@ public class SimpleChatHomeService implements ChatHomeService
       Clock clock,
       int bufferSize)
   {
-;
     this.shard = shard;
     log.info("Created {}", this);
 

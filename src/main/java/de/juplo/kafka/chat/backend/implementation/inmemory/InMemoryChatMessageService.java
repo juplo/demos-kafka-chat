@@ -18,7 +18,7 @@ public class InMemoryChatMessageService implements ChatMessageService
 
   public InMemoryChatMessageService(Flux<Message> messageFlux)
   {
-    log.debug("Creating InMemoryChatRoomService");
+    log.debug("Creating InMemoryChatMessageService");
     messages = new LinkedHashMap<>();
     messageFlux.subscribe(message -> messages.put(message.getKey(), message));
   }

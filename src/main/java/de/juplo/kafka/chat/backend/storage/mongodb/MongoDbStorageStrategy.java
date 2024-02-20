@@ -2,7 +2,6 @@ package de.juplo.kafka.chat.backend.storage.mongodb;
 
 import de.juplo.kafka.chat.backend.domain.ChatRoomInfo;
 import de.juplo.kafka.chat.backend.domain.Message;
-import de.juplo.kafka.chat.backend.implementation.ShardingStrategy;
 import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +16,6 @@ public class MongoDbStorageStrategy implements StorageStrategy
 {
   private final ChatRoomRepository chatRoomRepository;
   private final MessageRepository messageRepository;
-  private final ShardingStrategy shardingStrategy;
 
 
   @Override
@@ -25,7 +23,7 @@ public class MongoDbStorageStrategy implements StorageStrategy
   {
     return chatRoomInfoFlux
         .map(ChatRoomTo::from)
-        .map(chatroomTo -> chatRoomRepository.save(chatroomTo))
+        .map(chatRoomRepository::save)
         .map(ChatRoomTo::toChatRoomInfo);
   }
 
@@ -34,11 +32,7 @@ public class MongoDbStorageStrategy implements StorageStrategy
   {
     return Flux
         .fromIterable(chatRoomRepository.findAll())
-        .map(chatRoomTo ->
-        {
-          UUID chatRoomId = UUID.fromString(chatRoomTo.getId());
-          return new ChatRoomInfo(chatRoomId, chatRoomTo.getName(), null);
-        });
+        .map(ChatRoomTo::toChatRoomInfo);
   }
 
   @Override
@@ -46,7 +40,7 @@ public class MongoDbStorageStrategy implements StorageStrategy
   {
     return messageFlux
         .map(message -> MessageTo.from(chatRoomId, message))
-        .map(messageTo -> messageRepository.save(messageTo))
+        .map(messageRepository::save)
         .map(MessageTo::toMessage);
   }
 
@@ -55,6 +49,6 @@ public class MongoDbStorageStrategy implements StorageStrategy
   {
     return Flux
         .fromIterable(messageRepository.findByChatRoomIdOrderBySerialAsc(chatRoomId.toString()))
-        .map(messageTo -> messageTo.toMessage());
+        .map(MessageTo::toMessage);
   }
 }

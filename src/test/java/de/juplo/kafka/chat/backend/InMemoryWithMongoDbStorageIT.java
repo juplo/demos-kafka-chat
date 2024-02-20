@@ -60,13 +60,9 @@ public class InMemoryWithMongoDbStorageIT extends AbstractInMemoryStorageIT
     @Bean
     MongoDbStorageStrategy storageStrategy(
         ChatRoomRepository chatRoomRepository,
-        MessageRepository messageRepository,
-        Clock clock)
+        MessageRepository messageRepository)
     {
-      return new MongoDbStorageStrategy(
-          chatRoomRepository,
-          messageRepository,
-          chatRoomId -> 0);
+      return new MongoDbStorageStrategy(chatRoomRepository, messageRepository);
     }
 
     @Bean
@@ -80,8 +76,7 @@ public class InMemoryWithMongoDbStorageIT extends AbstractInMemoryStorageIT
 
   @Container
   private static final GenericContainer CONTAINER =
-      new GenericContainer("mongo:6")
-          .withExposedPorts(MONGODB_PORT);
+      new GenericContainer("mongo:6").withExposedPorts(MONGODB_PORT);
 
   public static class DataSourceInitializer
       implements ApplicationContextInitializer<ConfigurableApplicationContext>

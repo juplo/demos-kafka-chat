@@ -37,7 +37,7 @@ class InMemoryWithMongoDbConfigurationIT extends AbstractConfigurationIT
 	@DynamicPropertySource
 	static void addMongoPortProperty(DynamicPropertyRegistry registry)
 	{
-		registry.add("spring.data.mongodb.port", () -> CONTAINER.getMappedPort(27017));
+		registry.add("spring.data.mongodb.port", () -> CONTAINER.getMappedPort(MONGODB_PORT));
 	}
 
 	@BeforeEach

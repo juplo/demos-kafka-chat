@@ -17,12 +17,8 @@ public class MongoDbStorageConfiguration
   @Bean
   public StorageStrategy storageStrategy(
       ChatRoomRepository chatRoomRepository,
-      MessageRepository messageRepository,
-      ShardingStrategy shardingStrategy)
+      MessageRepository messageRepository)
   {
-    return new MongoDbStorageStrategy(
-        chatRoomRepository,
-        messageRepository,
-        shardingStrategy);
+    return new MongoDbStorageStrategy(chatRoomRepository, messageRepository);
   }
 }
