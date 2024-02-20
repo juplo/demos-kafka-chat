@@ -20,7 +20,12 @@ public class InMemoryChatMessageService implements ChatMessageService
   {
     log.debug("Creating InMemoryChatMessageService");
     messages = new LinkedHashMap<>();
-    messageFlux.subscribe(message -> messages.put(message.getKey(), message));
+    messageFlux
+        .doOnNext(message -> messages.put(message.getKey(), message))
+        .then()
+        .doOnSuccess(empty -> log.info("Restored InMemoryChatMessageService"))
+        .doOnError(throwable -> log.error("Could not restore InMemoryChatMessageService"))
+        .block();
   }
 
   @Override

@@ -40,11 +40,12 @@ public class SimpleChatHomeService implements ChatHomeService
       Clock clock,
       int bufferSize)
   {
-    this.shard = shard;
-    log.info("Created {}", this);
+    log.debug("Creating SimpleChatHomeService");
 
+    this.shard = shard;
     this.chatRoomInfo = new HashMap<>();
     this.chatRoomData = new HashMap<>();
+
     storageStrategy
         .readChatRoomInfo()
         .filter(info ->
@@ -62,8 +63,7 @@ public class SimpleChatHomeService implements ChatHomeService
             return false;
           }
         })
-        .toStream()
-        .forEach(info ->
+        .doOnNext(info ->
         {
           UUID chatRoomId = info.getId();
           chatRoomInfo.put(chatRoomId, info);
@@ -75,7 +75,12 @@ public class SimpleChatHomeService implements ChatHomeService
                   clock,
                   new InMemoryChatMessageService(messageFlux),
                   bufferSize));
-        });
+        })
+        .then()
+        .doOnSuccess(empty -> log.info("Restored {}", this))
+        .doOnError(throwable -> log.error("Could not restore {}", this))
+        .block();
+
     this.clock = clock;
     this.bufferSize = bufferSize;
   }
