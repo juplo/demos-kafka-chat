@@ -15,7 +15,7 @@ public interface StorageStrategy
 {
   Logger log = LoggerFactory.getLogger(StorageStrategy.class.getCanonicalName());
 
-  default Flux<ChatRoomInfo> write(ChatHomeService chatHomeService)
+  default Mono<Void> write(ChatHomeService chatHomeService)
   {
     return writeChatRoomInfo(
         chatHomeService
@@ -30,7 +30,8 @@ public interface StorageStrategy
                 .doOnSuccess(emittedChatRoomInfo -> log.info("Stored {}", chatRoomInfo))
                 .doOnError(throwable -> log.error("Could not store {}: {}", chatRoomInfo, throwable)))
         )
-        .doOnComplete(() -> log.info("Stored {}", chatHomeService))
+        .then()
+        .doOnSuccess(empty -> log.info("Stored {}", chatHomeService))
         .doOnError(throwable -> log.error("Could not store {}: {}", chatHomeService, throwable));
   }
 

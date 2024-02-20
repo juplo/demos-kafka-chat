@@ -6,6 +6,7 @@ import de.juplo.kafka.chat.backend.domain.Message;
 import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
@@ -13,11 +14,11 @@ import java.util.UUID;
 @Slf4j
 public class NoStorageStorageStrategy implements StorageStrategy
 {
-  public Flux<ChatRoomInfo> write(ChatHomeService chatHomeService)
+  public Mono<Void> write(ChatHomeService chatHomeService)
   {
-    return Flux
-        .<ChatRoomInfo>empty()
-        .doOnComplete(() -> log.info("Storage is disabled: Not storing {}", chatHomeService));
+    return Mono
+        .<Void>empty()
+        .doOnSuccess(empty -> log.info("Storage is disabled: Not storing {}", chatHomeService));
 
   }
 
