@@ -18,6 +18,7 @@ public class ChatBackendController
 {
   private final ChatHomeService chatHomeService;
   private final StorageStrategy storageStrategy;
+  private final String loggingCategory = ChatBackendController.class.getSimpleName();
   private final Level loggingLevel;
   private final boolean showOperatorLine;
 
@@ -133,7 +134,7 @@ public class ChatBackendController
     return chatRoomData
         .listen()
         .log(
-            ChatBackendController.class.getSimpleName(),
+            loggingCategory,
             loggingLevel,
             showOperatorLine)
         .map(message -> MessageTo.from(message))
