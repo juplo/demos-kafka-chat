@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
+import java.util.logging.Level;
 
 
 @RestController
@@ -118,7 +119,10 @@ public class ChatBackendController
   {
     return chatRoomData
         .listen()
-        .log()
+        .log(
+            ChatBackendController.class.getSimpleName(),
+            Level.FINE,
+            true)
         .map(message -> MessageTo.from(message))
         .map(messageTo ->
             ServerSentEvent

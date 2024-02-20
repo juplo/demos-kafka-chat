@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
+import java.util.logging.Level;
 
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
@@ -49,7 +50,10 @@ public class FilesStorageStrategy implements StorageStrategy
               .createGenerator(Files.newBufferedWriter(path, CREATE, TRUNCATE_EXISTING));
 
       return chatRoomInfoFlux
-          .log()
+          .log(
+              FilesStorageStrategy.class.getSimpleName(),
+              Level.FINE,
+              true)
           .doFirst(() ->
           {
             try
@@ -100,7 +104,10 @@ public class FilesStorageStrategy implements StorageStrategy
     JavaType type = mapper.getTypeFactory().constructType(ChatRoomInfoTo.class);
     return Flux
         .from(new JsonFilePublisher<ChatRoomInfoTo>(chatroomsPath(), mapper, type))
-        .log()
+        .log(
+            FilesStorageStrategy.class.getSimpleName(),
+            Level.FINE,
+            true)
         .map(chatRoomInfoTo ->
         {
           UUID chatRoomId = chatRoomInfoTo.getId();
@@ -136,7 +143,10 @@ public class FilesStorageStrategy implements StorageStrategy
               .createGenerator(Files.newBufferedWriter(path, CREATE, TRUNCATE_EXISTING));
 
       return messageFlux
-          .log()
+          .log(
+              FilesStorageStrategy.class.getSimpleName(),
+              Level.FINE,
+              true)
           .doFirst(() ->
           {
             try
@@ -187,7 +197,10 @@ public class FilesStorageStrategy implements StorageStrategy
     JavaType type = mapper.getTypeFactory().constructType(MessageTo.class);
     return Flux
         .from(new JsonFilePublisher<MessageTo>(chatroomPath(chatRoomId), mapper, type))
-        .log()
+        .log(
+            FilesStorageStrategy.class.getSimpleName(),
+            Level.FINE,
+            true)
         .map(MessageTo::toMessage);
   }
 
