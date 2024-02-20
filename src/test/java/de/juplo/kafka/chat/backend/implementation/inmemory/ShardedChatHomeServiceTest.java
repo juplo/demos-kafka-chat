@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Bean;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.time.Clock;
+import java.util.logging.Level;
 import java.util.stream.IntStream;
 
 public class ShardedChatHomeServiceTest extends ChatHomeServiceWithShardsTest
@@ -55,7 +56,9 @@ public class ShardedChatHomeServiceTest extends ChatHomeServiceWithShardsTest
       return new FilesStorageStrategy(
           Paths.get("target", "test-classes", "data", "files"),
           new KafkaLikeShardingStrategy(NUM_SHARDS),
-          objectMapper);
+          objectMapper,
+          Level.FINE,
+          true);
     }
 
     @Bean

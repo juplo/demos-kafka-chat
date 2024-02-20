@@ -1,9 +1,9 @@
 package de.juplo.kafka.chat.backend.api;
 
+import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.domain.ChatRoomData;
 import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -14,11 +14,24 @@ import java.util.logging.Level;
 
 
 @RestController
-@RequiredArgsConstructor
 public class ChatBackendController
 {
   private final ChatHomeService chatHomeService;
   private final StorageStrategy storageStrategy;
+  private final Level loggingLevel;
+  private final boolean showOperatorLine;
+
+
+  public ChatBackendController(
+      ChatHomeService chatHomeService,
+      StorageStrategy storageStrategy,
+      ChatBackendProperties properties)
+  {
+    this.chatHomeService = chatHomeService;
+    this.storageStrategy = storageStrategy;
+    this.loggingLevel = properties.getProjectreactor().getLoggingLevel();
+    this.showOperatorLine = properties.getProjectreactor().isShowOperatorLine();
+  }
 
 
   @PostMapping("create")
@@ -121,8 +134,8 @@ public class ChatBackendController
         .listen()
         .log(
             ChatBackendController.class.getSimpleName(),
-            Level.FINE,
-            true)
+            loggingLevel,
+            showOperatorLine)
         .map(message -> MessageTo.from(message))
         .map(messageTo ->
             ServerSentEvent

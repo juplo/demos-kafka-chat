@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 
 import java.nio.file.Paths;
 import java.time.Clock;
+import java.util.logging.Level;
 
 
 public class SimpleChatHomeServiceTest extends ChatHomeServiceTest
@@ -36,7 +37,9 @@ public class SimpleChatHomeServiceTest extends ChatHomeServiceTest
       return new FilesStorageStrategy(
           Paths.get("target", "test-classes", "data", "files"),
           chatRoomId -> 0,
-          objectMapper);
+          objectMapper,
+          Level.FINE,
+          true);
     }
 
     @Bean

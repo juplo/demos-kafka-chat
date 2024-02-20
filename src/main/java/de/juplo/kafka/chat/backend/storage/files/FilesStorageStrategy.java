@@ -33,6 +33,8 @@ public class FilesStorageStrategy implements StorageStrategy
   private final Path storagePath;
   private final ShardingStrategy shardingStrategy;
   private final ObjectMapper mapper;
+  private final Level loggingLevel;
+  private final boolean showOperatorLine;
 
 
   @Override
@@ -52,8 +54,8 @@ public class FilesStorageStrategy implements StorageStrategy
       return chatRoomInfoFlux
           .log(
               FilesStorageStrategy.class.getSimpleName(),
-              Level.FINE,
-              true)
+              loggingLevel,
+              showOperatorLine)
           .doFirst(() ->
           {
             try
@@ -106,8 +108,8 @@ public class FilesStorageStrategy implements StorageStrategy
         .from(new JsonFilePublisher<ChatRoomInfoTo>(chatroomsPath(), mapper, type))
         .log(
             FilesStorageStrategy.class.getSimpleName(),
-            Level.FINE,
-            true)
+            loggingLevel,
+            showOperatorLine)
         .map(chatRoomInfoTo ->
         {
           UUID chatRoomId = chatRoomInfoTo.getId();
@@ -145,8 +147,8 @@ public class FilesStorageStrategy implements StorageStrategy
       return messageFlux
           .log(
               FilesStorageStrategy.class.getSimpleName(),
-              Level.FINE,
-              true)
+              loggingLevel,
+              showOperatorLine)
           .doFirst(() ->
           {
             try
@@ -199,8 +201,8 @@ public class FilesStorageStrategy implements StorageStrategy
         .from(new JsonFilePublisher<MessageTo>(chatroomPath(chatRoomId), mapper, type))
         .log(
             FilesStorageStrategy.class.getSimpleName(),
-            Level.FINE,
-            true)
+            loggingLevel,
+            showOperatorLine)
         .map(MessageTo::toMessage);
   }
 

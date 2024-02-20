@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Clock;
+import java.util.logging.Level;
 
 
 @Slf4j
@@ -33,7 +34,9 @@ public class InMemoryWithFilesStorageIT extends AbstractInMemoryStorageIT
     storageStrategy = new FilesStorageStrategy(
         path,
         chatRoomId -> 0,
-        mapper);
+        mapper,
+        Level.FINE,
+        true);
   }
 
 

@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.net.URI;
 import java.nio.file.Paths;
+import java.util.logging.Level;
 
 
 @ConfigurationProperties("chat.backend")
@@ -19,6 +20,7 @@ public class ChatBackendProperties
   private ServiceType services = ServiceType.inmemory;
   private InMemoryServicesProperties inmemory = new InMemoryServicesProperties();
   private KafkaServicesProperties kafka = new KafkaServicesProperties();
+  private ProjectreactorProperties projectreactor = new ProjectreactorProperties();
 
 
   @Getter
@@ -47,6 +49,13 @@ public class ChatBackendProperties
     private String haproxyMap = "/usr/local/etc/haproxy/sharding.map";
   }
 
+  @Getter
+  @Setter
+  public static class ProjectreactorProperties
+  {
+    private Level loggingLevel = Level.FINE;
+    private boolean showOperatorLine = true;
+  }
   public enum ServiceType { inmemory, kafka }
   public enum StorageStrategyType { none, files, mongodb }
   public enum ShardingStrategyType { none, kafkalike }

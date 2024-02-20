@@ -34,6 +34,8 @@ public class FilesStorageConfiguration
     return new FilesStorageStrategy(
         Paths.get(properties.getInmemory().getStorageDirectory()),
         shardingStrategy,
-        mapper);
+        mapper,
+        properties.getProjectreactor().getLoggingLevel(),
+        properties.getProjectreactor().isShowOperatorLine());
   }
 }
