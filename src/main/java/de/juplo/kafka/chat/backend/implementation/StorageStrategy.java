@@ -24,12 +24,13 @@ public interface StorageStrategy
                 .getChatRoomData(chatRoomInfo.getId())
                 .flatMapMany(chatRoomData -> chatRoomData.getMessages())
             )
-            .then()
-            .doOnSuccess(empty -> log.info("Stored {}", chatRoomInfo))
+            .count()
+            .doOnSuccess(count -> log.info("Stored {} messages for {}", count, chatRoomInfo))
             .doOnError(throwable -> log.error("Could not store {}: {}", chatRoomInfo, throwable)))
-        .then()
-        .doOnSuccess(empty -> log.info("Stored {}", chatHomeService))
-        .doOnError(throwable -> log.error("Could not store {}: {}", chatHomeService, throwable));
+        .count()
+        .doOnSuccess(count -> log.info("Stored {} chat-rooms for {}", count, chatHomeService))
+        .doOnError(throwable -> log.error("Could not store {}: {}", chatHomeService, throwable))
+        .then();
   }
 
   Flux<ChatRoomInfo> writeChatRoomInfo(Flux<ChatRoomInfo> chatRoomInfoFlux);
