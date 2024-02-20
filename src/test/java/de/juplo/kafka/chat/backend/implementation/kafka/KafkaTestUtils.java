@@ -1,6 +1,7 @@
 package de.juplo.kafka.chat.backend.implementation.kafka;
 
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
+import de.juplo.kafka.chat.backend.domain.ShardingPublisherStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import reactor.core.publisher.Mono;
 
 import java.time.Clock;
 import java.util.List;
@@ -23,6 +25,12 @@ public class KafkaTestUtils
   @Import(KafkaServicesConfiguration.class)
   public static class KafkaTestConfiguration
   {
+    @Bean
+    public ShardingPublisherStrategy shardingPublisherStrategy()
+    {
+      return shard -> Mono.just("MOCKED!");
+    }
+
     @Bean
     public WorkAssignor dataChannelWorkAssignor(
         ChatBackendProperties properties,

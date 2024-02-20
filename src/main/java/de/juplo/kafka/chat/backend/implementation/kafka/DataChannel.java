@@ -38,6 +38,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
   private final long[] nextOffset;
   private final Map<UUID, ChatRoomData>[] chatRoomData;
   private final InfoChannel infoChannel;
+  private final ShardingPublisherStrategy shardingPublisherStrategy;
 
   private boolean running;
   @Getter
@@ -53,7 +54,8 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
     int numShards,
     int bufferSize,
     Clock clock,
-    InfoChannel infoChannel)
+    InfoChannel infoChannel,
+    ShardingPublisherStrategy shardingPublisherStrategy)
   {
     log.debug(
         "{}: Creating DataChannel for topic {} with {} partitions",
@@ -76,6 +78,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
         .range(0, numShards)
         .forEach(shard -> this.chatRoomData[shard] = new HashMap<>());
     this.infoChannel = infoChannel;
+    this.shardingPublisherStrategy = shardingPublisherStrategy;
   }
 
 
@@ -142,6 +145,13 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
 
       consumer.seek(topicPartition, nextOffset[partition]);
       infoChannel.sendShardAssignedEvent(partition);
+      shardingPublisherStrategy
+          .publishOwnership(partition)
+          .doOnNext(instanceId -> log.info(
+              "Instance {} was published as owner of shard {}",
+              instanceId,
+              partition))
+          .subscribe();
     });
 
     consumer.resume(partitions);
