@@ -140,6 +140,7 @@ public class KafkaServicesConfiguration
       InfoChannel infoChannel)
   {
     return new DataChannel(
+        properties.getInstanceId(),
         properties.getKafka().getDataChannelTopic(),
         producer,
         dataChannelConsumer,

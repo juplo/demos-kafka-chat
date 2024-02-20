@@ -6,12 +6,15 @@ import lombok.Getter;
 public class ShardNotOwnedException extends IllegalStateException
 {
   @Getter
+  private final String instanceId;
+  @Getter
   private final int shard;
 
 
-  public ShardNotOwnedException(int shard)
+  public ShardNotOwnedException(String instanceId, int shard)
   {
-    super("This instance does not own the shard " + shard);
+    super("Instance " + instanceId + " does not own the shard " + shard);
+    this.instanceId = instanceId;
     this.shard = shard;
   }
 }

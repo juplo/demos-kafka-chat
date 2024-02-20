@@ -36,6 +36,7 @@ public class ShardedChatHomeServiceTest extends ChatHomeServiceWithShardsTest
       ShardingStrategy strategy = new KafkaLikeShardingStrategy(NUM_SHARDS);
 
       return new ShardedChatHomeService(
+          "http://instance-0",
           chatHomes,
           IntStream
               .range(0, NUM_SHARDS)

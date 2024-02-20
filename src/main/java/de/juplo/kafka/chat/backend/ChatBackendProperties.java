@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 @Setter
 public class ChatBackendProperties
 {
+  private String instanceId = "DEV";
   private String allowedOrigins = "http://localhost:4200";
   private int chatroomBufferSize = 8;
   private ServiceType services = ServiceType.inmemory;
