@@ -1,36 +1,26 @@
 package de.juplo.kafka.chat.backend;
 
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
-import de.juplo.kafka.chat.backend.implementation.inmemory.SimpleChatHomeService;
-import lombok.RequiredArgsConstructor;
+import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
+import de.juplo.kafka.chat.backend.implementation.inmemory.InMemoryServicesConfiguration;
+import de.juplo.kafka.chat.backend.implementation.inmemory.InMemoryTestUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.time.Clock;
 
 
-@RequiredArgsConstructor
+@ContextConfiguration(classes = InMemoryTestUtils.class)
 @Slf4j
 public abstract class AbstractInMemoryStorageIT extends AbstractStorageStrategyIT
 {
-  final Clock clock;
+  @Autowired
+  InMemoryTestUtils testUtils;
 
   @Override
-  protected StorageStrategyITConfig getConfig()
+  ChatHomeService getChatHome()
   {
-    return new StorageStrategyITConfig()
-    {
-      int bufferSize = 8;
-
-      SimpleChatHomeService simpleChatHome = new SimpleChatHomeService(
-          getStorageStrategy(),
-          clock,
-          bufferSize);
-
-      @Override
-      public ChatHomeService getChatHome()
-      {
-        return simpleChatHome;
-      }
-    };
+    return testUtils.createNoneShardingChatHomeService();
   }
 }

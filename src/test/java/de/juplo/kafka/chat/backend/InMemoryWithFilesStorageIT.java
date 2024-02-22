@@ -1,54 +1,29 @@
 package de.juplo.kafka.chat.backend;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
-import de.juplo.kafka.chat.backend.storage.files.FilesStorageStrategy;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestPropertySource;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Clock;
-import java.util.logging.Level;
 
 
+@TestPropertySource(properties = {
+    "chat.backend.inmemory.sharding-strategy=none",
+    "chat.backend.inmemory.storage-strategy=files",
+    "chat.backend.inmemory.storage-directory=target/files" })
 @Slf4j
 public class InMemoryWithFilesStorageIT extends AbstractInMemoryStorageIT
 {
-  final static Path path = Paths.get("target","files");
-
-  final ObjectMapper mapper;
-  final FilesStorageStrategy storageStrategy;
-
-
-  public InMemoryWithFilesStorageIT()
-  {
-    super(Clock.systemDefaultZone());
-    mapper = new ObjectMapper();
-    mapper.registerModule(new JavaTimeModule());
-    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    storageStrategy = new FilesStorageStrategy(
-        path,
-        chatRoomId -> 0,
-        mapper,
-        Level.FINE,
-        true);
-  }
-
-
-  @Override
-  protected StorageStrategy getStorageStrategy()
-  {
-    return storageStrategy;
-  }
-
   @BeforeEach
-  void reset() throws Exception
+  void resetStorage(
+      @Autowired ChatBackendProperties properties)
+      throws Exception
   {
+    Path path = Paths.get(properties.getInmemory().getStorageDirectory());
     if (Files.exists(path))
     {
       Files

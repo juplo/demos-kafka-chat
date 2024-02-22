@@ -2,33 +2,47 @@ package de.juplo.kafka.chat.backend;
 
 import de.juplo.kafka.chat.backend.domain.*;
 import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
+import de.juplo.kafka.chat.backend.implementation.inmemory.InMemoryServicesConfiguration;
+import de.juplo.kafka.chat.backend.storage.files.FilesStorageConfiguration;
+import de.juplo.kafka.chat.backend.storage.mongodb.MongoDbStorageConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
 
 import static pl.rzrz.assertj.reactor.Assertions.*;
 
 
+@SpringJUnitConfig(classes = {
+    InMemoryServicesConfiguration.class,
+    FilesStorageConfiguration.class,
+    MongoDbStorageConfiguration.class,
+    AbstractStorageStrategyIT.TestConfig.class })
+@EnableConfigurationProperties(ChatBackendProperties.class)
 @Slf4j
 public abstract class AbstractStorageStrategyIT
 {
-  protected ChatHomeService chathome;
+  ChatHomeService chathome;
 
+  @Autowired
+  StorageStrategy storageStrategy;
 
-  protected abstract StorageStrategy getStorageStrategy();
-  protected abstract StorageStrategyITConfig getConfig();
+  abstract ChatHomeService getChatHome();
 
   protected void start()
   {
-    StorageStrategyITConfig config = getConfig();
-    chathome = config.getChatHome();
+    chathome = getChatHome();
   }
 
   protected void stop()
   {
-    getStorageStrategy()
+    storageStrategy
         .write(chathome)
         .subscribe();
   }
@@ -115,8 +129,12 @@ public abstract class AbstractStorageStrategyIT
   }
 
 
-  interface StorageStrategyITConfig
+  static class TestConfig
   {
-    ChatHomeService getChatHome();
+    @Bean
+    Clock clock()
+    {
+      return Clock.systemDefaultZone();
+    }
   }
 }
