@@ -23,20 +23,17 @@ public class SimpleChatHomeService implements ChatHomeService
 
 
   public SimpleChatHomeService(
-      StorageStrategy storageStrategy,
       Clock clock,
       int bufferSize)
   {
     this(
         null,
-        storageStrategy,
         clock,
         bufferSize);
   }
 
   public SimpleChatHomeService(
       Integer shard,
-      StorageStrategy storageStrategy,
       Clock clock,
       int bufferSize)
   {
@@ -45,8 +42,14 @@ public class SimpleChatHomeService implements ChatHomeService
     this.shard = shard;
     this.chatRoomInfo = new HashMap<>();
     this.chatRoomData = new HashMap<>();
+    this.clock = clock;
+    this.bufferSize = bufferSize;
+  }
 
-    storageStrategy
+
+  Mono<Void> restore(StorageStrategy storageStrategy)
+  {
+    return storageStrategy
         .readChatRoomInfo()
         .filter(info ->
         {
@@ -63,26 +66,25 @@ public class SimpleChatHomeService implements ChatHomeService
             return false;
           }
         })
-        .doOnNext(info ->
+        .flatMap(info ->
         {
           UUID chatRoomId = info.getId();
+          InMemoryChatMessageService chatMessageService =
+              new InMemoryChatMessageService(chatRoomId);
+
           chatRoomInfo.put(chatRoomId, info);
-          Flux<Message> messageFlux =
-              storageStrategy.readChatRoomData(chatRoomId);
           chatRoomData.put(
               info.getId(),
               new ChatRoomData(
                   clock,
-                  new InMemoryChatMessageService(messageFlux),
+                  chatMessageService,
                   bufferSize));
+
+          return chatMessageService.restore(storageStrategy);
         })
         .then()
         .doOnSuccess(empty -> log.info("Restored {}", this))
-        .doOnError(throwable -> log.error("Could not restore {}", this))
-        .block();
-
-    this.clock = clock;
-    this.bufferSize = bufferSize;
+        .doOnError(throwable -> log.error("Could not restore {}", this));
   }
 
 
@@ -90,7 +92,7 @@ public class SimpleChatHomeService implements ChatHomeService
   public Mono<ChatRoomInfo> createChatRoom(UUID id, String name)
   {
     log.info("Creating ChatRoom with buffer-size {}", bufferSize);
-    ChatMessageService service = new InMemoryChatMessageService(Flux.empty());
+    ChatMessageService service = new InMemoryChatMessageService(id);
     ChatRoomInfo chatRoomInfo = new ChatRoomInfo(id, name, shard);
     this.chatRoomInfo.put(id, chatRoomInfo);
     ChatRoomData chatRoomData = new ChatRoomData(clock, service, bufferSize);

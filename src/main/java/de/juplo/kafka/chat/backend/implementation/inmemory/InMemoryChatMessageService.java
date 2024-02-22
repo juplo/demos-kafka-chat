@@ -2,30 +2,40 @@ package de.juplo.kafka.chat.backend.implementation.inmemory;
 
 import de.juplo.kafka.chat.backend.domain.ChatMessageService;
 import de.juplo.kafka.chat.backend.domain.Message;
+import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
+import java.util.UUID;
 
 
 @Slf4j
 public class InMemoryChatMessageService implements ChatMessageService
 {
+  private final UUID chatRoomId;
   private final LinkedHashMap<Message.MessageKey, Message> messages;
 
 
-  public InMemoryChatMessageService(Flux<Message> messageFlux)
+  public InMemoryChatMessageService(UUID chatRoomId)
   {
     log.debug("Creating InMemoryChatMessageService");
+    this.chatRoomId = chatRoomId;
     messages = new LinkedHashMap<>();
-    messageFlux
+  }
+
+
+  Mono<Void> restore(StorageStrategy storageStrategy)
+  {
+    Flux<Message> messageFlux = storageStrategy.readChatRoomData(chatRoomId);
+
+    return messageFlux
         .doOnNext(message -> messages.put(message.getKey(), message))
         .then()
         .doOnSuccess(empty -> log.info("Restored InMemoryChatMessageService"))
-        .doOnError(throwable -> log.error("Could not restore InMemoryChatMessageService"))
-        .block();
+        .doOnError(throwable -> log.error("Could not restore InMemoryChatMessageService"));
   }
 
   @Override

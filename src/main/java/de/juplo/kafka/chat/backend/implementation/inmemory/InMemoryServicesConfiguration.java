@@ -31,10 +31,11 @@ public class InMemoryServicesConfiguration
       StorageStrategy storageStrategy,
       Clock clock)
   {
-    return new SimpleChatHomeService(
-        storageStrategy,
+    SimpleChatHomeService chatHomeService = new SimpleChatHomeService(
         clock,
         properties.getChatroomBufferSize());
+    chatHomeService.restore(storageStrategy).block();
+    return chatHomeService;
   }
 
   @Bean
@@ -51,11 +52,14 @@ public class InMemoryServicesConfiguration
     SimpleChatHomeService[] chatHomes = new SimpleChatHomeService[numShards];
     IntStream
         .of(properties.getInmemory().getOwnedShards())
-        .forEach(shard -> chatHomes[shard] = new SimpleChatHomeService(
-            shard,
-            storageStrategy,
-            clock,
-            properties.getChatroomBufferSize()));
+        .forEach(shard ->
+        {
+          SimpleChatHomeService service = chatHomes[shard] = new SimpleChatHomeService(
+              shard,
+              clock,
+              properties.getChatroomBufferSize());
+          service.restore(storageStrategy).block();
+        });
     ShardingStrategy strategy = new KafkaLikeShardingStrategy(numShards);
     return new ShardedChatHomeService(
         properties.getInstanceId(),
