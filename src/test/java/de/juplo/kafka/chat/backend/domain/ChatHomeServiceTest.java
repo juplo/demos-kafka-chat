@@ -1,7 +1,5 @@
 package de.juplo.kafka.chat.backend.domain;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.exceptions.LoadInProgressException;
 import de.juplo.kafka.chat.backend.domain.exceptions.UnknownChatroomException;
@@ -79,14 +77,6 @@ public abstract class ChatHomeServiceTest
 
   static class TestConfiguration
   {
-    @Bean
-    ObjectMapper objectMapper()
-    {
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.registerModule(new JavaTimeModule());
-      return objectMapper;
-    }
-
     @Bean
     Clock clock()
     {
