@@ -4,6 +4,7 @@ import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.exceptions.LoadInProgressException;
 import de.juplo.kafka.chat.backend.domain.exceptions.UnknownChatroomException;
 import de.juplo.kafka.chat.backend.implementation.inmemory.InMemoryServicesConfiguration;
+import de.juplo.kafka.chat.backend.implementation.kafka.KafkaServicesConfiguration;
 import de.juplo.kafka.chat.backend.storage.files.FilesStorageConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import static pl.rzrz.assertj.reactor.Assertions.assertThat;
 @SpringJUnitConfig(classes = {
     InMemoryServicesConfiguration.class,
     FilesStorageConfiguration.class,
+    KafkaServicesConfiguration.class,
     ChatHomeServiceTest.TestConfiguration.class })
 @EnableConfigurationProperties(ChatBackendProperties.class)
 public abstract class ChatHomeServiceTest
