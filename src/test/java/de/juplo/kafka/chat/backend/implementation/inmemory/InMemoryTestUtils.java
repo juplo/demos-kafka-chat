@@ -4,28 +4,19 @@ import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.core.publisher.Mono;
 
 import java.time.Clock;
 
 
 public class InMemoryTestUtils
 {
-  private final InMemoryServicesConfiguration config =
-      new InMemoryServicesConfiguration();
-
-  @Autowired
-  ChatBackendProperties properties;
   @Autowired
   StorageStrategy storageStrategy;
-  @Autowired
-  Clock clock;
 
 
-  public ChatHomeService createNoneShardingChatHomeService()
+  public Mono<Void> restore(SimpleChatHomeService simpleChatHomeService)
   {
-    return config.noneShardingChatHome(
-        properties,
-        storageStrategy,
-        clock);
+    return simpleChatHomeService.restore(storageStrategy);
   }
 }

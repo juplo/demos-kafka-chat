@@ -49,6 +49,9 @@ public class SimpleChatHomeService implements ChatHomeService
 
   Mono<Void> restore(StorageStrategy storageStrategy)
   {
+    chatRoomInfo.clear();
+    chatRoomData.clear();
+
     return storageStrategy
         .readChatRoomInfo()
         .filter(info ->

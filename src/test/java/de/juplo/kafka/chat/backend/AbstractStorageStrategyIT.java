@@ -28,19 +28,15 @@ import static pl.rzrz.assertj.reactor.Assertions.*;
 @Slf4j
 public abstract class AbstractStorageStrategyIT
 {
+  @Autowired
   ChatHomeService chathome;
-
   @Autowired
   StorageStrategy storageStrategy;
 
-  abstract ChatHomeService getChatHome();
 
-  protected void start()
-  {
-    chathome = getChatHome();
-  }
+  abstract void restore();
 
-  protected void stop()
+  void store()
   {
     storageStrategy
         .write(chathome)
@@ -48,9 +44,9 @@ public abstract class AbstractStorageStrategyIT
   }
 
   @Test
-  protected void testStoreAndRecreate()
+  void testStoreAndRecreate()
   {
-    start();
+    restore();
 
     assertThat(chathome.getChatRoomInfo().toStream()).hasSize(0);
 
@@ -69,8 +65,8 @@ public abstract class AbstractStorageStrategyIT
         .getChatRoomData(chatRoomId)
         .flatMapMany(cr -> cr.getMessages())).emitsExactly(m1, m2, m3, m4);
 
-    stop();
-    start();
+    store();
+    restore();
 
     assertThat(chathome.getChatRoomInfo().toStream()).containsExactlyElementsOf(List.of(info));
     assertThat(chathome.getChatRoomInfo(chatRoomId)).emitsExactly(info);
@@ -80,9 +76,9 @@ public abstract class AbstractStorageStrategyIT
   }
 
   @Test
-  protected void testStoreAndRecreateParallelChatRooms()
+  void testStoreAndRecreateParallelChatRooms()
   {
-    start();
+    restore();
 
     assertThat(chathome.getChatRoomInfo().toStream()).hasSize(0);
 
@@ -114,8 +110,8 @@ public abstract class AbstractStorageStrategyIT
         .getChatRoomData(chatRoomBId)
         .flatMapMany(cr -> cr.getMessages())).emitsExactly(mb1, mb2, mb3, mb4);
 
-    stop();
-    start();
+    store();
+    restore();
 
     assertThat(chathome.getChatRoomInfo().toStream()).containsExactlyInAnyOrderElementsOf(List.of(infoA, infoB));
     assertThat(chathome.getChatRoomInfo(chatRoomAId)).emitsExactly(infoA);

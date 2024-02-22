@@ -26,7 +26,7 @@ public class InMemoryServicesConfiguration
       name = "sharding-strategy",
       havingValue = "none",
       matchIfMissing = true)
-  ChatHomeService noneShardingChatHome(
+  SimpleChatHomeService noneShardingChatHome(
       ChatBackendProperties properties,
       StorageStrategy storageStrategy,
       Clock clock)
@@ -43,7 +43,7 @@ public class InMemoryServicesConfiguration
       prefix = "chat.backend.inmemory",
       name = "sharding-strategy",
       havingValue = "kafkalike")
-  ChatHomeService kafkalikeShardingChatHome(
+  ShardedChatHomeService kafkalikeShardingChatHome(
       ChatBackendProperties properties,
       StorageStrategy storageStrategy,
       Clock clock)

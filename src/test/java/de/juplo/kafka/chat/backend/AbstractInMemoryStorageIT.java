@@ -1,14 +1,10 @@
 package de.juplo.kafka.chat.backend;
 
-import de.juplo.kafka.chat.backend.domain.ChatHomeService;
-import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
-import de.juplo.kafka.chat.backend.implementation.inmemory.InMemoryServicesConfiguration;
 import de.juplo.kafka.chat.backend.implementation.inmemory.InMemoryTestUtils;
+import de.juplo.kafka.chat.backend.implementation.inmemory.SimpleChatHomeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.time.Clock;
 
 
 @ContextConfiguration(classes = InMemoryTestUtils.class)
@@ -17,10 +13,12 @@ public abstract class AbstractInMemoryStorageIT extends AbstractStorageStrategyI
 {
   @Autowired
   InMemoryTestUtils testUtils;
+  @Autowired
+  SimpleChatHomeService simpleChatHomeService;
 
   @Override
-  ChatHomeService getChatHome()
+  void restore()
   {
-    return testUtils.createNoneShardingChatHomeService();
+    testUtils.restore(simpleChatHomeService).block();
   }
 }

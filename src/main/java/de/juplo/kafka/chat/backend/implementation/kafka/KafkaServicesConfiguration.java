@@ -109,7 +109,7 @@ public class KafkaServicesConfiguration
   }
 
   @Bean
-    ChatHomeService kafkaChatHome(
+  KafkaChatHomeService kafkaChatHome(
       ChatBackendProperties properties,
       InfoChannel infoChannel,
       DataChannel dataChannel)
