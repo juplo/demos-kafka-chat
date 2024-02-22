@@ -1,22 +1,33 @@
 package de.juplo.kafka.chat.backend.domain;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.exceptions.LoadInProgressException;
 import de.juplo.kafka.chat.backend.domain.exceptions.UnknownChatroomException;
+import de.juplo.kafka.chat.backend.implementation.inmemory.InMemoryServicesConfiguration;
+import de.juplo.kafka.chat.backend.storage.files.FilesStorageConfiguration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.util.UUID;
 
 import static pl.rzrz.assertj.reactor.Assertions.assertThat;
 
 
-@ExtendWith(SpringExtension.class)
+@SpringJUnitConfig(classes = {
+    InMemoryServicesConfiguration.class,
+    FilesStorageConfiguration.class,
+    ChatHomeServiceTest.TestConfiguration.class })
+@EnableConfigurationProperties(ChatBackendProperties.class)
 public abstract class ChatHomeServiceTest
 {
   @Autowired
@@ -64,5 +75,22 @@ public abstract class ChatHomeServiceTest
       UnknownChatroomException unknownChatroomException = (UnknownChatroomException) e;
       assertThat(unknownChatroomException.getChatroomId()).isEqualTo(chatRoomId);
     });
+  }
+
+  static class TestConfiguration
+  {
+    @Bean
+    ObjectMapper objectMapper()
+    {
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.registerModule(new JavaTimeModule());
+      return objectMapper;
+    }
+
+    @Bean
+    Clock clock()
+    {
+      return Clock.systemDefaultZone();
+    }
   }
 }

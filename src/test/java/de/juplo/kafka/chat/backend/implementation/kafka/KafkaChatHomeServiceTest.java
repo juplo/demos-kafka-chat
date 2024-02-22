@@ -7,23 +7,22 @@ import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 import static de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest.NUM_SHARDS;
 import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServiceTest.DATA_TOPIC;
 import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServiceTest.INFO_TOPIC;
 
 
-@SpringBootTest(
-    classes = {
+@ContextConfiguration(classes = {
         KafkaTestUtils.KafkaTestConfiguration.class,
         KafkaAutoConfiguration.class,
         TaskExecutionAutoConfiguration.class,
-    },
-    properties = {
-        "spring.main.allow-bean-definition-overriding=true",
+    })
+@TestPropertySource(properties = {
         "chat.backend.services=kafka",
         "chat.backend.kafka.client-id-PREFIX=TEST",
         "chat.backend.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}",
@@ -34,7 +33,7 @@ import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServ
 })
 @EmbeddedKafka(
     topics = { INFO_TOPIC, DATA_TOPIC },
-    partitions = 10)
+    partitions = NUM_SHARDS)
 @Slf4j
 public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
 {
