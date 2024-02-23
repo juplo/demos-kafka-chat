@@ -4,11 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.implementation.ShardingStrategy;
 import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveDataAutoConfiguration;
-import org.springframework.boot.autoconfigure.data.mongo.MongoReactiveRepositoriesAutoConfiguration;
-import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,11 +16,6 @@ import java.nio.file.Paths;
     name = "storage-strategy",
     havingValue = "files")
 @Configuration
-@EnableAutoConfiguration(
-    exclude = {
-        MongoReactiveDataAutoConfiguration.class,
-        MongoReactiveRepositoriesAutoConfiguration.class,
-        MongoAutoConfiguration.class })
 public class FilesStorageConfiguration
 {
   @Bean
