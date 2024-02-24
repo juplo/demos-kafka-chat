@@ -48,6 +48,7 @@ public class InfoChannel implements Runnable
     String topic,
     Producer<String, AbstractMessageTo> producer,
     Consumer<String, AbstractMessageTo> infoChannelConsumer,
+    int numShards,
     URI instanceUri)
   {
     log.debug(
@@ -58,9 +59,7 @@ public class InfoChannel implements Runnable
     this.producer = producer;
     this.chatRoomInfo = new HashMap<>();
 
-    this.numShards = consumer
-        .partitionsFor(topic)
-        .size();
+    this.numShards = numShards;
     this.shardOwners = new String[numShards];
     this.currentOffset = new long[numShards];
     this.nextOffset = new long[numShards];

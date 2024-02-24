@@ -130,6 +130,7 @@ public class KafkaServicesConfiguration
         properties.getKafka().getInfoChannelTopic(),
         producer,
         infoChannelConsumer,
+        properties.getKafka().getNumPartitions(),
         properties.getKafka().getInstanceUri());
   }
 
