@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.net.URI;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.logging.Level;
 
 
@@ -45,6 +46,7 @@ public class ChatBackendProperties
     private String infoChannelTopic = "info_channel";
     private String dataChannelTopic = "data_channel";
     private int numPartitions = 2;
+    private Duration pollingInterval = Duration.ofSeconds(1);
     private String haproxyRuntimeApi = "haproxy:8401";
     private String haproxyMap = "/usr/local/etc/haproxy/sharding.map";
   }

@@ -28,6 +28,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
   private final Consumer<String, AbstractMessageTo> consumer;
   private final ZoneId zoneId;
   private final int numShards;
+  private final Duration pollingInterval;
   private final int bufferSize;
   private final Clock clock;
   private final boolean[] isShardOwned;
@@ -49,6 +50,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
     Consumer<String, AbstractMessageTo> dataChannelConsumer,
     ZoneId zoneId,
     int numShards,
+    Duration pollingInterval,
     int bufferSize,
     Clock clock,
     InfoChannel infoChannel,
@@ -65,6 +67,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
     this.producer = producer;
     this.zoneId = zoneId;
     this.numShards = numShards;
+    this.pollingInterval = pollingInterval;
     this.bufferSize = bufferSize;
     this.clock = clock;
     this.isShardOwned = new boolean[numShards];
@@ -189,7 +192,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
     {
       try
       {
-        ConsumerRecords<String, AbstractMessageTo> records = consumer.poll(Duration.ofMinutes(1));
+        ConsumerRecords<String, AbstractMessageTo> records = consumer.poll(pollingInterval);
         log.info("Fetched {} messages", records.count());
 
         if (loadInProgress)

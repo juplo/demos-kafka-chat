@@ -130,6 +130,7 @@ public class KafkaServicesConfiguration
         properties.getKafka().getInfoChannelTopic(),
         producer,
         infoChannelConsumer,
+        properties.getKafka().getPollingInterval(),
         properties.getKafka().getNumPartitions(),
         properties.getKafka().getInstanceUri());
   }
@@ -151,6 +152,7 @@ public class KafkaServicesConfiguration
         dataChannelConsumer,
         zoneId,
         properties.getKafka().getNumPartitions(),
+        properties.getKafka().getPollingInterval(),
         properties.getChatroomBufferSize(),
         clock,
         infoChannel,

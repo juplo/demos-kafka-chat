@@ -32,6 +32,7 @@ public class InfoChannel implements Runnable
   private final String topic;
   private final Producer<String, AbstractMessageTo> producer;
   private final Consumer<String, AbstractMessageTo> consumer;
+  private final Duration pollingInterval;
   private final int numShards;
   private final String[] shardOwners;
   private final long[] currentOffset;
@@ -48,6 +49,7 @@ public class InfoChannel implements Runnable
     String topic,
     Producer<String, AbstractMessageTo> producer,
     Consumer<String, AbstractMessageTo> infoChannelConsumer,
+    Duration pollingInterval,
     int numShards,
     URI instanceUri)
   {
@@ -58,6 +60,8 @@ public class InfoChannel implements Runnable
     this.consumer = infoChannelConsumer;
     this.producer = producer;
     this.chatRoomInfo = new HashMap<>();
+
+    this.pollingInterval = pollingInterval;
 
     this.numShards = numShards;
     this.shardOwners = new String[numShards];
@@ -191,7 +195,7 @@ public class InfoChannel implements Runnable
     {
       try
       {
-        ConsumerRecords<String, AbstractMessageTo> records = consumer.poll(Duration.ofMinutes(1));
+        ConsumerRecords<String, AbstractMessageTo> records = consumer.poll(pollingInterval);
         log.debug("Fetched {} messages", records.count());
         for (ConsumerRecord<String, AbstractMessageTo> record : records)
         {
