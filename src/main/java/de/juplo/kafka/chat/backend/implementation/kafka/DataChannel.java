@@ -155,7 +155,8 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
               "Could not publish instance {} as owner of shard {}: {}",
               instanceId,
               partition,
-              throwable))
+              throwable.toString()))
+          .onErrorComplete()
           .block();
     });
 

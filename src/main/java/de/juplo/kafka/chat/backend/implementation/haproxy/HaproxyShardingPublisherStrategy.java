@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -33,7 +32,7 @@ public class HaproxyShardingPublisherStrategy implements ShardingPublisherStrate
       socketChannel.close();
       return Mono.just(instanceId);
     }
-    catch (IOException e)
+    catch (Exception e)
     {
       return Mono.error(e);
     }
