@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono;
 public abstract class AbstractHandoverIT
 {
   static final ParameterizedTypeReference<ServerSentEvent<String>> SSE_TYPE = new ParameterizedTypeReference<>() {};
+  static final int NUM_CHATROOMS = 23;
 
 
   private final AbstractHandoverITContainers containers;
@@ -33,15 +34,21 @@ public abstract class AbstractHandoverIT
   @Test
   void test() throws InterruptedException
   {
-    ChatRoomInfoTo chatRoom = createChatRoom("bar").block();
+    ChatRoomInfoTo[] chatRooms = Flux
+        .range(0, NUM_CHATROOMS)
+        .flatMap(i -> createChatRoom("#" + i))
+        .toStream()
+        .toArray(size -> new ChatRoomInfoTo[size]);
+
     TestClient testClient = new TestClient(
         containers.haproxy.getMappedPort(8400),
-        chatRoom,
+        chatRooms,
         "nerd");
     testClient.run();
 
-    receiveMessages(chatRoom)
-        .take(100)
+    Flux
+        .fromArray(chatRooms)
+        .flatMap(chatRoom ->receiveMessages(chatRoom).take(100))
         .doOnNext(message -> log.info("message: {}", message))
         .then()
         .block();

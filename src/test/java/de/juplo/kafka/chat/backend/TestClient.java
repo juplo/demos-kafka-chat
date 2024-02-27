@@ -6,11 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
-import java.util.stream.IntStream;
 
 
 @Slf4j
@@ -18,14 +18,15 @@ public class TestClient
 {
   public void run()
   {
-    IntStream
-        .rangeClosed(1,100)
-        .mapToObj(i ->sendMessage(chatRoom, "Message #" + i))
-        .map(result -> result
-            .map(MessageTo::toString)
-            .retryWhen(Retry.fixedDelay(10, Duration.ofSeconds(1)))
-            .block())
-        .forEach(result -> log.info("{}", result));
+    Flux
+        .range(1, 100)
+        .flatMap(i -> Flux
+            .fromArray(chatRooms)
+            .map(chatRoom -> sendMessage(chatRoom, "Message #" + i))
+            .flatMap(result -> result
+                .map(MessageTo::toString)
+                .retryWhen(Retry.fixedDelay(10, Duration.ofSeconds(1)))))
+        .subscribe(result -> log.info("{}", result));
   }
 
   private Mono<MessageTo> sendMessage(
@@ -57,14 +58,14 @@ public class TestClient
 
 
   private final WebClient webClient;
-  private final ChatRoomInfoTo chatRoom;
+  private final ChatRoomInfoTo[] chatRooms;
   private final User user;
 
 
-  TestClient(Integer port, ChatRoomInfoTo chatRoom, String username)
+  TestClient(Integer port, ChatRoomInfoTo[] chatRooms, String username)
   {
     webClient = WebClient.create("http://localhost:" + port);
-    this.chatRoom = chatRoom;
+    this.chatRooms = chatRooms;
     user = new User(username);
   }
 }
