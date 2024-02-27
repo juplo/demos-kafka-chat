@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
@@ -18,15 +17,21 @@ public class TestClient
 {
   public void run()
   {
-    Flux
-        .range(1, 100)
-        .flatMap(i -> Flux
-            .fromArray(chatRooms)
-            .map(chatRoom -> sendMessage(chatRoom, "Message #" + i))
-            .flatMap(result -> result
-                .map(MessageTo::toString)
-                .retryWhen(Retry.fixedDelay(10, Duration.ofSeconds(1)))))
-        .subscribe(result -> log.info("{}", result));
+    for (int i = 0; i < 100; i++)
+    {
+      String message = "Message #" + i;
+      for (ChatRoomInfoTo chatRoom : chatRooms)
+      {
+        sendMessage(chatRoom, message)
+            .retryWhen(Retry.fixedDelay(10, Duration.ofSeconds(1)))
+            .map(MessageTo::toString)
+            .subscribe(result -> log.info(
+                "{} sent message \"{}\" to {}",
+                user,
+                message,
+                chatRoom));
+      }
+    }
   }
 
   private Mono<MessageTo> sendMessage(
