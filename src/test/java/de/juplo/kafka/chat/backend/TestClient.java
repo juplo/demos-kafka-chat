@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 @Slf4j
@@ -30,6 +31,14 @@ public class TestClient
                 user,
                 message,
                 chatRoom));
+      }
+      try
+      {
+        Thread.sleep(ThreadLocalRandom.current().nextLong(700, 1000));
+      }
+      catch (Exception e)
+      {
+        throw new RuntimeException(e);
       }
     }
   }
