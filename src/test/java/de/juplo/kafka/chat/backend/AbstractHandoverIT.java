@@ -13,6 +13,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.IntStream;
+
 
 @Testcontainers
 @Slf4j
@@ -20,9 +24,11 @@ public abstract class AbstractHandoverIT
 {
   static final ParameterizedTypeReference<ServerSentEvent<String>> SSE_TYPE = new ParameterizedTypeReference<>() {};
   static final int NUM_CHATROOMS = 23;
+  static final int NUM_CLIENTS = 17;
 
 
   private final AbstractHandoverITContainers containers;
+  private final ExecutorService executorService = Executors.newFixedThreadPool(NUM_CLIENTS);
 
 
   AbstractHandoverIT(AbstractHandoverITContainers containers)
@@ -40,11 +46,17 @@ public abstract class AbstractHandoverIT
         .toStream()
         .toArray(size -> new ChatRoomInfoTo[size]);
 
-    TestClient testClient = new TestClient(
-        containers.haproxy.getMappedPort(8400),
-        chatRooms,
-        "nerd");
-    testClient.run();
+    TestClient[] testClients = Flux
+        .fromStream(IntStream.range(0, NUM_CLIENTS).mapToObj(i -> Integer.toString(i)))
+        .map(i -> new TestClient(
+            containers.haproxy.getMappedPort(8400),
+            chatRooms,
+            i))
+        .doOnNext(testClient -> executorService.execute(testClient))
+        .toStream()
+        .toArray(size -> new TestClient[size]);
+
+    Thread.sleep(2000);
 
     Flux
         .fromArray(chatRooms)

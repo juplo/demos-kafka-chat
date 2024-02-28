@@ -14,8 +14,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 @Slf4j
-public class TestClient
+public class TestClient implements Runnable
 {
+  @Override
   public void run()
   {
     for (int i = 0; i < 100; i++)
