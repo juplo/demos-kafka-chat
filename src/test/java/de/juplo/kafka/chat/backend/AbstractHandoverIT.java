@@ -43,12 +43,12 @@ public abstract class AbstractHandoverIT
   {
     ChatRoomInfoTo[] chatRooms = Flux
         .range(0, NUM_CHATROOMS)
-        .flatMap(i -> createChatRoom("#" + i))
+        .flatMap(i -> createChatRoom("room-" + i))
         .toStream()
         .toArray(size -> new ChatRoomInfoTo[size]);
 
     TestClient[] testClients = Flux
-        .fromStream(IntStream.range(0, NUM_CLIENTS).mapToObj(i -> Integer.toString(i)))
+        .fromStream(IntStream.range(0, NUM_CLIENTS).mapToObj(i -> "user-" + Integer.toString(i)))
         .map(i -> new TestClient(
             containers.haproxy.getMappedPort(8400),
             chatRooms,
