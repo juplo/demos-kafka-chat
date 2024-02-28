@@ -124,15 +124,18 @@ public class KafkaServicesConfiguration
   InfoChannel infoChannel(
       ChatBackendProperties properties,
       Producer<String, AbstractMessageTo> producer,
-      Consumer<String, AbstractMessageTo> infoChannelConsumer)
+      Consumer<String, AbstractMessageTo> infoChannelConsumer,
+      ChannelMediator channelMediator)
   {
-    return new InfoChannel(
+    InfoChannel infoChannel = new InfoChannel(
         properties.getKafka().getInfoChannelTopic(),
         producer,
         infoChannelConsumer,
         properties.getKafka().getPollingInterval(),
         properties.getKafka().getNumPartitions(),
         properties.getKafka().getInstanceUri());
+    channelMediator.setInfoChannel(infoChannel);
+    return infoChannel;
   }
 
   @Bean
@@ -142,7 +145,7 @@ public class KafkaServicesConfiguration
       Consumer<String, AbstractMessageTo> dataChannelConsumer,
       ZoneId zoneId,
       Clock clock,
-      InfoChannel infoChannel,
+      ChannelMediator channelMediator,
       ShardingPublisherStrategy shardingPublisherStrategy)
   {
     return new DataChannel(
@@ -155,8 +158,14 @@ public class KafkaServicesConfiguration
         properties.getKafka().getPollingInterval(),
         properties.getChatroomBufferSize(),
         clock,
-        infoChannel,
+        channelMediator,
         shardingPublisherStrategy);
+  }
+
+  @Bean
+  ChannelMediator channelMediator()
+  {
+    return new ChannelMediator();
   }
 
   @Bean

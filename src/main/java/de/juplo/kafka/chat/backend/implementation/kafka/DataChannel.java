@@ -35,7 +35,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
   private final long[] currentOffset;
   private final long[] nextOffset;
   private final Map<UUID, ChatRoomData>[] chatRoomData;
-  private final InfoChannel infoChannel;
+  private final ChannelMediator channelMediator;
   private final ShardingPublisherStrategy shardingPublisherStrategy;
 
   private boolean running;
@@ -53,7 +53,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
     Duration pollingInterval,
     int bufferSize,
     Clock clock,
-    InfoChannel infoChannel,
+    ChannelMediator channelMediator,
     ShardingPublisherStrategy shardingPublisherStrategy)
   {
     log.debug(
@@ -77,7 +77,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
     IntStream
         .range(0, numShards)
         .forEach(shard -> this.chatRoomData[shard] = new HashMap<>());
-    this.infoChannel = infoChannel;
+    this.channelMediator = channelMediator;
     this.shardingPublisherStrategy = shardingPublisherStrategy;
   }
 
@@ -144,7 +144,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
           currentOffset);
 
       consumer.seek(topicPartition, nextOffset[partition]);
-      infoChannel.sendShardAssignedEvent(partition);
+      channelMediator.shardAssigned(partition);
       shardingPublisherStrategy
           .publishOwnership(partition)
           .doOnSuccess(instanceId -> log.info(
@@ -172,7 +172,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
       isShardOwned[partition] = false;
       nextOffset[partition] = consumer.position(topicPartition);
       log.info("Partition revoked: {} - next={}", partition, nextOffset[partition]);
-      infoChannel.sendShardRevokedEvent(partition);
+      channelMediator.shardRevoked(partition);
     });
   }
 
@@ -324,7 +324,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
       return Mono.error(new ShardNotOwnedException(instanceId, shard));
     }
 
-    return infoChannel
+    return channelMediator
         .getChatRoomInfo(id)
         .map(chatRoomInfo ->
             chatRoomData[shard].computeIfAbsent(id, this::computeChatRoomData));
