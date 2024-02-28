@@ -19,7 +19,7 @@ public class TestClient implements Runnable
   @Override
   public void run()
   {
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; running; i++)
     {
       String message = "Message #" + i;
       for (ChatRoomInfoTo chatRoom : chatRooms)
@@ -75,6 +75,8 @@ public class TestClient implements Runnable
   private final WebClient webClient;
   private final ChatRoomInfoTo[] chatRooms;
   private final User user;
+
+  volatile boolean running = true;
 
 
   TestClient(Integer port, ChatRoomInfoTo[] chatRooms, String username)

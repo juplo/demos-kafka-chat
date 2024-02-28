@@ -13,6 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.IntStream;
@@ -58,9 +59,13 @@ public abstract class AbstractHandoverIT
 
     Thread.sleep(2000);
 
+    Arrays
+        .stream(testClients)
+        .forEach(testClient -> testClient.running = false);
+
     Flux
         .fromArray(chatRooms)
-        .flatMap(chatRoom ->receiveMessages(chatRoom).take(100))
+        .flatMap(chatRoom ->receiveMessages(chatRoom).take(2))
         .doOnNext(message -> log.info("message: {}", message))
         .then()
         .block();
