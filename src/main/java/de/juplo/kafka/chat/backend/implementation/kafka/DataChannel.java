@@ -267,9 +267,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
     Message.MessageKey key = Message.MessageKey.of(chatMessageTo.getUser(), chatMessageTo.getId());
     Message message = new Message(key, offset, timestamp, chatMessageTo.getText());
 
-    ChatRoomData chatRoomData = this
-        .chatRoomData[partition]
-        .computeIfAbsent(chatRoomId, this::computeChatRoomData);
+    ChatRoomData chatRoomData = computeChatRoomData(chatRoomId, partition);
     KafkaChatMessageService kafkaChatRoomService =
         (KafkaChatMessageService) chatRoomData.getChatRoomService();
 
@@ -312,6 +310,11 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
         .toArray();
   }
 
+  void createChatRoomData(ChatRoomInfo chatRoomInfo)
+  {
+    computeChatRoomData(chatRoomInfo.getId(), chatRoomInfo.getShard());
+  }
+
   Mono<ChatRoomData> getChatRoomData(int shard, UUID id)
   {
     if (loadInProgress)
@@ -324,17 +327,28 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
       return Mono.error(new ShardNotOwnedException(instanceId, shard));
     }
 
-    return channelMediator
-        .getChatRoomInfo(id)
-        .map(chatRoomInfo ->
-            chatRoomData[shard].computeIfAbsent(id, this::computeChatRoomData));
+    return Mono.justOrEmpty(chatRoomData[shard].get(id));
   }
 
-  private ChatRoomData computeChatRoomData(UUID chatRoomId)
+  private ChatRoomData computeChatRoomData(UUID chatRoomId, int shard)
   {
-    log.info("Creating ChatRoom {} with buffer-size {}", chatRoomId, bufferSize);
-    KafkaChatMessageService service = new KafkaChatMessageService(this, chatRoomId);
-    return new ChatRoomData(clock, service, bufferSize);
+    ChatRoomData chatRoomData = this.chatRoomData[shard].get(chatRoomId);
+
+    if (chatRoomData != null)
+    {
+      log.info(
+          "Ignoring request to create already existing ChatRoomData for {}",
+          chatRoomId);
+    }
+    else
+    {
+      log.info("Creating ChatRoomData {} with buffer-size {}", chatRoomId, bufferSize);
+      KafkaChatMessageService service = new KafkaChatMessageService(this, chatRoomId);
+      chatRoomData = new ChatRoomData(clock, service, bufferSize);
+      this.chatRoomData[shard].put(chatRoomId, chatRoomData);
+    }
+
+    return chatRoomData;
   }
 
   ConsumerGroupMetadata getConsumerGroupMetadata()

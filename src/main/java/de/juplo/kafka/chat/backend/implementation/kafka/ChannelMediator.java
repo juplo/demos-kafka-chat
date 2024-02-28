@@ -13,6 +13,8 @@ public class ChannelMediator
 {
   @Setter
   private InfoChannel infoChannel;
+  @Setter
+  private DataChannel dataChannel;
 
 
   void shardAssigned(int shard)
@@ -28,5 +30,10 @@ public class ChannelMediator
   Mono<ChatRoomInfo> getChatRoomInfo(UUID id)
   {
     return infoChannel.getChatRoomInfo(id);
+  }
+
+  void chatRoomCreated(ChatRoomInfo chatRoomInfo)
+  {
+    dataChannel.createChatRoomData(chatRoomInfo);
   }
 }
