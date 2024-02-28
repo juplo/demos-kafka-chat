@@ -6,9 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
+import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -27,11 +29,16 @@ public class TestClient implements Runnable
         sendMessage(chatRoom, message)
             .retryWhen(Retry.fixedDelay(10, Duration.ofSeconds(1)))
             .map(MessageTo::toString)
+            .onErrorResume(throwable ->
+            {
+              WebClientResponseException e = (WebClientResponseException)throwable.getCause();
+              return Mono.just(e.getResponseBodyAsString(Charset.defaultCharset()));
+            })
             .subscribe(result -> log.info(
-                "{} sent message \"{}\" to {}",
+                "{} sent a message to {}: {}",
                 user,
-                message,
-                chatRoom));
+                chatRoom,
+                result));
       }
       try
       {
