@@ -47,20 +47,20 @@ public abstract class AbstractHandoverIT
         .toStream()
         .toArray(size -> new ChatRoomInfoTo[size]);
 
-    TestClient[] testClients = Flux
+    TestWriter[] testWriters = Flux
         .fromStream(IntStream.range(0, NUM_CLIENTS).mapToObj(i -> "user-" + Integer.toString(i)))
-        .map(i -> new TestClient(
+        .map(i -> new TestWriter(
             containers.haproxy.getMappedPort(8400),
             chatRooms,
             i))
         .doOnNext(testClient -> executorService.execute(testClient))
         .toStream()
-        .toArray(size -> new TestClient[size]);
+        .toArray(size -> new TestWriter[size]);
 
     Thread.sleep(2000);
 
     Arrays
-        .stream(testClients)
+        .stream(testWriters)
         .forEach(testClient -> testClient.running = false);
 
     Flux

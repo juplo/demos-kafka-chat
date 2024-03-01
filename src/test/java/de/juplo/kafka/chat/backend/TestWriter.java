@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 @Slf4j
-public class TestClient implements Runnable
+public class TestWriter implements Runnable
 {
   @Override
   public void run()
@@ -86,7 +86,7 @@ public class TestClient implements Runnable
   volatile boolean running = true;
 
 
-  TestClient(Integer port, ChatRoomInfoTo[] chatRooms, String username)
+  TestWriter(Integer port, ChatRoomInfoTo[] chatRooms, String username)
   {
     webClient = WebClient.create("http://localhost:" + port);
     this.chatRooms = chatRooms;
