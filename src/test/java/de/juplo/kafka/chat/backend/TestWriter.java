@@ -24,7 +24,7 @@ public class TestWriter implements Runnable
     for (int i = 0; running; i++)
     {
       String message = "Message #" + i;
-      for (ChatRoomInfoTo chatRoom : chatRooms)
+      try
       {
         sendMessage(chatRoom, message)
             .retryWhen(Retry.fixedDelay(10, Duration.ofSeconds(1)))
@@ -39,9 +39,7 @@ public class TestWriter implements Runnable
                 user,
                 chatRoom,
                 result));
-      }
-      try
-      {
+
         Thread.sleep(ThreadLocalRandom.current().nextLong(700, 1000));
       }
       catch (Exception e)
@@ -80,16 +78,16 @@ public class TestWriter implements Runnable
 
 
   private final WebClient webClient;
-  private final ChatRoomInfoTo[] chatRooms;
+  private final ChatRoomInfoTo chatRoom;
   private final User user;
 
   volatile boolean running = true;
 
 
-  TestWriter(Integer port, ChatRoomInfoTo[] chatRooms, String username)
+  TestWriter(Integer port, ChatRoomInfoTo chatRoom, String username)
   {
     webClient = WebClient.create("http://localhost:" + port);
-    this.chatRooms = chatRooms;
+    this.chatRoom = chatRoom;
     user = new User(username);
   }
 }

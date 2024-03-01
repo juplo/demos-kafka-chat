@@ -52,7 +52,7 @@ public abstract class AbstractHandoverIT
         .range(0, NUM_CLIENTS)
         .map(i -> new TestWriter(
             port,
-            chatRooms,
+            chatRooms[i % NUM_CHATROOMS],
             "user-" + Integer.toString(i)))
         .doOnNext(testClient -> executorService.execute(testClient))
         .toStream()
@@ -66,8 +66,9 @@ public abstract class AbstractHandoverIT
 
     Flux
         .fromArray(chatRooms)
-        .flatMap(chatRoom ->receiveMessages(chatRoom).take(50))
+        .flatMap(chatRoom ->receiveMessages(chatRoom))
         .doOnNext(message -> log.info("message: {}", message))
+        .take(50)
         .then()
         .block();
   }
