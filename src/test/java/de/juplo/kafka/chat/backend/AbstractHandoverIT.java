@@ -16,7 +16,6 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.IntStream;
 
 
 @Testcontainers
@@ -47,12 +46,14 @@ public abstract class AbstractHandoverIT
         .toStream()
         .toArray(size -> new ChatRoomInfoTo[size]);
 
+    int port = containers.haproxy.getMappedPort(8400);
+
     TestWriter[] testWriters = Flux
-        .fromStream(IntStream.range(0, NUM_CLIENTS).mapToObj(i -> "user-" + Integer.toString(i)))
+        .range(0, NUM_CLIENTS)
         .map(i -> new TestWriter(
-            containers.haproxy.getMappedPort(8400),
+            port,
             chatRooms,
-            i))
+            "user-" + Integer.toString(i)))
         .doOnNext(testClient -> executorService.execute(testClient))
         .toStream()
         .toArray(size -> new TestWriter[size]);
