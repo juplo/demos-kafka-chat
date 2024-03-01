@@ -7,18 +7,13 @@ import de.juplo.kafka.chat.backend.api.ChatRoomInfoTo;
 import de.juplo.kafka.chat.backend.api.MessageTo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
 
-import java.nio.charset.Charset;
-import java.time.Duration;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.*;
 
 
 @Slf4j
@@ -32,23 +27,32 @@ public class TestListener implements Runnable
   {
     Flux
         .fromArray(chatRooms)
-        .flatMap(chatRoom -> receiveMessages(chatRoom)
-            .flatMap(sse ->
-            {
-              try
+        .flatMap(chatRoom ->
+        {
+          List<MessageTo> list = new LinkedList<>();
+          receivedMessages.put(chatRoom.getId(), list);
+          return receiveMessages(chatRoom)
+              .flatMap(sse ->
               {
-                return Mono.just(objectMapper.readValue(sse.data(), MessageTo.class));
-              }
-              catch (Exception e)
+                try
+                {
+                  return Mono.just(objectMapper.readValue(sse.data(), MessageTo.class));
+                }
+                catch (Exception e)
+                {
+                  return Mono.error(e);
+                }
+              })
+              .doOnNext(message ->
               {
-                return Mono.error(e);
-              }
-            })
-            .doOnNext(message -> log.info(
-                "Received a message from chat-room {}: {}",
-                chatRoom,
-                message))
-            .limitRate(10))
+                list.add(message);
+                log.info(
+                    "Received a message from chat-room {}: {}",
+                    chatRoom,
+                    message);
+              })
+              .limitRate(10);
+        })
         .takeUntil(message -> !running)
         .then()
         .block();
@@ -70,6 +74,8 @@ public class TestListener implements Runnable
   private final WebClient webClient;
   private final ChatRoomInfoTo[] chatRooms;
   private final ObjectMapper objectMapper;
+
+  final Map<UUID, List<MessageTo>> receivedMessages = new HashMap<>();
 
   volatile boolean running = true;
 

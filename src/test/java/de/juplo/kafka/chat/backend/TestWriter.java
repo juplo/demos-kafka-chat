@@ -14,6 +14,8 @@ import reactor.util.retry.Retry;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -44,11 +46,15 @@ public class TestWriter implements Runnable
         .flatMap(message -> sendMessage(chatRoom, message)
             .delayElement(Duration.ofMillis(ThreadLocalRandom.current().nextLong(500, 1500)))
             .retryWhen(Retry.fixedDelay(10, Duration.ofSeconds(1))))
-        .doOnNext(message -> log.info(
-            "{} sent a message to {}: {}",
-            user,
-            chatRoom,
-            message))
+        .doOnNext(message ->
+        {
+          sentMessages.add(message);
+          log.info(
+              "{} sent a message to {}: {}",
+             user,
+             chatRoom,
+             message);
+        })
         .doOnError(throwable ->
         {
           WebClientResponseException e = (WebClientResponseException)throwable.getCause();
@@ -92,6 +98,8 @@ public class TestWriter implements Runnable
   private final WebClient webClient;
   private final ChatRoomInfoTo chatRoom;
   private final User user;
+
+  final List<MessageTo> sentMessages = new LinkedList<>();
 
   volatile boolean running = true;
 
