@@ -22,13 +22,12 @@ import java.util.concurrent.Executors;
 @Slf4j
 public abstract class AbstractHandoverIT
 {
-  static final ParameterizedTypeReference<ServerSentEvent<String>> SSE_TYPE = new ParameterizedTypeReference<>() {};
   static final int NUM_CHATROOMS = 23;
   static final int NUM_CLIENTS = 17;
 
 
   private final AbstractHandoverITContainers containers;
-  private final ExecutorService executorService = Executors.newFixedThreadPool(NUM_CLIENTS);
+  private final ExecutorService executorService = Executors.newFixedThreadPool(NUM_CLIENTS + 1);
 
 
   AbstractHandoverIT(AbstractHandoverITContainers containers)
@@ -58,19 +57,15 @@ public abstract class AbstractHandoverIT
         .toStream()
         .toArray(size -> new TestWriter[size]);
 
+    TestListener testListener = new TestListener(port, chatRooms);
+    executorService.execute(testListener);
+
     Thread.sleep(2000);
 
     Arrays
         .stream(testWriters)
         .forEach(testClient -> testClient.running = false);
-
-    Flux
-        .fromArray(chatRooms)
-        .flatMap(chatRoom ->receiveMessages(chatRoom))
-        .doOnNext(message -> log.info("message: {}", message))
-        .take(50)
-        .then()
-        .block();
+    testListener.running = false;
   }
 
   Mono<ChatRoomInfoTo> createChatRoom(String name)
@@ -92,18 +87,6 @@ public abstract class AbstractHandoverIT
             return response.createError();
           }
         });
-  }
-
-  Flux<ServerSentEvent<String>> receiveMessages(ChatRoomInfoTo chatRoom)
-  {
-    return webClient
-        .get()
-        .uri(
-            "/{chatRoomId}/listen",
-            chatRoom.getId())
-        .accept(MediaType.TEXT_EVENT_STREAM)
-        .retrieve()
-        .bodyToFlux(SSE_TYPE);
   }
 
 
