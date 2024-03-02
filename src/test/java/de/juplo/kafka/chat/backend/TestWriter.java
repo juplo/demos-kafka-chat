@@ -42,9 +42,9 @@ public class TestWriter
           }
         })
         .map(i -> "Message #" + i)
-        .flatMap(message -> sendMessage(chatRoom, message)
-            .delayElement(Duration.ofMillis(ThreadLocalRandom.current().nextLong(500, 1500)))
-            .retryWhen(Retry.fixedDelay(10, Duration.ofSeconds(1))))
+        .flatMap(message -> Mono
+            .delay(Duration.ofMillis(ThreadLocalRandom.current().nextLong(500, 1500)))
+            .thenMany(sendMessage(chatRoom, message).retryWhen(Retry.fixedDelay(10, Duration.ofSeconds(1)))))
         .doOnNext(message ->
         {
           sentMessages.add(message);
