@@ -12,7 +12,6 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
 
@@ -23,7 +22,7 @@ public class TestListener
   static final ParameterizedTypeReference<ServerSentEvent<String>> SSE_TYPE = new ParameterizedTypeReference<>() {};
 
 
-  public Mono<Void> run()
+  public Flux<MessageTo> run()
   {
     return Flux
         .fromArray(chatRooms)
@@ -44,21 +43,8 @@ public class TestListener
                   return Mono.error(e);
                 }
               })
-              .doOnNext(message ->
-              {
-                list.add(message);
-                log.info(
-                    "Received a message from chat-room {}: {}",
-                    chatRoom.getName(),
-                    message);
-              });
-        })
-        .limitRate(10)
-        .takeUntil(message -> !running)
-        .doOnComplete(() -> log.info("TestListener is done"))
-        .parallel(chatRooms.length)
-        .runOn(Schedulers.parallel())
-        .then();
+              .doOnNext(message -> list.add(message));
+        });
   }
 
   Flux<ServerSentEvent<String>> receiveMessages(ChatRoomInfoTo chatRoom)
@@ -79,8 +65,6 @@ public class TestListener
   private final ObjectMapper objectMapper;
 
   final Map<UUID, List<MessageTo>> receivedMessages = new HashMap<>();
-
-  volatile boolean running = true;
 
 
   TestListener(Integer port, ChatRoomInfoTo[] chatRooms)

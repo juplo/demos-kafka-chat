@@ -9,7 +9,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
 
 import java.nio.charset.Charset;
@@ -63,11 +62,8 @@ public class TestWriter
               user,
               e.getResponseBodyAsString(Charset.defaultCharset()));
         })
-        .limitRate(1)
         .takeUntil(message -> !running)
         .doOnComplete(() -> log.info("TestWriter {} is done", user))
-        .parallel(1)
-        .runOn(Schedulers.parallel())
         .then();
   }
 

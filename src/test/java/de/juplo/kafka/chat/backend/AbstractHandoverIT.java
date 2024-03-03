@@ -57,9 +57,11 @@ public abstract class AbstractHandoverIT
     }
 
     TestListener testListener = new TestListener(port, chatRooms);
-    CompletableFuture<Void> testListenerFuture = testListener
+    testListener
         .run()
-        .toFuture();
+        .subscribe(message -> log.info(
+            "Received message: {}",
+            message));
 
     log.info("Sleeping for 2 seconds...");
     Thread.sleep(2000);
@@ -71,13 +73,8 @@ public abstract class AbstractHandoverIT
       log.info("Joined TestWriter {}", testWriters[i].user);
     }
 
-
-    log.info("Sleeping for 2 seconds...");
-    Thread.sleep(2000);
-    log.info("Joining TestListener...");
-    testListener.running = false;
-    testListenerFuture.join();
-    log.info("Joined TestListener");
+    // Yield the work, so that the last messages can be received
+    Thread.sleep(500);
   }
 
   Mono<ChatRoomInfoTo> createChatRoom(String name)
