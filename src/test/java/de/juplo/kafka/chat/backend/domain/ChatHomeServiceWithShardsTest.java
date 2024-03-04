@@ -1,6 +1,6 @@
 package de.juplo.kafka.chat.backend.domain;
 
-import de.juplo.kafka.chat.backend.domain.exceptions.LoadInProgressException;
+import de.juplo.kafka.chat.backend.implementation.kafka.ChannelNotReadyException;
 import de.juplo.kafka.chat.backend.domain.exceptions.ShardNotOwnedException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ public abstract class ChatHomeServiceWithShardsTest extends ChatHomeServiceTest
         .log("testGetChatroomForNotOwnedShard")
         .retryWhen(Retry
             .backoff(5, Duration.ofSeconds(1))
-            .filter(throwable -> throwable instanceof LoadInProgressException));
+            .filter(throwable -> throwable instanceof ChannelNotReadyException));
 
     // Then
     assertThat(mono).sendsError(e ->

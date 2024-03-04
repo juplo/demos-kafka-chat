@@ -1,10 +1,13 @@
-package de.juplo.kafka.chat.backend.domain.exceptions;
+package de.juplo.kafka.chat.backend.implementation.kafka;
 
 
-public class LoadInProgressException extends IllegalStateException
+public class ChannelNotReadyException extends IllegalStateException
 {
-  public LoadInProgressException()
+  public final ChannelState state;
+
+  public ChannelNotReadyException(ChannelState state)
   {
-    super("Load in progress...");
+    super("Not ready! Current state: " + state);
+    this.state = state;
   }
 }

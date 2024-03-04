@@ -3,7 +3,7 @@ package de.juplo.kafka.chat.backend.domain;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
-import de.juplo.kafka.chat.backend.domain.exceptions.LoadInProgressException;
+import de.juplo.kafka.chat.backend.implementation.kafka.ChannelNotReadyException;
 import de.juplo.kafka.chat.backend.domain.exceptions.UnknownChatroomException;
 import de.juplo.kafka.chat.backend.implementation.inmemory.InMemoryServicesConfiguration;
 import de.juplo.kafka.chat.backend.implementation.kafka.KafkaServicesConfiguration;
@@ -49,7 +49,7 @@ public abstract class ChatHomeServiceTest
         .log("testGetExistingChatroom")
         .retryWhen(Retry
             .backoff(5, Duration.ofSeconds(1))
-            .filter(throwable -> throwable instanceof LoadInProgressException));
+            .filter(throwable -> throwable instanceof ChannelNotReadyException));
 
     // Then
     assertThat(mono).emitsCount(1);
@@ -68,7 +68,7 @@ public abstract class ChatHomeServiceTest
         .log("testGetNonExistentChatroom")
         .retryWhen(Retry
             .backoff(5, Duration.ofSeconds(1))
-            .filter(throwable -> throwable instanceof LoadInProgressException));
+            .filter(throwable -> throwable instanceof ChannelNotReadyException));
 
     // Then
     assertThat(mono).sendsError(e ->

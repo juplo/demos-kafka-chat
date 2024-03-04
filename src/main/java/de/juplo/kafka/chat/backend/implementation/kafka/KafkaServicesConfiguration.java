@@ -1,7 +1,6 @@
 package de.juplo.kafka.chat.backend.implementation.kafka;
 
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
-import de.juplo.kafka.chat.backend.domain.ChatHomeService;
 import de.juplo.kafka.chat.backend.domain.ShardingPublisherStrategy;
 import de.juplo.kafka.chat.backend.implementation.haproxy.HaproxyShardingPublisherStrategy;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.AbstractMessageTo;
@@ -40,25 +39,23 @@ import java.util.Properties;
 public class KafkaServicesConfiguration
 {
   @Bean
-  ConsumerTaskRunner consumerTaskRunner(
-      ConsumerTaskExecutor infoChannelConsumerTaskExecutor,
-      ConsumerTaskExecutor dataChannelConsumerTaskExecutor,
-      InfoChannel infoChannel)
+  ChannelTaskRunner channelTaskRunner(
+      ChannelTaskExecutor infoChannelTaskExecutor,
+      ChannelTaskExecutor dataChannelTaskExecutor)
   {
-    return new ConsumerTaskRunner(
-        infoChannelConsumerTaskExecutor,
-        dataChannelConsumerTaskExecutor,
-        infoChannel);
+    return new ChannelTaskRunner(
+        infoChannelTaskExecutor,
+        dataChannelTaskExecutor);
   }
 
   @Bean
-  ConsumerTaskExecutor infoChannelConsumerTaskExecutor(
+  ChannelTaskExecutor infoChannelTaskExecutor(
       ThreadPoolTaskExecutor taskExecutor,
       InfoChannel infoChannel,
       Consumer<String, AbstractMessageTo> infoChannelConsumer,
       WorkAssignor infoChannelWorkAssignor)
   {
-    return new ConsumerTaskExecutor(
+    return new ChannelTaskExecutor(
         taskExecutor,
         infoChannel,
         infoChannelConsumer,
@@ -82,13 +79,13 @@ public class KafkaServicesConfiguration
   }
 
   @Bean
-  ConsumerTaskExecutor dataChannelConsumerTaskExecutor(
+  ChannelTaskExecutor dataChannelTaskExecutor(
       ThreadPoolTaskExecutor taskExecutor,
       DataChannel dataChannel,
       Consumer<String, AbstractMessageTo> dataChannelConsumer,
       WorkAssignor dataChannelWorkAssignor)
   {
-    return new ConsumerTaskExecutor(
+    return new ChannelTaskExecutor(
         taskExecutor,
         dataChannel,
         dataChannelConsumer,

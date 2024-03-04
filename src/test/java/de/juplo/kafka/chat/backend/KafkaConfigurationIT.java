@@ -2,6 +2,7 @@ package de.juplo.kafka.chat.backend;
 
 import de.juplo.kafka.chat.backend.implementation.kafka.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.Consumer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,21 +44,25 @@ class KafkaConfigurationIT extends AbstractConfigurationWithShardingIT
   @BeforeAll
   public static void sendAndLoadStoredData(
       @Autowired KafkaTemplate<String, String> messageTemplate,
-      @Autowired ConsumerTaskRunner consumerTaskRunner)
+      @Autowired ChannelTaskRunner channelTaskRunner)
   {
     KafkaTestUtils.sendAndLoadStoredData(
         messageTemplate,
         INFO_TOPIC,
         DATA_TOPIC,
-        consumerTaskRunner);
+        channelTaskRunner);
   }
 
   @AfterAll
-  static void joinConsumerTasks(
-      @Autowired ConsumerTaskRunner consumerTaskRunner)
+  static void joinChannels(
+      @Autowired Consumer dataChannelConsumer,
+      @Autowired Consumer infoChannelConsumer,
+      @Autowired ChannelTaskRunner channelTaskRunner)
       throws InterruptedException
   {
-    KafkaTestUtils.joinConsumerTasks(consumerTaskRunner);
+    dataChannelConsumer.wakeup();
+    infoChannelConsumer.wakeup();
+    channelTaskRunner.joinChannels();
   }
 
 

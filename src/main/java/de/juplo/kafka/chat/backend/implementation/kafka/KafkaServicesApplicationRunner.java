@@ -16,18 +16,18 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class KafkaServicesApplicationRunner implements ApplicationRunner
 {
-  private final ConsumerTaskRunner consumerTaskRunner;
+  private final ChannelTaskRunner channelTaskRunner;
 
 
   @Override
   public void run(ApplicationArguments args)
   {
-    consumerTaskRunner.executeConsumerTasks();
+    channelTaskRunner.executeChannels();
   }
 
   @PreDestroy
-  public void joinConsumerTasks() throws InterruptedException
+  public void joinChannels() throws InterruptedException
   {
-    consumerTaskRunner.joinConsumerTasks();
+    channelTaskRunner.joinChannels();
   }
 }

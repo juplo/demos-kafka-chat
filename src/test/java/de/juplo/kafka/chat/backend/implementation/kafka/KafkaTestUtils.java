@@ -44,7 +44,7 @@ public abstract class KafkaTestUtils
       KafkaTemplate<String, String> messageTemplate,
       String infoTopic,
       String dataTopic,
-      ConsumerTaskRunner consumerTaskRunner)
+      ChannelTaskRunner channelTaskRunner)
   {
     send(messageTemplate, infoTopic, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\": \"5c73531c-6fc4-426c-adcb-afc5c140a0f7\", \"shard\": 2, \"name\": \"FOO\" }", "event_chatroom_created");
     send(messageTemplate, dataTopic, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"peter\", \"text\" : \"Hallo, ich heiße Peter!\" }", "event_chatmessage_received");
@@ -52,7 +52,7 @@ public abstract class KafkaTestUtils
     send(messageTemplate, dataTopic, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 2, \"user\" : \"peter\", \"text\" : \"Willst du mit mir gehen?\" }", "event_chatmessage_received");
     send(messageTemplate, dataTopic, "5c73531c-6fc4-426c-adcb-afc5c140a0f7","{ \"id\" : 1, \"user\" : \"klaus\", \"text\" : \"Ja? Nein? Vielleicht??\" }", "event_chatmessage_received");
 
-    consumerTaskRunner.executeConsumerTasks();
+    channelTaskRunner.executeChannels();
   }
 
   private static void send(
@@ -70,10 +70,5 @@ public abstract class KafkaTestUtils
         key,
         value,
         new TopicPartition(result.getRecordMetadata().topic(), result.getRecordMetadata().partition()));
-  }
-
-  public static void joinConsumerTasks(ConsumerTaskRunner consumerTaskRunner) throws InterruptedException
-  {
-    consumerTaskRunner.joinConsumerTasks();
   }
 }

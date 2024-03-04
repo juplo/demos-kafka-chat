@@ -1,11 +1,14 @@
 package de.juplo.kafka.chat.backend.implementation.kafka;
 
-import de.juplo.kafka.chat.backend.domain.*;
-import de.juplo.kafka.chat.backend.domain.exceptions.LoadInProgressException;
+import de.juplo.kafka.chat.backend.domain.ChatRoomData;
+import de.juplo.kafka.chat.backend.domain.ChatRoomInfo;
+import de.juplo.kafka.chat.backend.domain.Message;
+import de.juplo.kafka.chat.backend.domain.ShardingPublisherStrategy;
 import de.juplo.kafka.chat.backend.domain.exceptions.ShardNotOwnedException;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.AbstractMessageTo;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.data.EventChatMessageReceivedTo;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.clients.producer.Producer;
@@ -15,12 +18,16 @@ import org.apache.kafka.common.errors.WakeupException;
 import reactor.core.publisher.Mono;
 
 import java.time.*;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
 
+@ToString(of = { "topic", "instanceId" })
 @Slf4j
-public class DataChannel implements Runnable, ConsumerRebalanceListener
+public class DataChannel implements Channel, ConsumerRebalanceListener
 {
   private final String instanceId;
   private final String topic;
@@ -40,7 +47,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
 
   private boolean running;
   @Getter
-  private volatile boolean loadInProgress;
+  private volatile ChannelState channelState = ChannelState.STARTING;
 
 
   public DataChannel(
@@ -129,7 +136,7 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
   public void onPartitionsAssigned(Collection<TopicPartition> partitions)
   {
     log.info("Newly assigned partitions! Pausing normal operations...");
-    loadInProgress = true;
+    channelState = ChannelState.LOAD_IN_PROGRESS;
 
     consumer.endOffsets(partitions).forEach((topicPartition, currentOffset) ->
     {
@@ -196,29 +203,34 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
         ConsumerRecords<String, AbstractMessageTo> records = consumer.poll(pollingInterval);
         log.info("Fetched {} messages", records.count());
 
-        if (loadInProgress)
+        switch (channelState)
         {
-          loadChatRoomData(records);
+          case LOAD_IN_PROGRESS ->
+          {
+            loadChatRoomData(records);
 
-          if (isLoadingCompleted())
-          {
-            log.info("Loading of messages completed! Pausing all owned partitions...");
-            pauseAllOwnedPartions();
-            log.info("Resuming normal operations...");
-            loadInProgress = false;
+            if (isLoadingCompleted())
+            {
+              log.info("Loading of messages completed! Pausing all owned partitions...");
+              pauseAllOwnedPartions();
+              log.info("Resuming normal operations...");
+              channelState = ChannelState.READY;
+            }
           }
-        }
-        else
-        {
-          if (!records.isEmpty())
+          case SHUTTING_DOWN -> log.info("Shutdown in progress: ignoring {} fetched messages.", records.count());
+          default ->
           {
-            throw new IllegalStateException("All owned partitions should be paused, when no load is in progress!");
+            if (!records.isEmpty())
+            {
+              throw new IllegalStateException("All owned partitions should be paused, when in state " + channelState);
+            }
           }
         }
       }
       catch (WakeupException e)
       {
         log.info("Received WakeupException, exiting!");
+        channelState = ChannelState.SHUTTING_DOWN;
         running = false;
       }
     }
@@ -317,9 +329,10 @@ public class DataChannel implements Runnable, ConsumerRebalanceListener
 
   Mono<ChatRoomData> getChatRoomData(int shard, UUID id)
   {
-    if (loadInProgress)
+    ChannelState capturedState = channelState;
+    if (capturedState != ChannelState.READY)
     {
-      return Mono.error(new LoadInProgressException());
+      return Mono.error(new ChannelNotReadyException(capturedState));
     }
 
     if (!isShardOwned[shard])
