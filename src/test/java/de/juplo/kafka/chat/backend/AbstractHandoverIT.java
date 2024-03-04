@@ -1,6 +1,7 @@
 package de.juplo.kafka.chat.backend;
 
 import de.juplo.kafka.chat.backend.api.ChatRoomInfoTo;
+import de.juplo.kafka.chat.backend.api.MessageTo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,9 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import pl.rzrz.assertj.reactor.Assertions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -75,6 +78,18 @@ public abstract class AbstractHandoverIT
 
     // Yield the work, so that the last messages can be received
     Thread.sleep(500);
+
+    for (int i = 0; i < NUM_CLIENTS; i++)
+    {
+      TestWriter testWriter = testWriters[i];
+      ChatRoomInfoTo chatRoom = testWriter.chatRoom;
+      List<MessageTo> receivedMessages = testListener.receivedMessages.get(chatRoom.getId());
+
+      Assertions.assertThat(receivedMessages
+          .stream()
+          .filter(message -> message.getUser().equals(testWriter.user.getName()))
+          ).containsExactlyElementsOf(testWriter.sentMessages);
+    }
   }
 
   Mono<ChatRoomInfoTo> createChatRoom(String name)

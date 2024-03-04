@@ -96,8 +96,8 @@ public class TestWriter
 
 
   private final WebClient webClient;
-  private final ChatRoomInfoTo chatRoom;
 
+  final ChatRoomInfoTo chatRoom;
   final User user;
   final List<MessageTo> sentMessages = new LinkedList<>();
 
