@@ -314,4 +314,17 @@ public class KafkaServicesConfiguration
   {
     return ZoneId.systemDefault();
   }
+
+  @Bean
+  ChannelReactiveHealthIndicator dataChannelHealthIndicator(
+      DataChannel dataChannel)
+  {
+    return new ChannelReactiveHealthIndicator(dataChannel);
+  }
+
+  @Bean
+  ChannelReactiveHealthIndicator infoChannelHealthIndicator(InfoChannel infoChannel)
+  {
+    return new ChannelReactiveHealthIndicator(infoChannel);
+  }
 }
