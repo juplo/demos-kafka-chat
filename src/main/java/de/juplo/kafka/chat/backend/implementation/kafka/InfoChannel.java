@@ -225,9 +225,10 @@ public class InfoChannel implements Channel
     {
       boolean loadInProgress = IntStream
           .range(0, numShards)
-          .anyMatch(shard -> this.nextOffset[shard] < currentOffset[partition]);
+          .anyMatch(shard -> this.nextOffset[shard] < currentOffset[shard]);
       if (!loadInProgress)
       {
+        log.info("Loading of info completed! Resuming normal operations...");
         channelState = ChannelState.READY;
       }
     }
