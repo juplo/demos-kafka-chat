@@ -44,17 +44,7 @@ public class KafkaServicesConfiguration
     return new KafkaServicesThreadPoolTaskExecutorCustomizer();
   }
 
-  @Bean
-  ChannelTaskRunner channelTaskRunner(
-      ChannelTaskExecutor infoChannelTaskExecutor,
-      ChannelTaskExecutor dataChannelTaskExecutor)
-  {
-    return new ChannelTaskRunner(
-        infoChannelTaskExecutor,
-        dataChannelTaskExecutor);
-  }
-
-  @Bean(destroyMethod = "join")
+  @Bean(initMethod = "executeChannelTask", destroyMethod = "join")
   ChannelTaskExecutor infoChannelTaskExecutor(
       ThreadPoolTaskExecutor taskExecutor,
       InfoChannel infoChannel,
@@ -84,7 +74,7 @@ public class KafkaServicesConfiguration
     };
   }
 
-  @Bean(destroyMethod = "join")
+  @Bean(initMethod = "executeChannelTask", destroyMethod = "join")
   ChannelTaskExecutor dataChannelTaskExecutor(
       ThreadPoolTaskExecutor taskExecutor,
       DataChannel dataChannel,

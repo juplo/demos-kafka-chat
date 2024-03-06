@@ -2,7 +2,6 @@ package de.juplo.kafka.chat.backend.implementation.kafka;
 
 import de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
@@ -43,22 +42,11 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
 
   @BeforeAll
   static void sendAndLoadStoredData(
-      @Autowired KafkaTemplate<String, String> messageTemplate,
-      @Autowired ChannelTaskRunner channelTaskRunner)
+      @Autowired KafkaTemplate<String, String> messageTemplate)
   {
     KafkaTestUtils.sendAndLoadStoredData(
         messageTemplate,
         INFO_TOPIC,
-        DATA_TOPIC,
-        channelTaskRunner);
-  }
-
-  @AfterAll
-  static void joinChannels(
-      @Autowired ChannelTaskExecutor dataChannelTaskExecutor,
-      @Autowired ChannelTaskExecutor infoChannelTaskExecutor)
-  {
-    dataChannelTaskExecutor.join();
-    infoChannelTaskExecutor.join();
+        DATA_TOPIC);
   }
 }
