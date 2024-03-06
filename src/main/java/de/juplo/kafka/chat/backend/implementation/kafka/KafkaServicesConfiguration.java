@@ -39,6 +39,12 @@ import java.util.Properties;
 public class KafkaServicesConfiguration
 {
   @Bean
+  KafkaServicesThreadPoolTaskExecutorCustomizer kafkaServicesThreadPoolTaskExecutorCustomizer()
+  {
+    return new KafkaServicesThreadPoolTaskExecutorCustomizer();
+  }
+
+  @Bean
   ChannelTaskRunner channelTaskRunner(
       ChannelTaskExecutor infoChannelTaskExecutor,
       ChannelTaskExecutor dataChannelTaskExecutor)
