@@ -54,7 +54,7 @@ public class KafkaServicesConfiguration
         dataChannelTaskExecutor);
   }
 
-  @Bean
+  @Bean(destroyMethod = "join")
   ChannelTaskExecutor infoChannelTaskExecutor(
       ThreadPoolTaskExecutor taskExecutor,
       InfoChannel infoChannel,
@@ -84,7 +84,7 @@ public class KafkaServicesConfiguration
     };
   }
 
-  @Bean
+  @Bean(destroyMethod = "join")
   ChannelTaskExecutor dataChannelTaskExecutor(
       ThreadPoolTaskExecutor taskExecutor,
       DataChannel dataChannel,

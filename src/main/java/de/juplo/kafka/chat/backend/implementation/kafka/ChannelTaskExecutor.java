@@ -1,7 +1,6 @@
 package de.juplo.kafka.chat.backend.implementation.kafka;
 
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.AbstractMessageTo;
-import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +36,6 @@ public class ChannelTaskExecutor
         });
   }
 
-  @PreDestroy
   public void join()
   {
     log.info("Signaling the consumer-task for {} to quit its work", channel);
