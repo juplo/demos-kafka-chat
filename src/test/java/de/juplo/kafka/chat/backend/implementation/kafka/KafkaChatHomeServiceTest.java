@@ -2,7 +2,6 @@ package de.juplo.kafka.chat.backend.implementation.kafka;
 
 import de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.Consumer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,13 +55,10 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
 
   @AfterAll
   static void joinChannels(
-      @Autowired Consumer dataChannelConsumer,
-      @Autowired Consumer infoChannelConsumer,
-      @Autowired ChannelTaskRunner channelTaskRunner)
-      throws InterruptedException
+      @Autowired ChannelTaskExecutor dataChannelTaskExecutor,
+      @Autowired ChannelTaskExecutor infoChannelTaskExecutor)
   {
-    dataChannelConsumer.wakeup();
-    infoChannelConsumer.wakeup();
-    channelTaskRunner.joinChannels();
+    dataChannelTaskExecutor.join();
+    infoChannelTaskExecutor.join();
   }
 }
