@@ -3,6 +3,7 @@ package de.juplo.kafka.chat.backend;
 import de.juplo.kafka.chat.backend.api.ChatRoomInfoTo;
 import de.juplo.kafka.chat.backend.api.MessageTo;
 import lombok.extern.slf4j.Slf4j;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import pl.rzrz.assertj.reactor.Assertions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -80,9 +82,16 @@ public abstract class AbstractHandoverIT
       log.info("Joined TestWriter {}", testWriters[i].user);
     }
 
-    // Yield the work, so that the last messages can be received
-    Thread.sleep(500);
+    Awaitility
+        .await()
+        .atMost(Duration.ofSeconds(5))
+        .untilAsserted(() -> assertAllSentMessagesReceived(testWriters, testListener));
+  }
 
+  private void assertAllSentMessagesReceived(
+      TestWriter[] testWriters,
+      TestListener testListener)
+  {
     for (int i = 0; i < NUM_CLIENTS; i++)
     {
       TestWriter testWriter = testWriters[i];
