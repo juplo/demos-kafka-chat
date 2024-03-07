@@ -45,15 +45,24 @@ public abstract class AbstractHandoverITContainers
   {
     setUpExtra();
     haproxy.start();
-    backend1.start();
-    // backend2.start();
-    // backend3.start();
+  }
+
+  void startBackend(
+      GenericContainer backend,
+      TestWriter[] testWriters)
+  {
+    backend.start();
+
+    int[] numSentMessages = Arrays
+        .stream(testWriters)
+        .mapToInt(testWriter -> testWriter.getNumSentMessages())
+        .toArray();
 
     Awaitility
         .await()
-        .atMost(Duration.ofMinutes(10))
+        .atMost(Duration.ofSeconds(30))
         .until(() -> WebClient
-            .create("http://localhost:" + backend1.getMappedPort(8080))
+            .create("http://localhost:" + backend.getMappedPort(8080))
             .get()
             .uri("/actuator/health")
             .exchangeToMono(response ->
@@ -78,10 +87,9 @@ public abstract class AbstractHandoverITContainers
         .withSignal("HUP")
         .exec();
 
-
     Awaitility
         .await()
-        .atMost(Duration.ofMinutes(10))
+        .atMost(Duration.ofSeconds(30))
         .until(() -> WebClient
             .create("http://localhost:" + haproxy.getMappedPort(8400))
             .get()
@@ -101,6 +109,29 @@ public abstract class AbstractHandoverITContainers
               }
             })
             .block());
+
+    Awaitility
+        .await()
+        .atMost(Duration.ofSeconds(30))
+        .until(() ->
+        {
+          for (int i = 0; i < testWriters.length; i++)
+          {
+            TestWriter testWriter = testWriters[i];
+            int sentTotal = testWriter.getNumSentMessages();
+            if (sentTotal == numSentMessages[i])
+            {
+              log.info(
+                  "No progress for {}: sent-before={}, sent-total={}",
+                  testWriter,
+                  numSentMessages[i],
+                  sentTotal);
+              return false;
+            }
+          }
+
+          return true;
+        });
   }
 
   abstract String[] getBackendCommand();

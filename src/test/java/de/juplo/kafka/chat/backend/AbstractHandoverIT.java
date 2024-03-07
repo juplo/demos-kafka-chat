@@ -37,6 +37,10 @@ public abstract class AbstractHandoverIT
   @Test
   void test() throws InterruptedException
   {
+    log.info("Starting backend-1...");
+    containers.startBackend(containers.backend1, new TestWriter[0]);
+    log.info("backend-1 started!");
+
     ChatRoomInfoTo[] chatRooms = Flux
         .range(0, NUM_CHATROOMS)
         .flatMap(i -> createChatRoom("room-" + i))

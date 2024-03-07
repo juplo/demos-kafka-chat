@@ -2,6 +2,7 @@ package de.juplo.kafka.chat.backend;
 
 import de.juplo.kafka.chat.backend.api.ChatRoomInfoTo;
 import de.juplo.kafka.chat.backend.api.MessageTo;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -44,9 +45,10 @@ public class TestWriter
         .delayElements(Duration.ofMillis(ThreadLocalRandom.current().nextLong(500, 1500)))
         .map(i -> "Message #" + i)
         .flatMap(message -> sendMessage(chatRoom, message)
-            .retryWhen(Retry.fixedDelay(10, Duration.ofSeconds(1))))
+            .retryWhen(Retry.fixedDelay(30, Duration.ofSeconds(1))))
         .doOnNext(message ->
         {
+          numSentMessages++;
           sentMessages.add(message);
           log.info(
               "{} sent a message to {}: {}",
@@ -102,6 +104,8 @@ public class TestWriter
   final List<MessageTo> sentMessages = new LinkedList<>();
 
   volatile boolean running = true;
+  @Getter
+  private volatile int numSentMessages = 0;
 
 
   TestWriter(Integer port, ChatRoomInfoTo chatRoom, String username)
