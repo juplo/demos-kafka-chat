@@ -99,7 +99,7 @@ public abstract class AbstractHandoverITContainers
     before = Instant.now();
     Awaitility
         .await()
-        .atMost(Duration.ofSeconds(30))
+        .atMost(Duration.ofSeconds(45))
         .until(() -> WebClient
             .create(backendUri)
             .get()
@@ -132,7 +132,7 @@ public abstract class AbstractHandoverITContainers
     before = Instant.now();
     Awaitility
         .await()
-        .atMost(Duration.ofSeconds(30))
+        .atMost(Duration.ofSeconds(15))
         .until(() -> WebClient
             .create("http://localhost:" + haproxy.getMappedPort(8400))
             .get()

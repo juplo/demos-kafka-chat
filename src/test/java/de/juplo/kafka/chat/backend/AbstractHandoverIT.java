@@ -72,8 +72,9 @@ public abstract class AbstractHandoverIT
             "Received message: {}",
             message));
 
-    log.info("Sleeping for 2 seconds...");
-    Thread.sleep(2000);
+    log.info("Starting backend-2...");
+    containers.startBackend(containers.backend2, testWriters);
+    log.info("backend-2 started!");
 
     for (int i = 0; i < NUM_CLIENTS; i++)
     {
