@@ -1,5 +1,6 @@
 package de.juplo.kafka.chat.backend.domain;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
@@ -15,20 +16,38 @@ import static pl.rzrz.assertj.reactor.Assertions.assertThat;
 
 public class ChatRoomDataTest
 {
+  Clock now;
+  ChatMessageService chatMessageService;
+  ChatRoomData chatRoomData;
+
+  String user;
+  Long messageId;
+  Message.MessageKey key;
+  LocalDateTime timestamp;
+
+
+  @BeforeEach
+  public void setUp()
+  {
+    now = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+    chatMessageService = mock(ChatMessageService.class);
+    chatRoomData = new ChatRoomData(
+        Clock.systemDefaultZone(),
+        chatMessageService,
+        8);
+
+    user = "foo";
+    messageId = 1l;
+    key = Message.MessageKey.of(user, messageId);
+    timestamp = LocalDateTime.now(now);
+  }
+
+
   @Test
   @DisplayName("Assert, that Mono emits expected message, if it exists")
   void testGetExistingMessage()
   {
     // Given
-    String user = "foo";
-    Long messageId = 1l;
-    ChatMessageService chatMessageService = mock(ChatMessageService.class);
-    ChatRoomData chatRoomData = new ChatRoomData(
-        Clock.systemDefaultZone(),
-        chatMessageService,
-        8);
-    Message.MessageKey key = Message.MessageKey.of(user, messageId);
-    LocalDateTime timestamp = LocalDateTime.now();
     Message message = new Message(key, 0l, timestamp, "Bar");
     when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
 
@@ -40,17 +59,10 @@ public class ChatRoomDataTest
   }
 
   @Test
-  @DisplayName("Assert, that Mono if empty, if message does not exists")
+  @DisplayName("Assert, that Mono is empty, if message does not exists")
   void testGetNonExistentMessage()
   {
     // Given
-    String user = "foo";
-    Long messageId = 1l;
-    ChatMessageService chatMessageService = mock(ChatMessageService.class);
-    ChatRoomData chatRoomData = new ChatRoomData(
-        Clock.systemDefaultZone(),
-        chatMessageService,
-        8);
     when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.empty());
 
     // When
@@ -65,16 +77,6 @@ public class ChatRoomDataTest
   void testAddNewMessage()
   {
     // Given
-    String user = "foo";
-    Long messageId = 1l;
-    ChatMessageService chatMessageService = mock(ChatMessageService.class);
-    ChatRoomData chatRoomData = new ChatRoomData(
-        Clock.systemDefaultZone(),
-        chatMessageService,
-        8);
-    Message.MessageKey key = Message.MessageKey.of(user, messageId);
-    Clock now = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-    LocalDateTime timestamp = LocalDateTime.now(now);
     String messageText = "Bar";
     Message message = new Message(key, 0l, timestamp, messageText);
     when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.empty());
@@ -92,16 +94,6 @@ public class ChatRoomDataTest
   void testAddUnchangedMessage()
   {
     // Given
-    String user = "foo";
-    Long messageId = 1l;
-    ChatMessageService chatMessageService = mock(ChatMessageService.class);
-    ChatRoomData chatRoomData = new ChatRoomData(
-        Clock.systemDefaultZone(),
-        chatMessageService,
-        8);
-    Message.MessageKey key = Message.MessageKey.of(user, messageId);
-    Clock now = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-    LocalDateTime timestamp = LocalDateTime.now(now);
     String messageText = "Bar";
     Message message = new Message(key, 0l, timestamp, messageText);
     when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
@@ -119,16 +111,6 @@ public class ChatRoomDataTest
   void testAddMutatedMessage()
   {
     // Given
-    String user = "foo";
-    Long messageId = 1l;
-    ChatMessageService chatMessageService = mock(ChatMessageService.class);
-    ChatRoomData chatRoomData = new ChatRoomData(
-        Clock.systemDefaultZone(),
-        chatMessageService,
-        8);
-    Message.MessageKey key = Message.MessageKey.of(user, messageId);
-    Clock now = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-    LocalDateTime timestamp = LocalDateTime.now(now);
     String messageText = "Bar";
     String mutatedText = "Boom!";
     Message message = new Message(key, 0l, timestamp, messageText);
