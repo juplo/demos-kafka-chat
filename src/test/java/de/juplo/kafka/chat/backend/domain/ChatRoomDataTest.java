@@ -272,6 +272,59 @@ public class ChatRoomDataTest
         .untilAsserted(() -> assertThat(receivedMessages).contains(sentMessages));
   }
 
+  @Test
+  @DisplayName("Assert, that multiple listeners can receive an added message")
+  void testMultipleListeners()
+  {
+    // Given
+    Message message1 = new Message(key, 1l, timestamp, "#1");
+    Message message2 = new Message(key, 2l, timestamp, "#2");
+    Message message3 = new Message(key, 3l, timestamp, "#3");
+    Message message4 = new Message(key, 4l, timestamp, "#4");
+    when(chatMessageService.getMessage(any(Message.MessageKey.class)))
+        .thenReturn(Mono.empty());
+    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class)))
+        .thenReturn(Mono.just(message1))
+        .thenReturn(Mono.just(message2))
+        .thenReturn(Mono.just(message3))
+        .thenReturn(Mono.just(message4));
+
+    // When
+    Message[] sentMessages = new Message[4];
+    List<Message> messagesReceivedByListener1 = new LinkedList<>();
+    chatRoomData
+        .listen()
+        .subscribe(receivedMessage -> messagesReceivedByListener1.add(receivedMessage));
+    sentMessages[0] = chatRoomData.addMessage(messageId, user, "Some Text").block();
+    sentMessages[1] = chatRoomData.addMessage(messageId, user, "Some Text").block();
+    List<Message> messagesReceivedByListener2 = new LinkedList<>();
+    chatRoomData
+        .listen()
+        .subscribe(receivedMessage -> messagesReceivedByListener2.add(receivedMessage));
+    sentMessages[2] = chatRoomData.addMessage(messageId, user, "Some Text").block();
+    List<Message> messagesReceivedByListener3 = new LinkedList<>();
+    chatRoomData
+        .listen()
+        .subscribe(receivedMessage -> messagesReceivedByListener3.add(receivedMessage));
+    sentMessages[3] = chatRoomData.addMessage(messageId, user, "Some Text").block();
+    List<Message> messagesReceivedByListener4 = new LinkedList<>();
+    chatRoomData
+        .listen()
+        .subscribe(receivedMessage -> messagesReceivedByListener4.add(receivedMessage));
+
+    // Then
+    Awaitility
+        .await()
+        .atMost(Duration.ofSeconds(1))
+        .untilAsserted(() ->
+        {
+          assertThat(messagesReceivedByListener1).contains(sentMessages);
+          assertThat(messagesReceivedByListener2).contains(sentMessages);
+          assertThat(messagesReceivedByListener3).contains(sentMessages);
+          assertThat(messagesReceivedByListener4).contains(sentMessages);
+        });
+  }
+
 
   /**
    * This message is used, when methods of {@link ChatMessageService} are mocked,
