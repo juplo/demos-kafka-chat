@@ -48,14 +48,14 @@ public class ChatRoomDataTest
   void testGetExistingMessage()
   {
     // Given
-    Message message = new Message(key, 0l, timestamp, "Bar");
-    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
+    when(chatMessageService.getMessage(any(Message.MessageKey.class)))
+        .thenReturn(Mono.just(someMessage()));
 
     // When
     Mono<Message> mono = chatRoomData.getMessage(user, messageId);
 
     // Then
-    assertThat(mono).emitsExactly(message);
+    assertThat(mono).emitsExactly(someMessage());
   }
 
   @Test
@@ -63,7 +63,8 @@ public class ChatRoomDataTest
   void testGetNonExistentMessage()
   {
     // Given
-    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.empty());
+    when(chatMessageService.getMessage(any(Message.MessageKey.class)))
+        .thenReturn(Mono.empty());
 
     // When
     Mono<Message> mono = chatRoomData.getMessage(user, messageId);
@@ -77,16 +78,16 @@ public class ChatRoomDataTest
   void testAddNewMessageEmitsPersistedMessage()
   {
     // Given
-    String messageText = "Bar";
-    Message message = new Message(key, 0l, timestamp, messageText);
-    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.empty());
-    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
+    when(chatMessageService.getMessage(any(Message.MessageKey.class)))
+        .thenReturn(Mono.empty());
+    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class)))
+        .thenReturn(Mono.just(someMessage()));
 
     // When
-    Mono<Message> mono = chatRoomData.addMessage(messageId, user, messageText);
+    Mono<Message> mono = chatRoomData.addMessage(messageId, user, "Some Text");
 
     // Then
-    assertThat(mono).emitsExactly(message);
+    assertThat(mono).emitsExactly(someMessage());
   }
 
   @Test
@@ -95,9 +96,10 @@ public class ChatRoomDataTest
   {
     // Given
     String messageText = "Bar";
-    Message message = new Message(key, 0l, timestamp, messageText);
-    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.empty());
-    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
+    when(chatMessageService.getMessage(any(Message.MessageKey.class)))
+        .thenReturn(Mono.empty());
+    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class)))
+        .thenReturn(Mono.just(someMessage()));
 
     // When
     chatRoomData
@@ -114,14 +116,15 @@ public class ChatRoomDataTest
   {
     // Given
     String messageText = "Bar";
-    Message message = new Message(key, 0l, timestamp, messageText);
-    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
+    Message existingMessage = new Message(key, 0l, timestamp, messageText);
+    when(chatMessageService.getMessage(any(Message.MessageKey.class)))
+        .thenReturn(Mono.just(existingMessage));
 
     // When
     Mono<Message> mono = chatRoomData.addMessage(messageId, user, messageText);
 
     // Then
-    assertThat(mono).emitsExactly(message);
+    assertThat(mono).emitsExactly(existingMessage);
   }
 
   @Test
@@ -130,8 +133,9 @@ public class ChatRoomDataTest
   {
     // Given
     String messageText = "Bar";
-    Message message = new Message(key, 0l, timestamp, messageText);
-    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
+    Message existingMessage = new Message(key, 0l, timestamp, messageText);
+    when(chatMessageService.getMessage(any(Message.MessageKey.class)))
+        .thenReturn(Mono.just(existingMessage));
 
     // When
     chatRoomData
@@ -149,8 +153,9 @@ public class ChatRoomDataTest
     // Given
     String messageText = "Bar";
     String mutatedText = "Boom!";
-    Message message = new Message(key, 0l, timestamp, messageText);
-    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
+    Message existingMessage = new Message(key, 0l, timestamp, messageText);
+    when(chatMessageService.getMessage(any(Message.MessageKey.class)))
+        .thenReturn(Mono.just(existingMessage));
 
     // When
     Mono<Message> mono = chatRoomData.addMessage(messageId, user, mutatedText);
@@ -166,8 +171,9 @@ public class ChatRoomDataTest
     // Given
     String messageText = "Bar";
     String mutatedText = "Boom!";
-    Message message = new Message(key, 0l, timestamp, messageText);
-    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
+    Message existingMessage = new Message(key, 0l, timestamp, messageText);
+    when(chatMessageService.getMessage(any(Message.MessageKey.class)))
+        .thenReturn(Mono.just(existingMessage));
 
     // When
     chatRoomData
@@ -177,5 +183,23 @@ public class ChatRoomDataTest
 
     // Then
     verify(chatMessageService, never()).persistMessage(any(), any(), any());
+  }
+
+
+  /**
+   * This message is used, when methods of {@link ChatMessageService} are mocked,
+   * that return a {@link Message}.
+   * The contents of the message are set to arbitrary values, in order to underline
+   * the fact, that the test can only assert, that the message that was returned
+   * by {@link ChatMessageService} is handed on by {@link ChatRoomData} correctly.
+   * @return a message.
+   */
+  private Message someMessage()
+  {
+    return new Message(
+        Message.MessageKey.of("FOO", 666l),
+        666l,
+        LocalDateTime.of(2024, 3, 8, 12, 13, 00),
+        "Just some message...");
   }
 }
