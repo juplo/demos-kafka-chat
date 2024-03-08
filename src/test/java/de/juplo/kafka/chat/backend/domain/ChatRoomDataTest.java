@@ -32,7 +32,7 @@ public class ChatRoomDataTest
     now = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     chatMessageService = mock(ChatMessageService.class);
     chatRoomData = new ChatRoomData(
-        Clock.systemDefaultZone(),
+        now,
         chatMessageService,
         8);
 
@@ -73,8 +73,8 @@ public class ChatRoomDataTest
   }
 
   @Test
-  @DisplayName("Assert, that Mono emits expected message, if a new message is added")
-  void testAddNewMessage()
+  @DisplayName("Assert, that Mono emits the persisted message, if a new message is added")
+  void testAddNewMessageEmitsPersistedMessage()
   {
     // Given
     String messageText = "Bar";
@@ -90,8 +90,27 @@ public class ChatRoomDataTest
   }
 
   @Test
-  @DisplayName("Assert, that Mono emits expected message, if an unchanged message is added")
-  void testAddUnchangedMessage()
+  @DisplayName("Assert, that ChatMessageService.persistMessage() is called correctly, if a new message is added")
+  void testAddNewMessageTriggersPersistence()
+  {
+    // Given
+    String messageText = "Bar";
+    Message message = new Message(key, 0l, timestamp, messageText);
+    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.empty());
+    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
+
+    // When
+    chatRoomData
+        .addMessage(messageId, user, messageText)
+        .block();
+
+    // Then
+    verify(chatMessageService, times(1)).persistMessage(eq(key), eq(timestamp), eq(messageText));
+  }
+
+  @Test
+  @DisplayName("Assert, that Mono emits the already persisted message, if an unchanged message is added")
+  void testAddUnchangedMessageEmitsAlreadyPersistedMessage()
   {
     // Given
     String messageText = "Bar";
@@ -107,8 +126,27 @@ public class ChatRoomDataTest
   }
 
   @Test
+  @DisplayName("Assert, that ChatMessageService.persistMessage() is not called, if an unchanged message is added")
+  void testAddUnchangedMessageDoesNotTriggerPersistence()
+  {
+    // Given
+    String messageText = "Bar";
+    Message message = new Message(key, 0l, timestamp, messageText);
+    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
+    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
+
+    // When
+    chatRoomData
+        .addMessage(messageId, user, messageText)
+        .block();
+
+    // Then
+    verify(chatMessageService, never()).persistMessage(any(), any(), any());
+  }
+
+  @Test
   @DisplayName("Assert, that Mono sends an error, if a message is added again with mutated text")
-  void testAddMutatedMessage()
+  void testAddMutatedMessageSendsError()
   {
     // Given
     String messageText = "Bar";
@@ -122,5 +160,26 @@ public class ChatRoomDataTest
 
     // Then
     assertThat(mono).sendsError();
+  }
+
+  @Test
+  @DisplayName("Assert, that ChatMessageService.persistMessage() is not called, if a message is added again with mutated text")
+  void testAddMutatedMessageDoesNotTriggerPersistence()
+  {
+    // Given
+    String messageText = "Bar";
+    String mutatedText = "Boom!";
+    Message message = new Message(key, 0l, timestamp, messageText);
+    when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
+    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
+
+    // When
+    chatRoomData
+        .addMessage(messageId, user, mutatedText)
+        .onErrorResume((throwable) -> Mono.empty())
+        .block();
+
+    // Then
+    verify(chatMessageService, never()).persistMessage(any(), any(), any());
   }
 }
