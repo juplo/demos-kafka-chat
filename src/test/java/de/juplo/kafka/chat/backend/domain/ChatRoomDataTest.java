@@ -116,7 +116,6 @@ public class ChatRoomDataTest
     String messageText = "Bar";
     Message message = new Message(key, 0l, timestamp, messageText);
     when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
-    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
 
     // When
     Mono<Message> mono = chatRoomData.addMessage(messageId, user, messageText);
@@ -133,7 +132,6 @@ public class ChatRoomDataTest
     String messageText = "Bar";
     Message message = new Message(key, 0l, timestamp, messageText);
     when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
-    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
 
     // When
     chatRoomData
@@ -153,7 +151,6 @@ public class ChatRoomDataTest
     String mutatedText = "Boom!";
     Message message = new Message(key, 0l, timestamp, messageText);
     when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
-    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
 
     // When
     Mono<Message> mono = chatRoomData.addMessage(messageId, user, mutatedText);
@@ -171,7 +168,6 @@ public class ChatRoomDataTest
     String mutatedText = "Boom!";
     Message message = new Message(key, 0l, timestamp, messageText);
     when(chatMessageService.getMessage(any(Message.MessageKey.class))).thenReturn(Mono.just(message));
-    when(chatMessageService.persistMessage(any(Message.MessageKey.class), any(LocalDateTime.class), any(String.class))).thenReturn(Mono.just(message));
 
     // When
     chatRoomData
