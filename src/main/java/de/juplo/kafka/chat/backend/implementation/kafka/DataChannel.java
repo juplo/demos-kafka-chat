@@ -36,7 +36,7 @@ public class DataChannel implements Channel, ConsumerRebalanceListener
   private final ZoneId zoneId;
   private final int numShards;
   private final Duration pollingInterval;
-  private final int bufferSize;
+  private final int historyLimit;
   private final Clock clock;
   private final boolean[] isShardOwned;
   private final long[] currentOffset;
@@ -58,7 +58,7 @@ public class DataChannel implements Channel, ConsumerRebalanceListener
     ZoneId zoneId,
     int numShards,
     Duration pollingInterval,
-    int bufferSize,
+    int historyLimit,
     Clock clock,
     ChannelMediator channelMediator,
     ShardingPublisherStrategy shardingPublisherStrategy)
@@ -75,7 +75,7 @@ public class DataChannel implements Channel, ConsumerRebalanceListener
     this.zoneId = zoneId;
     this.numShards = numShards;
     this.pollingInterval = pollingInterval;
-    this.bufferSize = bufferSize;
+    this.historyLimit = historyLimit;
     this.clock = clock;
     this.isShardOwned = new boolean[numShards];
     this.currentOffset = new long[numShards];
@@ -355,9 +355,9 @@ public class DataChannel implements Channel, ConsumerRebalanceListener
     }
     else
     {
-      log.info("Creating ChatRoomData {} with buffer-size {}", chatRoomId, bufferSize);
+      log.info("Creating ChatRoomData {} with history-limit {}", chatRoomId, historyLimit);
       KafkaChatMessageService service = new KafkaChatMessageService(this, chatRoomId);
-      chatRoomData = new ChatRoomData(clock, service, bufferSize);
+      chatRoomData = new ChatRoomData(clock, service, historyLimit);
       this.chatRoomData[shard].put(chatRoomId, chatRoomData);
     }
 

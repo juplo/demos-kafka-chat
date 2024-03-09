@@ -18,24 +18,24 @@ public class SimpleChatHomeService implements ChatHomeService
   private final Map<UUID, ChatRoomInfo> chatRoomInfo;
   private final Map<UUID, ChatRoomData> chatRoomData;
   private final Clock clock;
-  private final int bufferSize;
+  private final int historyLimit;
 
 
 
   public SimpleChatHomeService(
       Clock clock,
-      int bufferSize)
+      int historyLimit)
   {
     this(
         null,
         clock,
-        bufferSize);
+        historyLimit);
   }
 
   public SimpleChatHomeService(
       Integer shard,
       Clock clock,
-      int bufferSize)
+      int historyLimit)
   {
     log.debug("Creating SimpleChatHomeService");
 
@@ -43,7 +43,7 @@ public class SimpleChatHomeService implements ChatHomeService
     this.chatRoomInfo = new HashMap<>();
     this.chatRoomData = new HashMap<>();
     this.clock = clock;
-    this.bufferSize = bufferSize;
+    this.historyLimit = historyLimit;
   }
 
 
@@ -81,7 +81,7 @@ public class SimpleChatHomeService implements ChatHomeService
               new ChatRoomData(
                   clock,
                   chatMessageService,
-                  bufferSize));
+                  historyLimit));
 
           return chatMessageService.restore(storageStrategy);
         })
@@ -95,11 +95,11 @@ public class SimpleChatHomeService implements ChatHomeService
   @Override
   public Mono<ChatRoomInfo> createChatRoom(UUID id, String name)
   {
-    log.info("Creating ChatRoom with buffer-size {}", bufferSize);
+    log.info("Creating ChatRoom with history-limit {}", historyLimit);
     ChatMessageService service = new InMemoryChatMessageService(id);
     ChatRoomInfo chatRoomInfo = new ChatRoomInfo(id, name, shard);
     this.chatRoomInfo.put(id, chatRoomInfo);
-    ChatRoomData chatRoomData = new ChatRoomData(clock, service, bufferSize);
+    ChatRoomData chatRoomData = new ChatRoomData(clock, service, historyLimit);
     this.chatRoomData.put(id, chatRoomData);
     return Mono.just(chatRoomInfo);
   }

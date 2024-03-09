@@ -33,7 +33,7 @@ public class InMemoryServicesConfiguration
   {
     SimpleChatHomeService chatHomeService = new SimpleChatHomeService(
         clock,
-        properties.getChatroomBufferSize());
+        properties.getChatroomHistoryLimit());
     chatHomeService.restore(storageStrategy).block();
     return chatHomeService;
   }
@@ -57,7 +57,7 @@ public class InMemoryServicesConfiguration
           SimpleChatHomeService service = chatHomes[shard] = new SimpleChatHomeService(
               shard,
               clock,
-              properties.getChatroomBufferSize());
+              properties.getChatroomHistoryLimit());
           service.restore(storageStrategy).block();
         });
     ShardingStrategy strategy = new KafkaLikeShardingStrategy(numShards);

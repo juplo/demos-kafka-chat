@@ -17,7 +17,7 @@ public class ChatBackendProperties
 {
   private String instanceId = "DEV";
   private String allowedOrigins = "http://localhost:4200";
-  private int chatroomBufferSize = 1024;
+  private int chatroomHistoryLimit = 100;
   private ServiceType services = ServiceType.inmemory;
   private InMemoryServicesProperties inmemory = new InMemoryServicesProperties();
   private KafkaServicesProperties kafka = new KafkaServicesProperties();

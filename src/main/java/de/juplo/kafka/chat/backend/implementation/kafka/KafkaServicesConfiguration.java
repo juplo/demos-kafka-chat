@@ -150,7 +150,7 @@ public class KafkaServicesConfiguration
         zoneId,
         properties.getKafka().getNumPartitions(),
         properties.getKafka().getPollingInterval(),
-        properties.getChatroomBufferSize(),
+        properties.getChatroomHistoryLimit(),
         clock,
         channelMediator,
         shardingPublisherStrategy);
