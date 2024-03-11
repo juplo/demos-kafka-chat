@@ -3,6 +3,7 @@ package de.juplo.kafka.chat.backend.implementation.inmemory;
 import de.juplo.kafka.chat.backend.domain.ChatMessageService;
 import de.juplo.kafka.chat.backend.domain.Message;
 import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @Slf4j
 public class InMemoryChatMessageService implements ChatMessageService
 {
+  @Getter
   private final UUID chatRoomId;
   private final LinkedHashMap<Message.MessageKey, Message> messages;
 

@@ -76,12 +76,13 @@ public class SimpleChatHomeService implements ChatHomeService
               new InMemoryChatMessageService(chatRoomId);
 
           chatRoomInfo.put(chatRoomId, info);
-          chatRoomData.put(
-              info.getId(),
+          ChatRoomData chatRoomData =
               new ChatRoomData(
                   clock,
                   chatMessageService,
-                  historyLimit));
+                  historyLimit);
+          chatRoomData.activate();
+          this.chatRoomData.put(info.getId(), chatRoomData);
 
           return chatMessageService.restore(storageStrategy);
         })
@@ -100,6 +101,7 @@ public class SimpleChatHomeService implements ChatHomeService
     ChatRoomInfo chatRoomInfo = new ChatRoomInfo(id, name, shard);
     this.chatRoomInfo.put(id, chatRoomInfo);
     ChatRoomData chatRoomData = new ChatRoomData(clock, service, historyLimit);
+    chatRoomData.activate();
     this.chatRoomData.put(id, chatRoomData);
     return Mono.just(chatRoomInfo);
   }
