@@ -12,7 +12,9 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
+import java.time.Duration;
 import java.util.*;
 
 
@@ -52,7 +54,8 @@ public class TestListener
         })
         .doOnNext(message -> list.add(message))
         .doOnComplete(() -> log.info("Listening to {} was completed!", chatRoom))
-        .doOnError(throwalbe -> log.error("Listening to {} failed!", chatRoom, throwalbe));
+        .doOnError(throwalbe -> log.error("Listening to {} failed!", chatRoom, throwalbe))
+        .thenMany(Flux.defer(() -> receiveMessages(chatRoom)));
   }
 
   Flux<ServerSentEvent<String>> receiveServerSentEvents(ChatRoomInfoTo chatRoom)
@@ -65,7 +68,8 @@ public class TestListener
         .accept(MediaType.TEXT_EVENT_STREAM)
         .header("X-Shard", chatRoom.getShard().toString())
         .retrieve()
-        .bodyToFlux(SSE_TYPE);
+        .bodyToFlux(SSE_TYPE)
+        .retryWhen(Retry.fixedDelay(15, Duration.ofSeconds(1)));
   }
 
 
