@@ -106,6 +106,14 @@ public class ChatRoomData
     return service.getMessages(first, last);
   }
 
+  public void activate()
+  {
+  }
+
+  public void deactivate()
+  {
+  }
+
   private Sinks.Many<Message> createSink()
   {
     return Sinks

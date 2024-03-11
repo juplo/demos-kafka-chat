@@ -1,22 +1,29 @@
 package de.juplo.kafka.chat.backend;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.juplo.kafka.chat.backend.api.ChatRoomInfoTo;
+import de.juplo.kafka.chat.backend.api.MessageTo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.shaded.org.awaitility.Awaitility;
+import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.random.RandomGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.endsWith;
@@ -37,10 +44,20 @@ public abstract class AbstractConfigurationIT
   @Autowired
   ObjectMapper objectMapper;
 
+  @Value("classpath:data/files/5c73531c-6fc4-426c-adcb-afc5c140a0f7.json")
+  Resource existingChatRoomRessource;
+  MessageTo[] expectedExistingMessages;
+
 
   @BeforeEach
-  void waitForApp()
+  void waitForApp() throws IOException
   {
+    expectedExistingMessages = objectMapper
+        .readValue(
+            existingChatRoomRessource.getInputStream(),
+            new TypeReference<List<MessageTo>>() {})
+        .toArray(size -> new MessageTo[size]);
+
     Awaitility
         .await()
         .atMost(Duration.ofSeconds(15))
@@ -231,5 +248,42 @@ public abstract class AbstractConfigurationIT
                 .jsonPath("$.user").isEqualTo("nerd")
                 .jsonPath("$.text").isEqualTo("Hello world!");
         });
+  }
+
+  @Test
+  @DisplayName("Only newly send messages can be seen, when listening to restored chat-room")
+  void testListenToRestoredChatRoomYieldsOnlyNewlyAddedMessages()
+  {
+    MessageTo sentMessage = webTestClient
+        .put()
+        .uri(
+            "http://localhost:{port}/{chatRoomId}/nerd/{messageId}",
+            port,
+            EXISTING_CHATROOM,
+            RandomGenerator.getDefault().nextInt())
+        .contentType(MediaType.TEXT_PLAIN)
+        .accept(MediaType.APPLICATION_JSON)
+        .bodyValue("Hello world!")
+        .exchange()
+        .expectStatus()
+        .isOk()
+        .returnResult(MessageTo.class)
+        .getResponseBody()
+        .next()
+        .block();
+
+    Flux<MessageTo> result = webTestClient
+        .get()
+        .uri(
+            "http://localhost:{port}/{chatRoomId}/listen",
+            port,
+            EXISTING_CHATROOM)
+        .accept(MediaType.TEXT_EVENT_STREAM)
+        .exchange()
+        .expectStatus().isOk()
+        .returnResult(MessageTo.class)
+        .getResponseBody();
+
+    assertThat(result.next().block()).isEqualTo(sentMessage);
   }
 }

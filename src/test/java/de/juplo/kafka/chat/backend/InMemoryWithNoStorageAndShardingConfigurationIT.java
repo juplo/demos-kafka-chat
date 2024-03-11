@@ -28,4 +28,8 @@ class InMemoryWithNoStorageAndShardingConfigurationIT extends AbstractConfigurat
   @Override
   @Disabled("Chat-Rooms cannot be restored, if storage is disabled")
   void testRestoredMessageForPeterHasExpectedText() {}
+
+  @Override
+  @Disabled("Chat-Rooms cannot be restored, if storage is disabled")
+  void testListenToRestoredChatRoomYieldsOnlyNewlyAddedMessages() {}
 }
