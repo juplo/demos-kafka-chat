@@ -28,7 +28,7 @@ public class TestListener
         .fromArray(chatRooms)
         .flatMap(chatRoom ->
         {
-          log.info("Requesting messages from chat-room {}", chatRoom);
+          log.info("Requesting messages for chat-room {}", chatRoom);
           List<MessageTo> list = new LinkedList<>();
           receivedMessages.put(chatRoom.getId(), list);
           return receiveMessages(chatRoom)
@@ -43,7 +43,9 @@ public class TestListener
                   return Mono.error(e);
                 }
               })
-              .doOnNext(message -> list.add(message));
+              .doOnNext(message -> list.add(message))
+              .doOnComplete(() -> log.info("Listening to {} was completed!", chatRoom))
+              .doOnError(throwalbe -> log.error("Listening to {} failed!", chatRoom, throwalbe));
         });
   }
 
