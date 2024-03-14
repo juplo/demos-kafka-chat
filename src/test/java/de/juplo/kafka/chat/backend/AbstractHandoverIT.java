@@ -76,6 +76,10 @@ public abstract class AbstractHandoverIT
     containers.startBackend(containers.backend2, testWriters);
     log.info("backend-2 started!");
 
+    log.info("Starting backend-3...");
+    containers.startBackend(containers.backend3, testWriters);
+    log.info("backend-3 started!");
+
     for (int i = 0; i < NUM_CLIENTS; i++)
     {
       testWriters[i].running = false;
