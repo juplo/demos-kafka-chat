@@ -81,10 +81,11 @@ public class SimpleChatHomeService implements ChatHomeService
                   clock,
                   chatMessageService,
                   historyLimit);
-          chatRoomData.activate();
           this.chatRoomData.put(info.getId(), chatRoomData);
 
-          return chatMessageService.restore(storageStrategy);
+          return chatMessageService
+              .restore(storageStrategy)
+              .doOnSuccess(noResult -> chatRoomData.activate());
         })
         .count()
         .doOnSuccess(count -> log.info("Restored {} with {} chat-rooms", this, count))
