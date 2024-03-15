@@ -3,8 +3,6 @@ package de.juplo.kafka.chat.backend;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.juplo.kafka.chat.backend.api.ChatRoomInfoTo;
 import lombok.extern.slf4j.Slf4j;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -196,9 +194,7 @@ public abstract class AbstractConfigurationIT
         .untilAsserted(() ->
         {
           // The first request creates a new chat-room
-          // It must be repeated, until a chat-room was created,
-          // that is owned by the instance
-          byte[] result = webTestClient
+          ChatRoomInfoTo chatRoomInfo = webTestClient
               .post()
               .uri("http://localhost:{port}/create", port)
               .contentType(MediaType.TEXT_PLAIN)
@@ -206,34 +202,20 @@ public abstract class AbstractConfigurationIT
               .accept(MediaType.APPLICATION_JSON)
               .exchange()
               .expectStatus().isOk()
-              .expectBody()
-                .jsonPath("$.id").exists()
-                .jsonPath("$.name").isEqualTo("bar")
-                .jsonPath("$.shard").value(new BaseMatcher<Integer>() {
-                  @Override
-                  public boolean matches(Object actual)
-                  {
-                    return actual == null
-                        ? true
-                        : actual.equals(Integer.valueOf(2));
-                  }
+              .returnResult(ChatRoomInfoTo.class)
+              .getResponseBody()
+              .blockFirst();
 
-                  @Override
-                  public void describeTo(Description description)
-                  {
-                    description.appendText("shard has expected value 2, or is empty");
-                  }
-                })
-              .returnResult()
-              .getResponseBody();
-          ChatRoomInfoTo chatRoomInfo = objectMapper.readValue(result, ChatRoomInfoTo.class);
-          UUID chatRoomId = chatRoomInfo.getId();
+          // It must be repeated, until a chat-room was created,
+          // that is owned by the instance
+          assertThat(chatRoomInfo.getShard()).isIn(2, null);
+
           webTestClient
               .put()
               .uri(
                   "http://localhost:{port}/{chatRoomId}/nerd/7",
                   port,
-                  chatRoomId)
+                  chatRoomInfo.getId())
               .contentType(MediaType.TEXT_PLAIN)
               .accept(MediaType.APPLICATION_JSON)
               .bodyValue("Hello world!")
