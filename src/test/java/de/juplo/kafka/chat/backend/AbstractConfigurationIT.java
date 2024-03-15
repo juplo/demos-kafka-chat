@@ -188,34 +188,39 @@ public abstract class AbstractConfigurationIT
   @DisplayName("A message can be put into a newly created chat-room")
   void testPutMessageInNewChatRoom() throws IOException
   {
+    ChatRoomInfoTo chatRoomInfo;
+    do
+    {
+      // The first request creates a new chat-room
+      // It must be repeated, until a chat-room was created,
+      // that is owned by the instance
+      chatRoomInfo = webTestClient
+          .post()
+          .uri("http://localhost:{port}/create", port)
+          .contentType(MediaType.TEXT_PLAIN)
+          .bodyValue("bar")
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .returnResult(ChatRoomInfoTo.class)
+          .getResponseBody()
+          .retry(30)
+          .blockFirst();
+    }
+    while(!(chatRoomInfo.getShard() == null || chatRoomInfo.getShard().intValue() == 2));
+
+    UUID chatRoomId = chatRoomInfo.getId();
+
     Awaitility
         .await()
         .atMost(Duration.ofSeconds(15))
         .untilAsserted(() ->
         {
-          // The first request creates a new chat-room
-          ChatRoomInfoTo chatRoomInfo = webTestClient
-              .post()
-              .uri("http://localhost:{port}/create", port)
-              .contentType(MediaType.TEXT_PLAIN)
-              .bodyValue("bar")
-              .accept(MediaType.APPLICATION_JSON)
-              .exchange()
-              .expectStatus().isOk()
-              .returnResult(ChatRoomInfoTo.class)
-              .getResponseBody()
-              .blockFirst();
-
-          // It must be repeated, until a chat-room was created,
-          // that is owned by the instance
-          assertThat(chatRoomInfo.getShard()).isIn(2, null);
-
           webTestClient
               .put()
               .uri(
                   "http://localhost:{port}/{chatRoomId}/nerd/7",
                   port,
-                  chatRoomInfo.getId())
+                  chatRoomId)
               .contentType(MediaType.TEXT_PLAIN)
               .accept(MediaType.APPLICATION_JSON)
               .bodyValue("Hello world!")
