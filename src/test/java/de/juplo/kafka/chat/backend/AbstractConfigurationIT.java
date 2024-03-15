@@ -3,6 +3,8 @@ package de.juplo.kafka.chat.backend;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.juplo.kafka.chat.backend.api.ChatRoomInfoTo;
 import lombok.extern.slf4j.Slf4j;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -193,6 +195,9 @@ public abstract class AbstractConfigurationIT
         .atMost(Duration.ofSeconds(15))
         .untilAsserted(() ->
         {
+          // The first request creates a new chat-room
+          // It must be repeated, until a chat-room was created,
+          // that is owned by the instance
           byte[] result = webTestClient
               .post()
               .uri("http://localhost:{port}/create", port)
@@ -204,8 +209,21 @@ public abstract class AbstractConfigurationIT
               .expectBody()
                 .jsonPath("$.id").exists()
                 .jsonPath("$.name").isEqualTo("bar")
-                // The hard must not be asserted, because not all implementations ar aware of it
-                // .jsonPath("$.shard").isEqualTo(Integer.valueOf(2))
+                .jsonPath("$.shard").value(new BaseMatcher<Integer>() {
+                  @Override
+                  public boolean matches(Object actual)
+                  {
+                    return actual == null
+                        ? true
+                        : actual.equals(Integer.valueOf(2));
+                  }
+
+                  @Override
+                  public void describeTo(Description description)
+                  {
+                    description.appendText("shard has expected value 2, or is empty");
+                  }
+                })
               .returnResult()
               .getResponseBody();
           ChatRoomInfoTo chatRoomInfo = objectMapper.readValue(result, ChatRoomInfoTo.class);
