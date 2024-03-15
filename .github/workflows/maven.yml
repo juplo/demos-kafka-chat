@@ -2,9 +2,9 @@ name: Maven-Build
 
 on:
   push:
-    branches: [ "backend" ]
+    branches: [ "**" ]
   pull_request:
-    branches: [ "backend" ]
+    branches: [ "**" ]
 
 jobs:
   build:
