@@ -44,8 +44,9 @@ public class TestWriter
         })
         .delayElements(Duration.ofMillis(ThreadLocalRandom.current().nextLong(500, 1500)))
         .map(i -> "Message #" + i)
-        .flatMap(message -> sendMessage(chatRoom, message)
-            .retryWhen(Retry.fixedDelay(30, Duration.ofSeconds(1))))
+        .concatMap(message -> sendMessage(chatRoom, message)
+            .log(user.getName())
+            .retryWhen(Retry.fixedDelay(60, Duration.ofSeconds(1))))
         .doOnNext(message ->
         {
           numSentMessages++;
