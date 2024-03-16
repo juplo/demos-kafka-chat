@@ -1,9 +1,6 @@
 package de.juplo.kafka.chat.backend.api;
 
-import de.juplo.kafka.chat.backend.domain.exceptions.InvalidUsernameException;
-import de.juplo.kafka.chat.backend.domain.exceptions.MessageMutationException;
-import de.juplo.kafka.chat.backend.domain.exceptions.ShardNotOwnedException;
-import de.juplo.kafka.chat.backend.domain.exceptions.UnknownChatroomException;
+import de.juplo.kafka.chat.backend.domain.exceptions.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -147,6 +144,33 @@ public class ChatBackendControllerAdvice
     problem.setDetail(stringBuilder.toString());
 
     problem.setProperty("username", e.getUsername());
+
+    return problem;
+  }
+
+  @ExceptionHandler(ChatRoomInactiveException.class)
+  public final ProblemDetail handleException(
+      ChatRoomInactiveException e,
+      ServerWebExchange exchange,
+      UriComponentsBuilder uriComponentsBuilder)
+  {
+    final HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
+    ProblemDetail problem = ProblemDetail.forStatus(status);
+
+    problem.setProperty("timestamp", new Date());
+
+    problem.setProperty("requestId", exchange.getRequest().getId());
+
+    problem.setType(uriComponentsBuilder.replacePath(contextPath).path("/problem/chatroom-inactive").build().toUri());
+
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(status.getReasonPhrase());
+    stringBuilder.append(" - Chat-Room not active");
+    problem.setTitle(stringBuilder.toString());
+
+    problem.setDetail(e.getMessage());
+
+    problem.setProperty("chatroom", e.getChatRoomId());
 
     return problem;
   }
