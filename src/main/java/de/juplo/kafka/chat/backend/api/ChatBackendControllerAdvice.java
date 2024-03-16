@@ -1,6 +1,7 @@
 package de.juplo.kafka.chat.backend.api;
 
 import de.juplo.kafka.chat.backend.domain.exceptions.*;
+import de.juplo.kafka.chat.backend.implementation.kafka.ChannelNotReadyException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -171,6 +172,33 @@ public class ChatBackendControllerAdvice
     problem.setDetail(e.getMessage());
 
     problem.setProperty("chatroom", e.getChatRoomId());
+
+    return problem;
+  }
+
+  @ExceptionHandler(ChannelNotReadyException.class)
+  public final ProblemDetail handleException(
+      ChannelNotReadyException e,
+      ServerWebExchange exchange,
+      UriComponentsBuilder uriComponentsBuilder)
+  {
+    final HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
+    ProblemDetail problem = ProblemDetail.forStatus(status);
+
+    problem.setProperty("timestamp", new Date());
+
+    problem.setProperty("requestId", exchange.getRequest().getId());
+
+    problem.setType(uriComponentsBuilder.replacePath(contextPath).path("/problem/channel-not-ready").build().toUri());
+
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(status.getReasonPhrase());
+    stringBuilder.append(" - Channel not ready");
+    problem.setTitle(stringBuilder.toString());
+
+    problem.setDetail(e.getMessage());
+
+    problem.setProperty("state", e.getState());
 
     return problem;
   }
