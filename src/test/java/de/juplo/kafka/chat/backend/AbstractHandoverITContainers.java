@@ -3,6 +3,7 @@ package de.juplo.kafka.chat.backend;
 import lombok.extern.slf4j.Slf4j;
 import org.awaitility.Awaitility;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
@@ -12,8 +13,10 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.images.ImagePullPolicy;
 import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 
 
@@ -58,15 +61,41 @@ public abstract class AbstractHandoverITContainers
         .mapToInt(testWriter -> testWriter.getNumSentMessages())
         .toArray();
 
+    String backendUri = "http://localhost:" + backend.getMappedPort(8080);
+
+    Instant before, after;
+
+    before = Instant.now();
+    HttpStatusCode statusCode = WebClient
+        .create(backendUri)
+        .get()
+        .uri("/actuator/health")
+        .exchangeToMono(response ->
+        {
+          log.info("{} responded with {}", backendUri, response.statusCode());
+          return Mono.just(response.statusCode());
+        })
+        .flatMap(status -> switch (status.value())
+        {
+          case 200, 503 -> Mono.just(status);
+          default -> Mono.error(new RuntimeException(status.toString()));
+        })
+        .retryWhen(Retry.backoff(30, Duration.ofSeconds(1)))
+        .block();
+    after = Instant.now();
+    log.info("Took {} to reach status {}", Duration.between(before, after), statusCode);
+
+    before = Instant.now();
     Awaitility
         .await()
         .atMost(Duration.ofSeconds(30))
         .until(() -> WebClient
-            .create("http://localhost:" + backend.getMappedPort(8080))
+            .create(backendUri)
             .get()
             .uri("/actuator/health")
             .exchangeToMono(response ->
             {
+              log.info("{} responded with {}", backendUri, response.statusCode());
               if (response.statusCode().equals(HttpStatus.OK))
               {
                 return response
@@ -80,6 +109,8 @@ public abstract class AbstractHandoverITContainers
               }
             })
             .block());
+    after = Instant.now();
+    log.info("Took {} until the backend reported status UP", Duration.between(before, after));
 
     haproxy
         .getDockerClient()
@@ -87,6 +118,7 @@ public abstract class AbstractHandoverITContainers
         .withSignal("HUP")
         .exec();
 
+    before = Instant.now();
     Awaitility
         .await()
         .atMost(Duration.ofSeconds(30))
@@ -96,6 +128,7 @@ public abstract class AbstractHandoverITContainers
             .uri("/actuator/health")
             .exchangeToMono(response ->
             {
+              log.info("{} responded with {}", backendUri, response.statusCode());
               if (response.statusCode().equals(HttpStatus.OK))
               {
                 return response
@@ -109,7 +142,10 @@ public abstract class AbstractHandoverITContainers
               }
             })
             .block());
+    after = Instant.now();
+    log.info("Took {} until haproxy reported status UP", Duration.between(before, after));
 
+    before = Instant.now();
     Awaitility
         .await()
         .atMost(Duration.ofSeconds(30))
@@ -132,6 +168,8 @@ public abstract class AbstractHandoverITContainers
 
           return true;
         });
+    after = Instant.now();
+    log.info("Took {} until all writers made some progress", Duration.between(before, after));
   }
 
   abstract String[] getBackendCommand();
