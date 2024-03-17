@@ -12,7 +12,7 @@ import java.nio.channels.SocketChannel;
 
 @RequiredArgsConstructor
 @Slf4j
-public class HaproxyShardingPublisherStrategy implements ShardingPublisherStrategy
+public class HaproxyRuntimeApiShardingPublisherStrategy implements ShardingPublisherStrategy
 {
   private final SocketAddress haproxyAddress;
   private final String map;

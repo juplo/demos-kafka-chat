@@ -2,7 +2,7 @@ package de.juplo.kafka.chat.backend.implementation.kafka;
 
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.ShardingPublisherStrategy;
-import de.juplo.kafka.chat.backend.implementation.haproxy.HaproxyShardingPublisherStrategy;
+import de.juplo.kafka.chat.backend.implementation.haproxy.HaproxyRuntimeApiShardingPublisherStrategy;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.AbstractMessageTo;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.data.EventChatMessageReceivedTo;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.info.EventChatRoomCreated;
@@ -299,7 +299,7 @@ public class KafkaServicesConfiguration
   {
     String[] parts = properties.getKafka().getHaproxyRuntimeApi().split(":");
     InetSocketAddress haproxyAddress = new InetSocketAddress(parts[0], Integer.valueOf(parts[1]));
-    return new HaproxyShardingPublisherStrategy(
+    return new HaproxyRuntimeApiShardingPublisherStrategy(
         haproxyAddress,
         properties.getKafka().getHaproxyMap(),
         properties.getInstanceId());
