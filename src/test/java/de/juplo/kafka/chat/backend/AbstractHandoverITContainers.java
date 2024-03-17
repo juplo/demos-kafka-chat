@@ -15,6 +15,12 @@ import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -28,14 +34,20 @@ public abstract class AbstractHandoverITContainers
 
   final Network network = Network.newNetwork();
   final GenericContainer haproxy, backend1, backend2, backend3;
+  final SocketAddress haproxyAddress;
+  final String map = "/usr/local/etc/haproxy/sharding.map";
 
 
   AbstractHandoverITContainers()
   {
     haproxy = createHaproxyContainer();
+    haproxy.start();
+
     backend1 = createBackendContainer("1");
     backend2 = createBackendContainer("2");
     backend3 = createBackendContainer("3");
+
+    this.haproxyAddress = new InetSocketAddress("localhost", haproxy.getMappedPort(8401));
   }
 
 
@@ -47,7 +59,6 @@ public abstract class AbstractHandoverITContainers
   void setUp() throws Exception
   {
     setUpExtra();
-    haproxy.start();
   }
 
   void startBackend(
@@ -158,10 +169,11 @@ public abstract class AbstractHandoverITContainers
             if (sentTotal == numSentMessages[i])
             {
               log.info(
-                  "No progress for {}: sent-before={}, sent-total={}",
+                  "No progress for {}: sent-before={}, sent-total={}, map:\n{}\n",
                   testWriter,
                   numSentMessages[i],
-                  sentTotal);
+                  sentTotal,
+                  readHaproxyMap());
               return false;
             }
           }
@@ -207,5 +219,31 @@ public abstract class AbstractHandoverITContainers
           true
           )
           .withPrefix("BACKEND-ID".replaceAll("ID", id)));
+  }
+
+  private String readHaproxyMap()
+  {
+    try(SocketChannel socketChannel = SocketChannel.open(haproxyAddress))
+    {
+      String command = "show map " + map + "\n";
+      byte[] commandBytes = command.getBytes();
+      ByteBuffer buffer = ByteBuffer.wrap(commandBytes);
+      socketChannel.write(buffer);
+
+      ByteBuffer byteBuffer = ByteBuffer.allocate(512);
+      Charset charset = Charset.forName("UTF-8");
+      StringBuilder builder = new StringBuilder();
+      while (socketChannel.read(byteBuffer) > 0) {
+        byteBuffer.rewind();
+        builder.append(charset.decode(byteBuffer));
+        byteBuffer.flip();
+      }
+
+      return builder.toString();
+    }
+    catch(IOException e)
+    {
+      return e.toString();
+    }
   }
 }
