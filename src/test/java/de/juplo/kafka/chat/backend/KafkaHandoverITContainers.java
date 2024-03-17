@@ -75,6 +75,7 @@ class KafkaHandoverITContainers extends AbstractHandoverITContainers
         "--chat.backend.kafka.haproxy-user=juplo",
         "--chat.backend.kafka.haproxy-password=juplo",
         "--chat.backend.kafka.haproxy-map=sharding",
+        "--logging.level.de.juplo=DEBUG"
     };
   }
 }
