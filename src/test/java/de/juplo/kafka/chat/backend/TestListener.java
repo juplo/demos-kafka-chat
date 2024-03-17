@@ -63,6 +63,7 @@ public class TestListener
             "/{chatRoomId}/listen",
             chatRoom.getId())
         .accept(MediaType.TEXT_EVENT_STREAM)
+        .header("X-Shard", chatRoom.getShard().toString())
         .retrieve()
         .bodyToFlux(SSE_TYPE);
   }

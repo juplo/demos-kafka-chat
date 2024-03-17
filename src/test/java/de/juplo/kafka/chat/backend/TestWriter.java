@@ -91,6 +91,7 @@ public class TestWriter
             user.nextSerial())
         .contentType(MediaType.TEXT_PLAIN)
         .accept(MediaType.APPLICATION_JSON)
+        .header("X-Shard", chatRoom.getShard().toString())
         .bodyValue(message)
         .exchangeToMono(response ->
         {
