@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @ToString
 public class EventChatRoomCreated extends AbstractMessageTo
 {

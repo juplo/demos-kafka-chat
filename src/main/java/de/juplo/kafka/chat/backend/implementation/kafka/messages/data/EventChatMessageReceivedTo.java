@@ -6,7 +6,7 @@ import lombok.*;
 
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @ToString
 public class EventChatMessageReceivedTo extends AbstractMessageTo
 {

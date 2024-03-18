@@ -9,7 +9,7 @@ import lombok.ToString;
 
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @ToString
 public class EventShardAssigned extends AbstractMessageTo
 {
