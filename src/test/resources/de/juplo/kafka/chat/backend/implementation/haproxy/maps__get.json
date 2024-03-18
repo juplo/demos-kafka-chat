@@ -1,0 +1,7 @@
+[
+    {
+        "description": "pattern loaded from file '/usr/local/etc/haproxy/sharding.map' used by map at file '/usr/local/etc/haproxy/haproxy.cfg' line 27. curr_ver=0 next_ver=0 entry_cnt=10",
+        "file": "/usr/local/etc/haproxy/sharding.map",
+        "id": "4"
+    }
+]

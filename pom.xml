@@ -16,6 +16,7 @@
   <properties>
     <java.version>17</java.version>
     <assertj-reactor.version>1.0.8</assertj-reactor.version>
+    <inject-resources-junit-jupiter.version>0.3.3</inject-resources-junit-jupiter.version>
   </properties>
   <dependencies>
     <dependency>
@@ -98,6 +99,17 @@
     <dependency>
       <groupId>org.springframework.kafka</groupId>
       <artifactId>spring-kafka-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp3</groupId>
+      <artifactId>mockwebserver</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.hosuaby</groupId>
+      <artifactId>inject-resources-junit-jupiter</artifactId>
+      <version>${inject-resources-junit-jupiter.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -1,0 +1,5 @@
+{
+    "code": 666,
+    "message": "Evil Error -- BOOM!",
+    "any-key": "Some additional information"
+}
