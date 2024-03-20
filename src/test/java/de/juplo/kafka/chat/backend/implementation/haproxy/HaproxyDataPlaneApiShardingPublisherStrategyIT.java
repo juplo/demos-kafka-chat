@@ -57,8 +57,8 @@ public class HaproxyDataPlaneApiShardingPublisherStrategyIT
         .get()
         .uri(uriBuilder -> uriBuilder
             .path(MAP_ENTRY_PATH)
-            .queryParam(MAP_PARAM, "#" + shardingPublisherStrategy.getMapId())
-            .build(SHARD))
+            .queryParam(MAP_PARAM, MAP_NAME)
+            .build(key))
         .accept(MediaType.APPLICATION_JSON)
         .exchangeToMono(response ->
         {
@@ -91,29 +91,30 @@ public class HaproxyDataPlaneApiShardingPublisherStrategyIT
 
     shardingPublisherStrategy = new HaproxyDataPlaneApiShardingPublisherStrategy(
         webClient,
-        MAP_PATH,
+        MAP_NAME,
         INSTANCE_ID);
   }
 
 
-  static final String MAP_PATH = "/usr/local/etc/haproxy/sharding.map";
+  static final String MAP_NAME = "sharding";
   static final String INSTANCE_ID = "foo";
   static final int SHARD = 6;
 
   @Container
   static final GenericContainer HAPROXY =
       new GenericContainer(DockerImageName.parse("haproxytech/haproxy-debian:2.8"))
+          .withCommand("-f", "/etc/haproxy")
           .withNetwork(Network.newNetwork())
           .withNetworkAliases("haproxy")
           .withCopyFileToContainer(
               MountableFile.forClasspathResource("haproxy.cfg"),
-              "/usr/local/etc/haproxy/haproxy.cfg")
+              "/etc/haproxy/haproxy.cfg")
           .withCopyFileToContainer(
               MountableFile.forClasspathResource("dataplaneapi.yml"),
-              "/usr/local/etc/haproxy/dataplaneapi.yml")
+              "/etc/haproxy/dataplaneapi.yml")
           .withCopyFileToContainer(
               MountableFile.forClasspathResource("sharding.map"),
-              "/usr/local/etc/haproxy/sharding.map")
+              "/etc/haproxy/maps/sharding.map")
           .withExposedPorts(8400, 8401, 8404, 5555)
           .withLogConsumer(new Slf4jLogConsumer(log, true).withPrefix("HAPROXY"));
 }

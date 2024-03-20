@@ -1,7 +1,7 @@
 package de.juplo.kafka.chat.backend.implementation.haproxy;
 
 import de.juplo.kafka.chat.backend.domain.ShardingPublisherStrategy;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -10,55 +10,21 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.Map;
 
 
+@RequiredArgsConstructor
 @Slf4j
 public class HaproxyDataPlaneApiShardingPublisherStrategy implements ShardingPublisherStrategy
 {
-  public final static String MAPS_PATH = "/services/haproxy/runtime/maps";
-  public final static String INCLUDE_UNMANAGED_PARAM = "include_unmanaged";
   public final static String MAP_ENTRY_PATH = "/services/haproxy/runtime/maps_entries/{key}";
   public final static String MAP_PARAM = "map";
+  public final static String FORCE_SYNC_PARAM = "force_sync";
 
 
   private final WebClient webClient;
-  @Getter
-  private final int mapId;
+  private final String mapName;
   private final String instanceId;
-
-
-  public HaproxyDataPlaneApiShardingPublisherStrategy(
-      WebClient webClient,
-      String mapPath,
-      String instanceId)
-  {
-    this.webClient = webClient;
-    this.mapId = webClient
-        .get()
-        .uri(uriBuilder -> uriBuilder
-            .path(MAPS_PATH)
-            .queryParam(INCLUDE_UNMANAGED_PARAM, Boolean.TRUE)
-            .build())
-        .accept(MediaType.APPLICATION_JSON)
-        .exchangeToFlux(response ->
-        {
-          if (response.statusCode().equals(HttpStatus.OK))
-          {
-            return response.bodyToFlux(MapInfoTo.class);
-          }
-          else
-          {
-            return response.<MapInfoTo>createError().flux();
-          }
-        })
-        .filter(map -> map.file().trim().equals(mapPath))
-        .map(map -> map.id())
-        .map(id -> Integer.valueOf(id))
-        .blockFirst(Duration.ofSeconds(1));
-    this.instanceId = instanceId;
-  }
 
 
   @Override
@@ -68,7 +34,8 @@ public class HaproxyDataPlaneApiShardingPublisherStrategy implements ShardingPub
         .put()
         .uri(uriBuilder -> uriBuilder
             .path(MAP_ENTRY_PATH)
-            .queryParam(MAP_PARAM, "#" + mapId)
+            .queryParam(MAP_PARAM, mapName)
+            .queryParam(FORCE_SYNC_PARAM, 1)
             .build(Map.of("key", shard)))
         .contentType(MediaType.APPLICATION_JSON)
         .bodyValue(new MapEntryTo(Integer.toString(shard), instanceId))

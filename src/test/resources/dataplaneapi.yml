@@ -17,7 +17,7 @@ dataplaneapi:
     insecure: true
     password: juplo
 haproxy:
-  config_file: /usr/local/etc/haproxy/haproxy.cfg
+  config_file: /etc/haproxy/haproxy.cfg
   haproxy_bin: /usr/sbin/haproxy
   reload:
     reload_delay: 5

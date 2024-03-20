@@ -48,7 +48,7 @@ public class ChatBackendProperties
     private int numPartitions = 2;
     private Duration pollingInterval = Duration.ofSeconds(1);
     private String haproxyRuntimeApi = "haproxy:8401";
-    private String haproxyMap = "/usr/local/etc/haproxy/sharding.map";
+    private String haproxyMap = "sharding";
   }
 
   @Getter
