@@ -45,7 +45,15 @@ public class TestWriter
         .delayElements(Duration.ofMillis(ThreadLocalRandom.current().nextLong(500, 1500)))
         .map(i -> "Message #" + i)
         .concatMap(message -> sendMessage(chatRoom, message)
-            .log(user.getName())
+            .doOnError(throwable ->
+            {
+              WebClientResponseException e = (WebClientResponseException)throwable;
+              log.info(
+                "could not send message {} for {}: {}",
+                message,
+                user.getName(),
+                e.getResponseBodyAsString());
+            })
             .retryWhen(Retry.fixedDelay(60, Duration.ofSeconds(1))))
         .doOnNext(message ->
         {
