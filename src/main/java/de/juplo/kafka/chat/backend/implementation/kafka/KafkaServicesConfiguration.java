@@ -2,6 +2,7 @@ package de.juplo.kafka.chat.backend.implementation.kafka;
 
 import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.ShardingPublisherStrategy;
+import de.juplo.kafka.chat.backend.implementation.haproxy.HaproxyDataPlaneApiShardingPublisherStrategy;
 import de.juplo.kafka.chat.backend.implementation.haproxy.HaproxyRuntimeApiShardingPublisherStrategy;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.AbstractMessageTo;
 import de.juplo.kafka.chat.backend.implementation.kafka.messages.data.EventChatMessageReceivedTo;
@@ -21,6 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.InetSocketAddress;
 import java.time.Clock;
@@ -297,10 +299,14 @@ public class KafkaServicesConfiguration
   ShardingPublisherStrategy shardingPublisherStrategy(
       ChatBackendProperties properties)
   {
-    String[] parts = properties.getKafka().getHaproxyRuntimeApi().split(":");
-    InetSocketAddress haproxyAddress = new InetSocketAddress(parts[0], Integer.valueOf(parts[1]));
-    return new HaproxyRuntimeApiShardingPublisherStrategy(
-        haproxyAddress,
+    return new HaproxyDataPlaneApiShardingPublisherStrategy(
+        WebClient
+            .builder()
+            .baseUrl(properties.getKafka().getHaproxyDataPlaneApi())
+            .defaultHeaders(httpHeaders -> httpHeaders.setBasicAuth(
+                properties.getKafka().getHaproxyUser(),
+                properties.getKafka().getHaproxyPassword()))
+            .build(),
         properties.getKafka().getHaproxyMap(),
         properties.getInstanceId());
   }

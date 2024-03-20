@@ -48,6 +48,9 @@ public class ChatBackendProperties
     private int numPartitions = 2;
     private Duration pollingInterval = Duration.ofSeconds(1);
     private String haproxyRuntimeApi = "haproxy:8401";
+    private String haproxyDataPlaneApi = "http://haproxy:5555/v2/";
+    private String haproxyUser = "juplo";
+    private String haproxyPassword = "juplo";
     private String haproxyMap = "sharding";
   }
 
