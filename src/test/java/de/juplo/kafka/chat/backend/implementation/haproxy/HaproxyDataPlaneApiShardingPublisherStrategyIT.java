@@ -9,11 +9,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 import org.testcontainers.utility.MountableFile;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 import java.time.Duration;
 
@@ -27,12 +29,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class HaproxyDataPlaneApiShardingPublisherStrategyIT
 {
   @Test
-  void test()
+  void test() throws InterruptedException
   {
     Mono<String> result = shardingPublisherStrategy.publishOwnership(SHARD);
 
     assertThat(result.block(Duration.ofSeconds(5)))
         .isEqualTo(INSTANCE_ID);
+    assertThat(getMapEntryValueForKey(SHARD).block(Duration.ofSeconds(5)))
+        .isEqualTo(INSTANCE_ID);
+
+    HAPROXY
+        .getDockerClient()
+        .killContainerCmd(HAPROXY.getContainerId())
+        .withSignal("HUP")
+        .exec();
+
+    Thread.sleep(1000); // << No clue, how to detect that the reload is complete
+
     assertThat(getMapEntryValueForKey(SHARD).block(Duration.ofSeconds(5)))
         .isEqualTo(INSTANCE_ID);
   }
@@ -58,6 +71,7 @@ public class HaproxyDataPlaneApiShardingPublisherStrategyIT
             return response.createError();
           }
         })
+        .retryWhen(Retry.fixedDelay(15, Duration.ofSeconds(1)))
         .map(entry -> entry.value());
   }
 
