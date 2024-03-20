@@ -71,8 +71,10 @@ class KafkaHandoverITContainers extends AbstractHandoverITContainers
         "--chat.backend.kafka.instance-uri=http://backend-ID:8080",
         "--chat.backend.kafka.num-partitions=10",
         "--chat.backend.kafka.client-id-prefix=BID",
-        "--chat.backend.kafka.haproxy-runtime-api=haproxy:8401",
-        "--chat.backend.kafka.haproxy-map=/usr/local/etc/haproxy/sharding.map"
+        "--chat.backend.kafka.haproxy-data-plane-api=http://haproxy:5555/v2/",
+        "--chat.backend.kafka.haproxy-user=juplo",
+        "--chat.backend.kafka.haproxy-password=juplo",
+        "--chat.backend.kafka.haproxy-map=sharding",
     };
   }
 }

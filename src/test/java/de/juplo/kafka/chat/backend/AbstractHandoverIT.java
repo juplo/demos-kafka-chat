@@ -5,7 +5,6 @@ import de.juplo.kafka.chat.backend.api.MessageTo;
 import lombok.extern.slf4j.Slf4j;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,7 +36,6 @@ public abstract class AbstractHandoverIT
   }
 
 
-  @Disabled
   @Test
   void test() throws InterruptedException
   {
