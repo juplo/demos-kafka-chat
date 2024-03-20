@@ -33,7 +33,7 @@ public abstract class AbstractConfigurationWithShardingIT extends AbstractConfig
               .accept(MediaType.APPLICATION_JSON)
               .bodyValue("The devil rules route 66")
               .exchange()
-              .expectStatus().isNotFound()
+              .expectStatus().is5xxServerError()
               .expectBody()
               .jsonPath("$.type").value(endsWith("/problem/shard-not-owned"))
               .jsonPath("$.shard").isEqualTo(shard));

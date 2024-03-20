@@ -376,7 +376,7 @@ public class ChatBackendControllerTest
       int shard)
   {
     responseSpec
-        .expectStatus().isNotFound()
+        .expectStatus().is5xxServerError()
         .expectBody()
         .jsonPath("$.type").isEqualTo("/problem/shard-not-owned")
         .jsonPath("$.shard").isEqualTo(shard);

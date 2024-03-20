@@ -57,7 +57,7 @@ public class ChatBackendControllerAdvice
       ServerWebExchange exchange,
       UriComponentsBuilder uriComponentsBuilder)
   {
-    final HttpStatus status = HttpStatus.NOT_FOUND;
+    final HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
     ProblemDetail problem = ProblemDetail.forStatus(status);
 
     problem.setProperty("timestamp", new Date());
