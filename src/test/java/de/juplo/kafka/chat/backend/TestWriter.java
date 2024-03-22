@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
 
 import java.nio.charset.Charset;
@@ -20,12 +21,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 @Slf4j
-public class TestWriter implements Runnable
+public class TestWriter
 {
-  @Override
-  public void run()
+  public Mono<Void> run()
   {
-    Flux
+    return Flux
         .fromIterable((Iterable<Integer>) () -> new Iterator<>()
         {
           private int i = 0;
@@ -42,9 +42,9 @@ public class TestWriter implements Runnable
             return i++;
           }
         })
+        .delayElements(Duration.ofMillis(ThreadLocalRandom.current().nextLong(500, 1500)))
         .map(i -> "Message #" + i)
         .flatMap(message -> sendMessage(chatRoom, message)
-            .delayElement(Duration.ofMillis(ThreadLocalRandom.current().nextLong(500, 1500)))
             .retryWhen(Retry.fixedDelay(10, Duration.ofSeconds(1))))
         .doOnNext(message ->
         {
@@ -63,8 +63,12 @@ public class TestWriter implements Runnable
               user,
               e.getResponseBodyAsString(Charset.defaultCharset()));
         })
-        .then()
-        .block();
+        .limitRate(1)
+        .takeUntil(message -> !running)
+        .doOnComplete(() -> log.info("TestWriter {} is done", user))
+        .parallel(1)
+        .runOn(Schedulers.parallel())
+        .then();
   }
 
   private Mono<MessageTo> sendMessage(
@@ -97,8 +101,8 @@ public class TestWriter implements Runnable
 
   private final WebClient webClient;
   private final ChatRoomInfoTo chatRoom;
-  private final User user;
 
+  final User user;
   final List<MessageTo> sentMessages = new LinkedList<>();
 
   volatile boolean running = true;

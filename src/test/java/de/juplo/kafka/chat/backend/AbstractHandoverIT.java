@@ -4,18 +4,14 @@ import de.juplo.kafka.chat.backend.api.ChatRoomInfoTo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.CompletableFuture;
 
 
 @Testcontainers
@@ -27,7 +23,6 @@ public abstract class AbstractHandoverIT
 
 
   private final AbstractHandoverITContainers containers;
-  private final ExecutorService executorService = Executors.newFixedThreadPool(NUM_CLIENTS + 1);
 
 
   AbstractHandoverIT(AbstractHandoverITContainers containers)
@@ -47,25 +42,42 @@ public abstract class AbstractHandoverIT
 
     int port = containers.haproxy.getMappedPort(8400);
 
-    TestWriter[] testWriters = Flux
-        .range(0, NUM_CLIENTS)
-        .map(i -> new TestWriter(
-            port,
-            chatRooms[i % NUM_CHATROOMS],
-            "user-" + Integer.toString(i)))
-        .doOnNext(testClient -> executorService.execute(testClient))
-        .toStream()
-        .toArray(size -> new TestWriter[size]);
+    CompletableFuture<Void>[] testWriterFutures = new CompletableFuture[NUM_CLIENTS];
+    TestWriter[] testWriters = new TestWriter[NUM_CLIENTS];
+    for (int i = 0; i < NUM_CLIENTS; i++)
+    {
+      TestWriter testWriter = new TestWriter(
+          port,
+          chatRooms[i % NUM_CHATROOMS],
+          "user-" + i);
+      testWriters[i] = testWriter;
+      testWriterFutures[i] = testWriter
+          .run()
+          .toFuture();
+    }
 
     TestListener testListener = new TestListener(port, chatRooms);
-    executorService.execute(testListener);
+    CompletableFuture<Void> testListenerFuture = testListener
+        .run()
+        .toFuture();
 
+    log.info("Sleeping for 2 seconds...");
     Thread.sleep(2000);
 
-    Arrays
-        .stream(testWriters)
-        .forEach(testClient -> testClient.running = false);
+    for (int i = 0; i < NUM_CLIENTS; i++)
+    {
+      testWriters[i].running = false;
+      testWriterFutures[i].join();
+      log.info("Joined TestWriter {}", testWriters[i].user);
+    }
+
+
+    log.info("Sleeping for 2 seconds...");
+    Thread.sleep(2000);
+    log.info("Joining TestListener...");
     testListener.running = false;
+    testListenerFuture.join();
+    log.info("Joined TestListener");
   }
 
   Mono<ChatRoomInfoTo> createChatRoom(String name)

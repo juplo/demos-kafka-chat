@@ -12,23 +12,24 @@ import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.*;
 
 
 @Slf4j
-public class TestListener implements Runnable
+public class TestListener
 {
   static final ParameterizedTypeReference<ServerSentEvent<String>> SSE_TYPE = new ParameterizedTypeReference<>() {};
 
 
-  @Override
-  public void run()
+  public Mono<Void> run()
   {
-    Flux
+    return Flux
         .fromArray(chatRooms)
         .flatMap(chatRoom ->
         {
+          log.info("Requesting messages from chat-room {}", chatRoom);
           List<MessageTo> list = new LinkedList<>();
           receivedMessages.put(chatRoom.getId(), list);
           return receiveMessages(chatRoom)
@@ -48,14 +49,16 @@ public class TestListener implements Runnable
                 list.add(message);
                 log.info(
                     "Received a message from chat-room {}: {}",
-                    chatRoom,
+                    chatRoom.getName(),
                     message);
-              })
-              .limitRate(10);
+              });
         })
+        .limitRate(10)
         .takeUntil(message -> !running)
-        .then()
-        .block();
+        .doOnComplete(() -> log.info("TestListener is done"))
+        .parallel(chatRooms.length)
+        .runOn(Schedulers.parallel())
+        .then();
   }
 
   Flux<ServerSentEvent<String>> receiveMessages(ChatRoomInfoTo chatRoom)
