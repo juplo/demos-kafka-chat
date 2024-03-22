@@ -65,7 +65,7 @@ public abstract class AbstractHandoverIT
 
     Flux
         .fromArray(chatRooms)
-        .flatMap(chatRoom ->receiveMessages(chatRoom).take(2))
+        .flatMap(chatRoom ->receiveMessages(chatRoom).take(50))
         .doOnNext(message -> log.info("message: {}", message))
         .then()
         .block();
