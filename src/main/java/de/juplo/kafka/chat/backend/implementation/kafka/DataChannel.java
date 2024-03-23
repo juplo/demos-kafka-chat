@@ -16,6 +16,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 import java.time.*;
 import java.util.Collection;
@@ -154,6 +155,7 @@ public class DataChannel implements Channel, ConsumerRebalanceListener
       channelMediator.shardAssigned(partition);
       shardingPublisherStrategy
           .publishOwnership(partition)
+          .retryWhen(Retry.backoff(5, Duration.ofSeconds(1)))
           .doOnError(throwable -> log.error(
               "Could not publish instance {} as owner of shard {}: {}",
               instanceId,
