@@ -15,14 +15,12 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 import java.time.*;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.IntStream;
 
 
@@ -45,6 +43,7 @@ public class DataChannel implements Channel, ConsumerRebalanceListener
   private final Map<UUID, ChatRoomData>[] chatRoomData;
   private final ChannelMediator channelMediator;
   private final ShardingPublisherStrategy shardingPublisherStrategy;
+  private final List<ChatRoomData> previouslyOwnedChatRoomData = new LinkedList<>();
 
   private boolean running;
   @Getter
@@ -114,14 +113,14 @@ public class DataChannel implements Channel, ConsumerRebalanceListener
         {
           // On successful send
           Message message = new Message(key, metadata.offset(), timestamp, text);
-          log.info("Successfully send message {}", message);
+          log.info("Successfully sent message {} to chat-room {}", message, chatRoomId);
           sink.success(message);
         }
         else
         {
           // On send-failure
           log.error(
-              "Could not send message for chat-room={}, key={}, timestamp={}, text={}: {}",
+              "Could not sent message to chat-room={}, key={}, timestamp={}, text={}: {}",
               chatRoomId,
               key,
               timestamp,
@@ -169,6 +168,18 @@ public class DataChannel implements Channel, ConsumerRebalanceListener
     });
 
     consumer.resume(partitions);
+
+    Flux
+        .fromIterable(previouslyOwnedChatRoomData)
+        .filter(chatRoomData -> !isShardOwned[chatRoomData.getChatRoomService().getChatRoomInfo().getShard()])
+        .doOnNext(chatRoomData -> chatRoomData.reset())
+        .then()
+        .doOnSuccess(nothing ->
+        {
+          previouslyOwnedChatRoomData.clear();
+          log.info("Done resetting revoked ChatRoomData");
+        })
+        .block();
   }
 
   @Override
@@ -184,7 +195,11 @@ public class DataChannel implements Channel, ConsumerRebalanceListener
 
       chatRoomData[partition]
           .values()
-          .forEach(chatRoomData -> chatRoomData.deactivate());
+          .forEach(chatRoomData ->
+          {
+            chatRoomData.deactivate();
+            previouslyOwnedChatRoomData.add(chatRoomData);
+          });
 
       channelMediator.shardRevoked(partition);
     });
@@ -388,7 +403,7 @@ public class DataChannel implements Channel, ConsumerRebalanceListener
     }
     else
     {
-      log.info("Creating ChatRoomData {} with history-limit {}", chatRoomId, historyLimit);
+      log.info("Creating ChatRoomData {} with history-limit {}", chatRoomInfo, historyLimit);
       KafkaChatMessageService service = new KafkaChatMessageService(this, chatRoomInfo);
       chatRoomData = new ChatRoomData(clock, service, historyLimit);
       this.chatRoomData[shard].put(chatRoomId, chatRoomData);

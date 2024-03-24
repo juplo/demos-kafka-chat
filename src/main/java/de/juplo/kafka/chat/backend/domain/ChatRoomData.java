@@ -23,8 +23,9 @@ public class ChatRoomData
   private final ChatMessageService service;
   private final Clock clock;
   private final int historyLimit;
+
   private Sinks.Many<Message> sink;
-  private volatile boolean active = false;
+  private volatile boolean active;
 
 
   public ChatRoomData(
@@ -39,6 +40,8 @@ public class ChatRoomData
     // @RequiredArgsConstructor unfortunately not possible, because
     // the `historyLimit` is not set, if `createSink()` is called
     // from the variable declaration!
+    this.sink = createSink();
+    this.active = false;
   }
 
 
@@ -116,20 +119,37 @@ public class ChatRoomData
   {
     if (active)
     {
-      log.info("{} is already active!", service.getChatRoomInfo());
+      log.error("{} is already active!", service.getChatRoomInfo());
       return;
     }
 
     log.info("{} is being activated", service.getChatRoomInfo());
-    this.sink = createSink();
     active = true;
   }
 
   public void deactivate()
   {
+    if (!active)
+    {
+      log.error("{} is already inactive!", service.getChatRoomInfo());
+      return;
+    }
+
     log.info("{} is being deactivated", service.getChatRoomInfo());
     active = false;
+  }
+
+  public void reset()
+  {
+    ChatRoomInfo chatRoomInfo = service.getChatRoomInfo();
+    if (active)
+    {
+      throw new IllegalStateException("Could not reset active ChatRoomData: " + chatRoomInfo);
+    }
+
+    log.info("Resetting {}", chatRoomInfo);
     sink.emitComplete(Sinks.EmitFailureHandler.FAIL_FAST);
+    sink = createSink();
   }
 
   private Sinks.Many<Message> createSink()

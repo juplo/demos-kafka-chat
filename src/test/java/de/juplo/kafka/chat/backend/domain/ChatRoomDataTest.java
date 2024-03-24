@@ -369,8 +369,8 @@ public class ChatRoomDataTest
   }
 
   @Test
-  @DisplayName("Assert, that a listended to chat-room emits completed, if it is deactivated")
-  void testListenedToChatRoomEmitsCompletedIfItIsDeactivated()
+  @DisplayName("Assert, that a listened to chat-room emits completed, if it is deactivated and reset")
+  void testListenedToChatRoomEmitsCompletedIfItIsDeactivatedAndActivatedWithReset()
   {
     // Given
     Message message1 = new Message(key, 1l, timestamp, "#1");
@@ -393,6 +393,7 @@ public class ChatRoomDataTest
     // When
     Flux<Message> listenFlux = chatRoomData.listen();
     chatRoomData.deactivate();
+    chatRoomData.reset();
 
     // Then
     Awaitility
