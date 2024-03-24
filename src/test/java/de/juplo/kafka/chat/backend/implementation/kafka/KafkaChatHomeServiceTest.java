@@ -2,14 +2,19 @@ package de.juplo.kafka.chat.backend.implementation.kafka;
 
 import de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+
+import java.util.List;
 
 import static de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest.NUM_SHARDS;
 import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServiceTest.DATA_TOPIC;
@@ -42,11 +47,34 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
 
   @BeforeAll
   static void sendAndLoadStoredData(
-      @Autowired KafkaTemplate<String, String> messageTemplate)
+      @Autowired KafkaTemplate<String, String> messageTemplate,
+      @Autowired ChannelTaskExecutor infoChannelTaskExecutor,
+      @Autowired ChannelTaskExecutor dataChannelTaskExecutor)
   {
-    KafkaTestUtils.sendAndLoadStoredData(
-        messageTemplate,
+    KafkaTestUtils.initKafkaSetup(
         INFO_TOPIC,
-        DATA_TOPIC);
+        DATA_TOPIC,
+        messageTemplate,
+        infoChannelTaskExecutor,
+        dataChannelTaskExecutor);
+  }
+
+
+  @TestConfiguration
+  static class KafkaChatHomeServiceTestConfiguration
+  {
+    @Bean
+    WorkAssignor infoChannelWorkAssignor()
+    {
+      return consumer ->
+      {
+        List<TopicPartition> partitions = consumer
+            .partitionsFor(INFO_TOPIC)
+            .stream()
+            .map(partitionInfo -> new TopicPartition(INFO_TOPIC, partitionInfo.partition()))
+            .toList();
+        consumer.assign(partitions);
+      };
+    }
   }
 }
