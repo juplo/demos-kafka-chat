@@ -204,8 +204,9 @@ public class InfoChannel implements Channel
         for (ConsumerRecord<String, AbstractMessageTo> record : records)
         {
           handleMessage(record);
-          updateNextOffset(record.partition(), record.offset() + 1);
+          this.nextOffset[record.partition()] = record.offset() + 1;
         }
+        updateChannelState();
       }
       catch (WakeupException e)
       {
@@ -218,9 +219,8 @@ public class InfoChannel implements Channel
     log.info("Exiting normally");
   }
 
-  private void updateNextOffset(int partition, long nextOffset)
+  private void updateChannelState()
   {
-    this.nextOffset[partition] = nextOffset;
     if (channelState == ChannelState.LOAD_IN_PROGRESS)
     {
       boolean loadInProgress = IntStream
