@@ -76,7 +76,7 @@ public class ChatRoomData
                     log.warn("Emitting of message failed with {} for {}", result.name(), m);
                   }
                 })
-            : Mono.error(new ChatRoomInactiveException(service.getChatRoomId())));
+            : Mono.error(new ChatRoomInactiveException(service.getChatRoomInfo())));
   }
 
 
@@ -98,7 +98,7 @@ public class ChatRoomData
             .asFlux()
             .doOnCancel(() -> sink = createSink()) // Sink hast to be recreated on auto-cancel!
         : Flux
-            .error(new ChatRoomInactiveException(service.getChatRoomId()));
+            .error(new ChatRoomInactiveException(service.getChatRoomInfo()));
 
   }
 
@@ -116,18 +116,18 @@ public class ChatRoomData
   {
     if (active)
     {
-      log.info("{} is already active!", service.getChatRoomId());
+      log.info("{} is already active!", service.getChatRoomInfo());
       return;
     }
 
-    log.info("{} is being activated", service.getChatRoomId());
+    log.info("{} is being activated", service.getChatRoomInfo());
     this.sink = createSink();
     active = true;
   }
 
   public void deactivate()
   {
-    log.info("{} is being deactivated", service.getChatRoomId());
+    log.info("{} is being deactivated", service.getChatRoomInfo());
     active = false;
     sink.emitComplete(Sinks.EmitFailureHandler.FAIL_FAST);
   }

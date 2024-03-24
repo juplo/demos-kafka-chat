@@ -1,19 +1,18 @@
 package de.juplo.kafka.chat.backend.domain.exceptions;
 
+import de.juplo.kafka.chat.backend.domain.ChatRoomInfo;
 import lombok.Getter;
-
-import java.util.UUID;
 
 
 public class ChatRoomInactiveException extends IllegalStateException
 {
   @Getter
-  private final UUID chatRoomId;
+  private final ChatRoomInfo chatRoomInfo;
 
 
-  public ChatRoomInactiveException(UUID chatRoomId)
+  public ChatRoomInactiveException(ChatRoomInfo chatRoomInfo)
   {
-    super("Chat-Room " + chatRoomId + " is currently inactive.");
-    this.chatRoomId = chatRoomId;
+    super("Chat-Room " + chatRoomInfo + " is currently inactive.");
+    this.chatRoomInfo = chatRoomInfo;
   }
 }

@@ -71,11 +71,10 @@ public class SimpleChatHomeService implements ChatHomeService
         })
         .flatMap(info ->
         {
-          UUID chatRoomId = info.getId();
           InMemoryChatMessageService chatMessageService =
-              new InMemoryChatMessageService(chatRoomId);
+              new InMemoryChatMessageService(info);
 
-          chatRoomInfo.put(chatRoomId, info);
+          chatRoomInfo.put(info.getId(), info);
           ChatRoomData chatRoomData =
               new ChatRoomData(
                   clock,
@@ -98,8 +97,8 @@ public class SimpleChatHomeService implements ChatHomeService
   public Mono<ChatRoomInfo> createChatRoom(UUID id, String name)
   {
     log.info("Creating ChatRoom with history-limit {}", historyLimit);
-    ChatMessageService service = new InMemoryChatMessageService(id);
     ChatRoomInfo chatRoomInfo = new ChatRoomInfo(id, name, shard);
+    ChatMessageService service = new InMemoryChatMessageService(chatRoomInfo);
     this.chatRoomInfo.put(id, chatRoomInfo);
     ChatRoomData chatRoomData = new ChatRoomData(clock, service, historyLimit);
     chatRoomData.activate();

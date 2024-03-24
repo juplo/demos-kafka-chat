@@ -1,6 +1,7 @@
 package de.juplo.kafka.chat.backend.implementation.inmemory;
 
 import de.juplo.kafka.chat.backend.domain.ChatMessageService;
+import de.juplo.kafka.chat.backend.domain.ChatRoomInfo;
 import de.juplo.kafka.chat.backend.domain.Message;
 import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
 import lombok.Getter;
@@ -17,21 +18,21 @@ import java.util.UUID;
 public class InMemoryChatMessageService implements ChatMessageService
 {
   @Getter
-  private final UUID chatRoomId;
+  private final ChatRoomInfo chatRoomInfo;
   private final LinkedHashMap<Message.MessageKey, Message> messages;
 
 
-  public InMemoryChatMessageService(UUID chatRoomId)
+  public InMemoryChatMessageService(ChatRoomInfo chatRoomInfo)
   {
     log.debug("Creating InMemoryChatMessageService");
-    this.chatRoomId = chatRoomId;
+    this.chatRoomInfo = chatRoomInfo;
     messages = new LinkedHashMap<>();
   }
 
 
   Mono<Void> restore(StorageStrategy storageStrategy)
   {
-    Flux<Message> messageFlux = storageStrategy.readChatRoomData(chatRoomId);
+    Flux<Message> messageFlux = storageStrategy.readChatRoomData(chatRoomInfo.getId());
 
     return messageFlux
         .doOnNext(message -> messages.put(message.getKey(), message))

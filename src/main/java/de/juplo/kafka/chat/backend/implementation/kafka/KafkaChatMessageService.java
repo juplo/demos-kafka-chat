@@ -1,6 +1,7 @@
 package de.juplo.kafka.chat.backend.implementation.kafka;
 
 import de.juplo.kafka.chat.backend.domain.ChatMessageService;
+import de.juplo.kafka.chat.backend.domain.ChatRoomInfo;
 import de.juplo.kafka.chat.backend.domain.Message;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
-import java.util.UUID;
 
 
 @RequiredArgsConstructor
@@ -19,7 +19,7 @@ public class KafkaChatMessageService implements ChatMessageService
 {
   private final DataChannel dataChannel;
   @Getter
-  private final UUID chatRoomId;
+  private final ChatRoomInfo chatRoomInfo;
 
   private final LinkedHashMap<Message.MessageKey, Message> messages = new LinkedHashMap<>();
 
@@ -31,7 +31,7 @@ public class KafkaChatMessageService implements ChatMessageService
     String text)
   {
     return dataChannel
-        .sendChatMessage(chatRoomId, key, timestamp, text)
+        .sendChatMessage(chatRoomInfo.getId(), key, timestamp, text)
         .doOnSuccess(message -> persistMessage(message));
   }
 

@@ -389,7 +389,7 @@ public class DataChannel implements Channel, ConsumerRebalanceListener
     else
     {
       log.info("Creating ChatRoomData {} with history-limit {}", chatRoomId, historyLimit);
-      KafkaChatMessageService service = new KafkaChatMessageService(this, chatRoomId);
+      KafkaChatMessageService service = new KafkaChatMessageService(this, chatRoomInfo);
       chatRoomData = new ChatRoomData(clock, service, historyLimit);
       this.chatRoomData[shard].put(chatRoomId, chatRoomData);
     }

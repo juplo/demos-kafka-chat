@@ -171,7 +171,7 @@ public class ChatBackendControllerAdvice
 
     problem.setDetail(e.getMessage());
 
-    problem.setProperty("chatroom", e.getChatRoomId());
+    problem.setProperty("chatroom", e.getChatRoomInfo());
 
     return problem;
   }
