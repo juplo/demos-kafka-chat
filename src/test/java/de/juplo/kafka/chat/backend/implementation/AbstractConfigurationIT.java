@@ -37,8 +37,6 @@ public abstract class AbstractConfigurationIT
   String NONEXISTENT_CHATROOM = "7f59ec77-832e-4a17-8d22-55ef46242c17";
 
 
-  @LocalServerPort
-  int port;
   @Autowired
   WebTestClient webTestClient;
   @Autowired
@@ -65,9 +63,7 @@ public abstract class AbstractConfigurationIT
         {
           webTestClient
               .get()
-              .uri(
-                  "http://localhost:{port}/actuator/health",
-                  port)
+              .uri("/actuator/health")
               .exchange()
               .expectStatus().isOk()
               .expectBody().jsonPath("$.status").isEqualTo("UP");
@@ -86,9 +82,7 @@ public abstract class AbstractConfigurationIT
           AtomicBoolean existingChatRoomFound = new AtomicBoolean(false);
           webTestClient
               .get()
-              .uri(
-                  "http://localhost:{port}/list",
-                  port)
+              .uri("/list")
               .accept(MediaType.APPLICATION_JSON)
               .exchange()
               .expectStatus().isOk()
@@ -120,10 +114,7 @@ public abstract class AbstractConfigurationIT
         {
           webTestClient
               .get()
-              .uri(
-                  "http://localhost:{port}/{chatRoomId}",
-                  port,
-                  EXISTING_CHATROOM)
+              .uri("/{chatRoomId}", EXISTING_CHATROOM)
               .accept(MediaType.APPLICATION_JSON)
               .exchange()
               .expectStatus().isOk()
@@ -142,10 +133,7 @@ public abstract class AbstractConfigurationIT
         {
           webTestClient
               .get()
-              .uri(
-                  "http://localhost:{port}/{chatRoomId}/ute/1",
-                  port,
-                  EXISTING_CHATROOM)
+              .uri("/{chatRoomId}/ute/1", EXISTING_CHATROOM)
               .accept(MediaType.APPLICATION_JSON)
               .exchange()
               .expectStatus().isOk()
@@ -164,10 +152,7 @@ public abstract class AbstractConfigurationIT
         {
           webTestClient
               .get()
-              .uri(
-                  "http://localhost:{port}/{chatRoomId}/peter/1",
-                  port,
-                  EXISTING_CHATROOM)
+              .uri("/{chatRoomId}/peter/1", EXISTING_CHATROOM)
               .accept(MediaType.APPLICATION_JSON)
               .exchange()
               .expectStatus().isOk()
@@ -186,10 +171,7 @@ public abstract class AbstractConfigurationIT
         {
           webTestClient
               .put()
-              .uri(
-                  "http://localhost:{port}/{chatRoomId}/otto/66",
-                  port,
-                  NONEXISTENT_CHATROOM)
+              .uri("/{chatRoomId}/otto/66", NONEXISTENT_CHATROOM)
               .contentType(MediaType.TEXT_PLAIN)
               .accept(MediaType.APPLICATION_JSON)
               .bodyValue("The devil rules route 66")
@@ -213,7 +195,7 @@ public abstract class AbstractConfigurationIT
       // that is owned by the instance
       chatRoomInfo = webTestClient
           .post()
-          .uri("http://localhost:{port}/create", port)
+          .uri("/create")
           .contentType(MediaType.TEXT_PLAIN)
           .bodyValue("bar")
           .accept(MediaType.APPLICATION_JSON)
@@ -234,10 +216,7 @@ public abstract class AbstractConfigurationIT
         {
           webTestClient
               .put()
-              .uri(
-                  "http://localhost:{port}/{chatRoomId}/nerd/7",
-                  port,
-                  chatRoomId)
+              .uri("/{chatRoomId}/nerd/7", chatRoomId)
               .contentType(MediaType.TEXT_PLAIN)
               .accept(MediaType.APPLICATION_JSON)
               .bodyValue("Hello world!")
@@ -257,8 +236,7 @@ public abstract class AbstractConfigurationIT
     MessageTo sentMessage = webTestClient
         .put()
         .uri(
-            "http://localhost:{port}/{chatRoomId}/nerd/{messageId}",
-            port,
+            "/{chatRoomId}/nerd/{messageId}",
             EXISTING_CHATROOM,
             RandomGenerator.getDefault().nextInt())
         .contentType(MediaType.TEXT_PLAIN)
@@ -274,10 +252,7 @@ public abstract class AbstractConfigurationIT
 
     Flux<MessageTo> result = webTestClient
         .get()
-        .uri(
-            "http://localhost:{port}/{chatRoomId}/listen",
-            port,
-            EXISTING_CHATROOM)
+        .uri("/{chatRoomId}/listen", EXISTING_CHATROOM)
         .accept(MediaType.TEXT_EVENT_STREAM)
         .exchange()
         .expectStatus().isOk()
