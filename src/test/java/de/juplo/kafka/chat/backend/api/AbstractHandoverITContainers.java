@@ -1,7 +1,6 @@
-package de.juplo.kafka.chat.backend;
+package de.juplo.kafka.chat.backend.api;
 
 import de.juplo.kafka.chat.backend.implementation.haproxy.MapEntryTo;
-import de.juplo.kafka.chat.backend.implementation.haproxy.MapInfoTo;
 import lombok.extern.slf4j.Slf4j;
 import org.awaitility.Awaitility;
 import org.springframework.http.HttpStatus;

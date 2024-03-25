@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend;
+package de.juplo.kafka.chat.backend.api;
 
 import lombok.extern.slf4j.Slf4j;
 import org.testcontainers.containers.Container;
