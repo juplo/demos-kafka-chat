@@ -1,5 +1,6 @@
-package de.juplo.kafka.chat.backend;
+package de.juplo.kafka.chat.backend.storage;
 
+import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import de.juplo.kafka.chat.backend.domain.*;
 import de.juplo.kafka.chat.backend.implementation.StorageStrategy;
 import de.juplo.kafka.chat.backend.implementation.inmemory.InMemoryServicesConfiguration;

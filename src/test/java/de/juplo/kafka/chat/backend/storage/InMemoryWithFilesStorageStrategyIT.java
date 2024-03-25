@@ -1,8 +1,9 @@
-package de.juplo.kafka.chat.backend;
+package de.juplo.kafka.chat.backend.storage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,9 @@ import java.nio.file.Paths;
     "chat.backend.inmemory.sharding-strategy=none",
     "chat.backend.inmemory.storage-strategy=files",
     "chat.backend.inmemory.storage-directory=target/files" })
-@ContextConfiguration(classes = InMemoryWithFilesStorageIT.TestConfig.class)
+@ContextConfiguration(classes = InMemoryWithFilesStorageStrategyIT.TestConfig.class)
 @Slf4j
-public class InMemoryWithFilesStorageIT extends AbstractInMemoryStorageIT
+public class InMemoryWithFilesStorageStrategyIT extends AbstractInMemoryStorageStrategyIT
 {
   @BeforeEach
   void resetStorage(
