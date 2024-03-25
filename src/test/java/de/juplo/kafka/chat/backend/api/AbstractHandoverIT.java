@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.reactive.function.client.WebClient;
 import pl.rzrz.assertj.reactor.Assertions;
 import reactor.core.publisher.Flux;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Slf4j
 public abstract class AbstractHandoverIT
 {
