@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend;
+package de.juplo.kafka.chat.backend.api;
 
 import lombok.Getter;
 import lombok.Setter;

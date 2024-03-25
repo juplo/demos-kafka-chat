@@ -1,7 +1,5 @@
-package de.juplo.kafka.chat.backend;
+package de.juplo.kafka.chat.backend.api;
 
-import de.juplo.kafka.chat.backend.api.ChatRoomInfoTo;
-import de.juplo.kafka.chat.backend.api.MessageTo;
 import lombok.extern.slf4j.Slf4j;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.BeforeEach;
