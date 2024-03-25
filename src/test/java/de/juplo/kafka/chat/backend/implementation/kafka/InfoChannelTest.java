@@ -6,7 +6,6 @@ import de.juplo.kafka.chat.backend.ChatBackendProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.TopicPartition;
 import org.awaitility.Awaitility;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
@@ -23,9 +21,7 @@ import java.time.Clock;
 import java.time.Duration;
 import java.util.List;
 
-import static de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest.NUM_SHARDS;
-import static de.juplo.kafka.chat.backend.implementation.kafka.InfoChannelTest.DATA_TOPIC;
-import static de.juplo.kafka.chat.backend.implementation.kafka.InfoChannelTest.INFO_TOPIC;
+import static de.juplo.kafka.chat.backend.implementation.kafka.InfoChannelTest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -53,6 +49,7 @@ public class InfoChannelTest
 {
   final static String INFO_TOPIC = "INFO_CHANNEL_TEST_INFO";
   final static String DATA_TOPIC = "INFO_CHANNEL_TEST_DATA";
+  final static int NUM_SHARDS = 10;
 
 
   @Autowired

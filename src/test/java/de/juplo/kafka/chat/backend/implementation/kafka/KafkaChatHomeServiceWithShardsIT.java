@@ -1,6 +1,6 @@
 package de.juplo.kafka.chat.backend.implementation.kafka;
 
-import de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest;
+import de.juplo.kafka.chat.backend.domain.AbstractChatHomeServiceWithShardsIT;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeAll;
@@ -16,9 +16,9 @@ import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
 
-import static de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest.NUM_SHARDS;
-import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServiceTest.DATA_TOPIC;
-import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServiceTest.INFO_TOPIC;
+import static de.juplo.kafka.chat.backend.domain.AbstractChatHomeServiceWithShardsIT.NUM_SHARDS;
+import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServiceWithShardsIT.DATA_TOPIC;
+import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServiceWithShardsIT.INFO_TOPIC;
 
 
 @ContextConfiguration(classes = {
@@ -39,7 +39,7 @@ import static de.juplo.kafka.chat.backend.implementation.kafka.KafkaChatHomeServ
     topics = { INFO_TOPIC, DATA_TOPIC },
     partitions = NUM_SHARDS)
 @Slf4j
-public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
+public class KafkaChatHomeServiceWithShardsIT extends AbstractChatHomeServiceWithShardsIT
 {
   final static String INFO_TOPIC = "KAFKA_CHAT_HOME_TEST_INFO";
   final static String DATA_TOPIC = "KAFKA_CHAT_HOME_TEST_DATA";
@@ -61,7 +61,7 @@ public class KafkaChatHomeServiceTest extends ChatHomeServiceWithShardsTest
 
 
   @TestConfiguration
-  static class KafkaChatHomeServiceTestConfiguration
+  static class KafkaChatHomeServiceWithShardsITConfiguration
   {
     @Bean
     WorkAssignor infoChannelWorkAssignor()

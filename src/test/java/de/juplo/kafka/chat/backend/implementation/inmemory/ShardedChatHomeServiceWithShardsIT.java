@@ -1,10 +1,10 @@
 package de.juplo.kafka.chat.backend.implementation.inmemory;
 
-import de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest;
+import de.juplo.kafka.chat.backend.domain.AbstractChatHomeServiceWithShardsIT;
 import org.springframework.test.context.TestPropertySource;
 
-import static de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest.NUM_SHARDS;
-import static de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest.OWNED_SHARD;
+import static de.juplo.kafka.chat.backend.domain.AbstractChatHomeServiceWithShardsIT.NUM_SHARDS;
+import static de.juplo.kafka.chat.backend.domain.AbstractChatHomeServiceWithShardsIT.OWNED_SHARD;
 
 
 @TestPropertySource(properties = {
@@ -13,6 +13,6 @@ import static de.juplo.kafka.chat.backend.domain.ChatHomeServiceWithShardsTest.O
     "chat.backend.inmemory.owned-shards=" + OWNED_SHARD,
     "chat.backend.inmemory.storage-strategy=files",
     "chat.backend.inmemory.storage-directory=target/test-classes/data/files" })
-public class ShardedChatHomeServiceTest extends ChatHomeServiceWithShardsTest
+public class ShardedChatHomeServiceWithShardsIT extends AbstractChatHomeServiceWithShardsIT
 {
 }

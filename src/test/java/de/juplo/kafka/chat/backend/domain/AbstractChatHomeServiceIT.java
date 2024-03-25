@@ -28,9 +28,9 @@ import static pl.rzrz.assertj.reactor.Assertions.assertThat;
     InMemoryServicesConfiguration.class,
     FilesStorageConfiguration.class,
     KafkaServicesConfiguration.class,
-    ChatHomeServiceTest.TestConfiguration.class })
+    AbstractChatHomeServiceIT.TestConfiguration.class })
 @EnableConfigurationProperties(ChatBackendProperties.class)
-public abstract class ChatHomeServiceTest
+public abstract class AbstractChatHomeServiceIT
 {
   @Autowired
   ChatHomeService chatHomeService;
