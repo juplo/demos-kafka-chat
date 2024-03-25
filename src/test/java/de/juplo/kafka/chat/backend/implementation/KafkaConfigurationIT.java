@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend;
+package de.juplo.kafka.chat.backend.implementation;
 
 import de.juplo.kafka.chat.backend.implementation.kafka.ChannelTaskExecutor;
 import de.juplo.kafka.chat.backend.implementation.kafka.KafkaTestUtils;
@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 
-import static de.juplo.kafka.chat.backend.KafkaConfigurationIT.DATA_TOPIC;
-import static de.juplo.kafka.chat.backend.KafkaConfigurationIT.INFO_TOPIC;
+import static de.juplo.kafka.chat.backend.implementation.KafkaConfigurationIT.DATA_TOPIC;
+import static de.juplo.kafka.chat.backend.implementation.KafkaConfigurationIT.INFO_TOPIC;
 
 
 @SpringBootTest(

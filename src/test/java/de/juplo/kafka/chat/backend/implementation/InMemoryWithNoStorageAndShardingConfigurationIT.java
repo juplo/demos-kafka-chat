@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend;
+package de.juplo.kafka.chat.backend.implementation;
 
 import org.junit.jupiter.api.Disabled;
 import org.springframework.boot.test.context.SpringBootTest;
