@@ -25,10 +25,7 @@ public abstract class AbstractConfigurationWithShardingIT extends AbstractConfig
         .untilAsserted(() ->
           webTestClient
               .put()
-              .uri(
-                  "http://localhost:{port}/{chatRoomId}/otto/66",
-                  port,
-                  otherChatRoomId)
+              .uri("/{chatRoomId}/otto/66", otherChatRoomId)
               .contentType(MediaType.TEXT_PLAIN)
               .accept(MediaType.APPLICATION_JSON)
               .bodyValue("The devil rules route 66")
