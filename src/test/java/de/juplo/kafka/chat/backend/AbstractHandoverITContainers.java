@@ -18,13 +18,11 @@ import org.testcontainers.utility.MountableFile;
 import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 
-import static de.juplo.kafka.chat.backend.implementation.haproxy.HaproxyDataPlaneApiShardingPublisherStrategy.*;
+import static de.juplo.kafka.chat.backend.implementation.haproxy.HaproxyDataPlaneApiShardingPublisherStrategy.MAP_PARAM;
 
 
 @Slf4j
@@ -35,7 +33,6 @@ public abstract class AbstractHandoverITContainers
 
   final Network network = Network.newNetwork();
   final GenericContainer haproxy, backend1, backend2, backend3;
-  final SocketAddress haproxyAddress;
 
 
   AbstractHandoverITContainers()
@@ -46,8 +43,6 @@ public abstract class AbstractHandoverITContainers
     backend1 = createBackendContainer("1");
     backend2 = createBackendContainer("2");
     backend3 = createBackendContainer("3");
-
-    this.haproxyAddress = new InetSocketAddress("localhost", haproxy.getMappedPort(8401));
   }
 
 

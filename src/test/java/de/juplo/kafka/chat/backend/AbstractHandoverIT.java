@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import pl.rzrz.assertj.reactor.Assertions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
-@Testcontainers
 @Slf4j
 public abstract class AbstractHandoverIT
 {
