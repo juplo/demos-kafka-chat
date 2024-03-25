@@ -1,4 +1,4 @@
-package de.juplo.kafka.chat.backend;
+package de.juplo.kafka.chat.backend.storage;
 
 import de.juplo.kafka.chat.backend.storage.mongodb.ChatRoomRepository;
 import de.juplo.kafka.chat.backend.storage.mongodb.MessageRepository;
@@ -21,7 +21,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 @EnableAutoConfiguration
 @Slf4j
-public class InMemoryWithMongoDbStorageIT extends AbstractInMemoryStorageIT
+public class InMemoryWithMongoDbStorageStrategyIT extends AbstractInMemoryStorageStrategyIT
 {
   @Container
   @ServiceConnection
