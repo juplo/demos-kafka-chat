@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 
-@EqualsAndHashCode
-@ToString
+@EqualsAndHashCode(of = "name")
+@ToString(of = "name")
 class User
 {
   @Getter

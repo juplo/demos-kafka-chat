@@ -3,6 +3,7 @@ package de.juplo.kafka.chat.backend;
 import de.juplo.kafka.chat.backend.api.ChatRoomInfoTo;
 import de.juplo.kafka.chat.backend.api.MessageTo;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 
+@ToString(of = "user")
 @Slf4j
 public class TestWriter
 {
@@ -49,7 +51,7 @@ public class TestWriter
             {
               WebClientResponseException e = (WebClientResponseException)throwable;
               log.info(
-                "could not send message {} for {}: {}",
+                "Could not sent message {} for {}: {}",
                 message,
                 user.getName(),
                 e.getResponseBodyAsString());
